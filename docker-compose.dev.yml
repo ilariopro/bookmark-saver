@@ -1,0 +1,30 @@
+include:
+  - ./docker-compose.prod.yml
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bookmark_saver_app
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+    environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
+      SPRING_PROFILES_ACTIVE: dev
+
+  adminer:
+    container_name: bookmark_saver_adminer
+    environment:
+      ADMINER_DESIGN: pokorny
+    image: adminer:latest
+    ports:
+      - "8888:8080"
+    restart: on-failure

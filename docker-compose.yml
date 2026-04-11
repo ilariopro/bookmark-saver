@@ -1,0 +1,4 @@
+name: bookmark_saver
+
+include:
+  - ./docker-compose.${ENVIRONMENT:-prod}.yml
