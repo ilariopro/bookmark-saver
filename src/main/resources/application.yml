@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: bookmark-saver
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  flyway:
+    enabled: true
+    locations: classpath:database/migrations
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+  web:
+    resources:
+      add-mappings: false
+
+server:
+  error:
+    whitelabel:
+      enabled: false

@@ -1,0 +1,8 @@
+logging:
+  level:
+    root: WARN
+    web: INFO
+
+spring:
+  jpa:
+    show-sql: false
