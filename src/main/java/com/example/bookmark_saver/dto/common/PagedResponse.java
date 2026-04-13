@@ -6,10 +6,10 @@ import java.util.List;
  * Generic response wrapper for paginated results.
  */
 public record PagedResponse<T>(
-    List<T> data,
-    PageInfo meta
+    PageInfo meta,
+    List<T> data
 ) {
     public static <T> PagedResponse<T> of(List<T> data, PageInfo page) {
-        return new PagedResponse<>(data, page);
+        return new PagedResponse<>(page, data);
     }
 }
