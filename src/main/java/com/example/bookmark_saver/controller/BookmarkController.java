@@ -10,6 +10,9 @@ import com.example.bookmark_saver.service.BookmarkService;
 
 import jakarta.validation.Valid;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -49,7 +52,7 @@ public class BookmarkController {
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite If non-null, filters by favorite status.
-     * @param tag      If non-blank, filters by tag name (case-insensitive).
+     * @param tags     If non-blank, filters by tag names (case-insensitive).
      * @param pageable The pagination information.
      * 
      * @return A paged list of {@link BookmarkResponse}.
@@ -57,11 +60,13 @@ public class BookmarkController {
     @GetMapping
     public ResponseEntity<PagedResponse<BookmarkResponse>> list(
         @RequestParam(required = false) Boolean favorite,
-        @RequestParam(required = false) String tag,
+        @RequestParam(required = false) String tags,
         Pageable pageable
     ) {
+        List<String> parsedTags = parseCommaSeparetadList(tags);
+        
         Page<BookmarkResponse> page = service
-            .findAll(favorite, tag, pageable)
+            .findAll(favorite, parsedTags, pageable)
             .map(BookmarkResponse::from);
 
         return ResponseEntity.ok(
@@ -149,5 +154,25 @@ public class BookmarkController {
         service.delete(bookmarkId);
  
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Parses a comma-separated string into a normalized list of tokens.
+     * 
+     * Handles null input, trims whitespace, removes blank entries and duplicates.
+     *
+     * @param value The raw comma-separated string (e.g. "java, spring, ,java").
+     * @return List of normalized strings, or an empty list if value is null or blank.
+     */
+    private List<String> parseCommaSeparetadList(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(value.split(","))
+            .map(String::strip)
+            .filter(string -> !string.isBlank())
+            .distinct()
+            .toList();
     }
 }
