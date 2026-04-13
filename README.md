@@ -36,6 +36,26 @@ The project provides a clean and scalable backend architecture with support for 
 
 ### Run with Docker
 
+Before starting, create your local `.env` file from the example provided in the project:
+
+```bash
+cp .env.example .env
+```
+
+Then set the environment variables you need, including `ENVIRONMENT`, which is used to load the corresponding Docker Compose file.
+
+For example:
+
+```env
+ENVIRONMENT=dev
+```
+
+This will load `docker-compose.dev.yml`
+
+If not specified, the application defaults to `docker-compose.prod.yml`.
+
+Finally, start the environment with:
+
 ```bash
 docker compose up --build
 ```
@@ -100,7 +120,7 @@ The project is actively evolving with a focus on:
 
 Planned improvements and future work:
 
-- [ ] Support multiple tags in filtering
+- [x] Support multiple tags in filtering
 - [ ] Improve metadata extraction
 - [ ] Add JWT authentication with protected routes
 - [ ] Add full test coverage
