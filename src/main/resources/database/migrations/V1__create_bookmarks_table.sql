@@ -3,13 +3,12 @@ CREATE TABLE bookmarks (
     url VARCHAR(2048) NOT NULL,
     notes TEXT,
     favorite BOOLEAN NOT NULL DEFAULT FALSE,
-
-    meta_title VARCHAR(255),
-    meta_description VARCHAR(500),
-    meta_image_url VARCHAR(2048),
-
+    metadata JSONB,
+    metadata_status VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_bookmarks_favorite ON bookmarks(favorite);
+
+CREATE INDEX idx_bookmark_metadata_domain ON bookmarks ((metadata->>'domain'));

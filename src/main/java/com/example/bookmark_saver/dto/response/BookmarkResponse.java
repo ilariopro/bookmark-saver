@@ -2,6 +2,7 @@ package com.example.bookmark_saver.dto.response;
 
 import com.example.bookmark_saver.domain.Bookmark;
 import com.example.bookmark_saver.domain.Metadata;
+import com.example.bookmark_saver.domain.MetadataStatus;
 
 import java.time.Instant;
 import java.util.Set;
@@ -17,6 +18,7 @@ public record BookmarkResponse(
     Boolean favorite,
     Set<TagResponse> tags,
     Metadata metadata,
+    MetadataStatus metadataStatus,
     Instant createdAt,
     Instant updatedAt
 ) {
@@ -39,6 +41,7 @@ public record BookmarkResponse(
             bookmark.isFavorite(),
             tags,
             bookmark.getMetadata(),
+            bookmark.getMetadataStatus(),
             bookmark.getCreatedAt(),
             bookmark.getUpdatedAt()
         );

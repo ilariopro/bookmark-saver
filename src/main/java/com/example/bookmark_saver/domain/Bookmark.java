@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -38,22 +40,13 @@ public class Bookmark {
     )
     private Set<Tag> tags = new HashSet<>();
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(
-            name = "title",
-            column = @Column(name = "meta_title")
-        ),
-        @AttributeOverride(
-            name = "description",
-            column = @Column(name = "meta_description", length = 500)
-        ),
-        @AttributeOverride(
-            name = "imageUrl",
-            column = @Column(name = "meta_image_url")
-        )
-    })
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
     private Metadata metadata;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MetadataStatus metadataStatus = MetadataStatus.PENDING;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -88,6 +81,10 @@ public class Bookmark {
         return this.metadata;
     }
 
+    public MetadataStatus getMetadataStatus() {
+        return this.metadataStatus;
+    }
+
     public Instant getCreatedAt() {
         return this.createdAt;
     }
@@ -114,5 +111,9 @@ public class Bookmark {
 
     public void setMetadata(Metadata metadata) {
         this.metadata = metadata;
+    }
+
+    public void setMetadataStatus(MetadataStatus status) {
+        this.metadataStatus = status;
     }
 }
