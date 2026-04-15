@@ -1,5 +1,7 @@
 # Bookmark Saver API
 
+> ⚠️ This project is in an early development stage. Features and APIs may change.
+
 A RESTful API built with **Java** and **Spring Boot** for saving and organizing bookmarks using tags.
 
 The project provides a clean and scalable backend architecture with support for bookmark management, tagging, filtering, pagination, and automatic metadata enrichment.
@@ -89,7 +91,7 @@ Bookmarks can be filtered and paginated using query parameters.
 #### Supported filters
 
 - `favorite` → filter favorite bookmarks
-- `tag` → filter by tag name (case-insensitive)
+- `tags` → filter by comma-separeted tag names (case-insensitive)
 
 #### Pagination parameters
 
@@ -103,7 +105,7 @@ Examples:
 
 ```http
 GET /api/bookmarks?favorite=true
-GET /api/bookmarks?favorite=true&tag=design
+GET /api/bookmarks?favorite=true&tags=design,tech
 GET /api/bookmarks?favorite=true&page=0&size=10&sort=createdAt,desc
 ```
 
@@ -121,7 +123,7 @@ The project is actively evolving with a focus on:
 Planned improvements and future work:
 
 - [x] Support multiple tags in filtering
-- [ ] Improve metadata extraction
+- [x] Improve metadata extraction
 - [ ] Add JWT authentication with protected routes
 - [ ] Add full test coverage
 - [ ] Add search functionality for bookmarks
