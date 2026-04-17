@@ -200,12 +200,12 @@ public class MetadataService {
      *
      * @param doc The parsed HTML document.
      *
-     * @return The first paragraph longer than 30 characters, otherwise {@code null}.
+     * @return The first paragraph if it is long enough, otherwise {@code null}.
      */
     private String firstParagraph(Document doc) {
         return doc.select("article p").stream()
             .map(element -> element.text())
-            .filter(text -> text.length() > 30)
+            .filter(text -> text.length() >= 20)
             .findFirst()
             .orElse(null);
     }
