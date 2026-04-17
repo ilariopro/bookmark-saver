@@ -7,10 +7,10 @@ import com.example.bookmark_saver.dto.request.BookmarkRequest;
 import com.example.bookmark_saver.dto.request.IdListRequest;
 import com.example.bookmark_saver.dto.response.BookmarkResponse;
 import com.example.bookmark_saver.service.BookmarkService;
+import com.example.bookmark_saver.utility.CommaSeparatedParser;
 
 import jakarta.validation.Valid;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -63,7 +63,7 @@ public class BookmarkController {
         @RequestParam(required = false) String tags,
         Pageable pageable
     ) {
-        List<String> parsedTags = parseCommaSeparetadList(tags);
+        List<String> parsedTags = CommaSeparatedParser.parse(tags);
         
         Page<BookmarkResponse> page = service
             .findAll(favorite, parsedTags, pageable)
@@ -94,6 +94,7 @@ public class BookmarkController {
      * Creates a new bookmark.
      *
      * @param request The bookmark creation request.
+     * 
      * @return The created {@link BookmarkResponse} with HTTP 201.
      */
     @PostMapping
@@ -110,6 +111,7 @@ public class BookmarkController {
      *
      * @param bookmarkId The ID of the bookmark to update.
      * @param request    The update request.
+     * 
      * @return The updated {@link BookmarkResponse}.
      */
     @PutMapping("/{bookmarkId}")
@@ -127,6 +129,7 @@ public class BookmarkController {
      *
      * @param bookmarkId The ID of the bookmark.
      * @param request    The request containing the new tag IDs.
+     * 
      * @return The updated {@link BookmarkResponse}.
      */
     @PutMapping("/{bookmarkId}/tags")
@@ -145,6 +148,7 @@ public class BookmarkController {
      * Deletes a bookmark by its ID.
      *
      * @param bookmarkId The ID of the bookmark to delete.
+     * 
      * @return HTTP 204 No Content.
      */
     @DeleteMapping("/{bookmarkId}")
@@ -154,25 +158,5 @@ public class BookmarkController {
         service.delete(bookmarkId);
  
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Parses a comma-separated string into a normalized list of tokens.
-     * 
-     * Handles null input, trims whitespace, removes blank entries and duplicates.
-     *
-     * @param value The raw comma-separated string (e.g. "java, spring, ,java").
-     * @return List of normalized strings, or an empty list if value is null or blank.
-     */
-    private List<String> parseCommaSeparetadList(String value) {
-        if (value == null || value.isBlank()) {
-            return List.of();
-        }
-
-        return Arrays.stream(value.split(","))
-            .map(String::strip)
-            .filter(string -> !string.isBlank())
-            .distinct()
-            .toList();
     }
 }
