@@ -68,22 +68,22 @@ docker compose up --build
 
 ```http
 GET    /api/bookmarks
-GET    /api/bookmarks/{id}
+GET    /api/bookmarks/{bookmarkId}
 POST   /api/bookmarks
-PUT    /api/bookmarks/{id}
-PUT    /api/bookmarks/{id}/tags
-DELETE /api/bookmarks/{id}
+PUT    /api/bookmarks/{bookmarkId}
+PUT    /api/bookmarks/{bookmarkId}/tags
+DELETE /api/bookmarks/{bookmarkId}
 ```
 
 ### Tags
 
 ```http
 GET    /api/tags
-GET    /api/tags/{id}
+GET    /api/tags/{tagId}
 POST   /api/tags
-PUT    /api/tags/{id}
-PUT    /api/tags/{id}/bookmarks
-DELETE /api/tags/{id}
+PUT    /api/tags/{tagId}
+PUT    /api/tags/{tagId}/bookmarks
+DELETE /api/tags/{tagId}
 ```
 
 Bookmarks can be filtered and paginated using query parameters.
@@ -124,9 +124,10 @@ Planned improvements and future work:
 
 - [x] Support multiple tags in filtering
 - [x] Improve metadata extraction
+- [ ] Support for bookmark lists
 - [ ] Add JWT authentication with protected routes
 - [ ] Add full test coverage
-- [ ] Add search functionality for bookmarks
+- [ ] Add user interface
 
 ## License
 

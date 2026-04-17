@@ -138,6 +138,7 @@ public class TagController {
      * Deletes a tag by its ID.
      *
      * @param tagId The ID of the tag to delete.
+     * 
      * @return HTTP 204 No Content.
      */
     @DeleteMapping("/{tagId}")

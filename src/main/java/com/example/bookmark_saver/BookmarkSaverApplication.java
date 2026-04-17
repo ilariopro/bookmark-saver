@@ -7,8 +7,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Entry point for the Bookmark Saver application.
- *
- * Enables asynchronous execution to support background tasks.
  */
 @EnableAsync
 @EnableRetry
