@@ -1,25 +1,50 @@
+include:
+  - ./docker-compose.base.yml
+
 services:
   app:
     build:
-      context: .
+      context: ./api
       dockerfile: Dockerfile.prod
     container_name: bookmark_saver_app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
     env_file:
       - .env
-    ports:
-      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8080:8080"
+
+  # web:
+  #   build:
+  #     context: ./web
+  #     dockerfile: Dockerfile.prod
+  #   container_name: bookmark_saver_web
+  #   depends_on:
+  #     - app
+  #   ports:
+  #     - "80:80"
 
   postgres:
     image: postgres:16
     container_name: bookmark_saver_db
     env_file:
       - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

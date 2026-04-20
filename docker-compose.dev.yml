@@ -4,21 +4,33 @@ include:
 services:
   app:
     build:
-      context: .
+      context: ./api
       dockerfile: Dockerfile.dev
-    container_name: bookmark_saver_app
-    depends_on:
-      - postgres
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./src:/app/src
-      - ./pom.xml:/app/pom.xml
     environment:
-      SPRING_DEVTOOLS_RESTART_ENABLED: true
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
       SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - ./api/src:/app/src
+      - ./api/pom.xml:/app/pom.xml
+
+  # web:
+  #   build:
+  #     context: ./web
+  #     dockerfile: Dockerfile.dev
+  #   container_name: bookmark_saver_web
+  #   volumes:
+  #     - ./web:/app
+  #     - /app/node_modules # prevent mount from overwriting container's node_modules
+  #   ports:
+  #     - "4200:4200"
+  #   environment:
+  #     NODE_ENV: development
+
+  keycloak:
+    command: start-dev # no TLS required in dev mode
+    environment:
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
 
   adminer:
     container_name: bookmark_saver_adminer

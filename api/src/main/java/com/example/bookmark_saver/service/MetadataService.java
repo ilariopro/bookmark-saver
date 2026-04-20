@@ -58,6 +58,8 @@ public class MetadataService {
                 bookmark.setMetadata(metadata);
                 bookmark.setMetadataStatus(MetadataStatus.SUCCESS);
             } catch (Exception e) {
+                logger.warn("Metadata enrichment failed for bookmark {}", bookmarkId, e);
+
                 bookmark.setMetadataStatus(MetadataStatus.FAILED);
             }
 
@@ -71,6 +73,7 @@ public class MetadataService {
      * @param url The target URL.
      * 
      * @return The extracted {@link Metadata}, or an empty object on failure.
+     * @throws RuntimeException If metadata extraction fails.
      */
     @Retryable(
         retryFor = Exception.class,
@@ -116,10 +119,8 @@ public class MetadataService {
                 URI.create(url).getHost(),
                 doc.connection().response().contentType()
             );
-        } catch (Exception e) {
-            logger.warn("Metadata extraction failed for URL {}", url, e);
-
-            return new Metadata();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

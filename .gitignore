@@ -42,6 +42,11 @@ buildNumber.properties
 hs_err_pid*
 replay_pid*
 
+# Node / Angular
+node_modules/
+dist/
+.angular/
+
 # Other
 .DS_Store
 .env
