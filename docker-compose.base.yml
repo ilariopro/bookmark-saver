@@ -1,8 +1,9 @@
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:25.0
-    container_name: bookmark_saver_keycloak
     command: start
+    # command: start --import-realm
+    container_name: bookmark_saver_keycloak
     depends_on:
       keycloak-db:
         condition: service_healthy
@@ -10,9 +11,9 @@ services:
       - .env
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KEYCLOAK_POSTGRES_DB}
-      KC_DB_USERNAME: ${KEYCLOAK_POSTGRES_USER}
-      KC_DB_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KEYCLOAK_DATABASE_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DATABASE_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
       KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_ENABLED: "true" # remove if you terminate TLS directly on keycloak
@@ -25,19 +26,22 @@ services:
       start_period: 60s
     ports:
       - "8180:8080"
+    # volumes:
+    #   - ./keycloak.example.json:/opt/keycloak/data/import/keycloak.json
 
   keycloak-db:
     image: postgres:16
     container_name: bookmark_saver_keycloak_db
     environment:
-      POSTGRES_USER: ${KEYCLOAK_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${KEYCLOAK_POSTGRES_DB}
+      POSTGRES_USER: ${KEYCLOAK_DATABASE_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
+      POSTGRES_DB: ${KEYCLOAK_DATABASE_NAME}
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${KEYCLOAK_POSTGRES_USER} -d ${KEYCLOAK_POSTGRES_DB}",
+          "pg_isready -U ${KEYCLOAK_DATABASE_USER} -d
+            ${KEYCLOAK_DATABASE_NAME}",
         ]
       interval: 10s
       timeout: 5s
