@@ -129,11 +129,6 @@ public class MetadataService {
      *
      * Configures user agent, referrer, timeout, and redirect handling to improve
      * compatibility with modern websites.
-     *
-     * @param url The target URL to fetch.
-     *
-     * @return The parsed HTML {@link Document}.
-     * @throws IOException If the connection fails or the response cannot be parsed.
      */
     private Document connect(String url) throws IOException {
         return Jsoup.connect(url)
@@ -146,11 +141,6 @@ public class MetadataService {
 
     /**
      * Extracts the value of the {@code content} attribute from the first element.
-     *
-     * @param doc The parsed HTML document.
-     * @param selector The CSS selector used to locate the element.
-     *
-     * @return The attribute value, or {@code null} if no matching element is found.
      */
     private String content(Document doc, String selector) {
         Element element = doc.selectFirst(selector);
@@ -164,12 +154,6 @@ public class MetadataService {
      * Extracts an absolute URL from the specified attribute of the first element.
      *
      * Relative URLs are automatically resolved against the document base URL.
-     *
-     * @param doc The parsed HTML document.
-     * @param selector The CSS selector used to locate the element.
-     * @param attribute The attribute containing the URL value.
-     *
-     * @return The resolved absolute URL, or {@code null} if no matching element is found.
      */
     private String absolute(Document doc, String selector, String attribute) {
         Element element = doc.selectFirst(selector);
@@ -181,10 +165,6 @@ public class MetadataService {
 
     /**
      * Returns the first non-null and non-blank value from the given candidates.
-     *
-     * @param values Candidate values to evaluate in order.
-     *
-     * @return The first meaningful value, or {@code null} if none is found.
      */
     private String firstNonBlank(String... values) {
         for (String value : values) {
@@ -197,11 +177,7 @@ public class MetadataService {
     }
 
     /**
-     * Extracts the first paragraph from the article body.
-     *
-     * @param doc The parsed HTML document.
-     *
-     * @return The first paragraph if it is long enough, otherwise {@code null}.
+     * Returns the first paragraph from the article body, if it is long enough.
      */
     private String firstParagraph(Document doc) {
         return doc.select("article p").stream()

@@ -117,13 +117,7 @@ public class ErrorHandler {
 
         /**
          * Builds a {@link ProblemDetail} response.
-         *
-         * @param status    The HTTP status to return.
-         * @param exception The caught exception.
-         * @param request   The current HTTP request.
-         * 
-        * @return A {@link ProblemDetail} with status, title, instance, and error metadata.
-        */
+         */
         private ProblemDetail createProblemDetail(
                 HttpStatus status,
                 Exception exception,
