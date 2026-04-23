@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,7 +23,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(BookmarkController.class)
+@WebMvcTest(
+    controllers = BookmarkController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class
+)
 class BookmarkControllerTest {
     /**
      * HTTP test client.
@@ -113,6 +117,7 @@ class BookmarkControllerTest {
             "https://example.com",
             "notes",
             false,
+            List.of(),
             List.of()
         );
 
@@ -152,6 +157,7 @@ class BookmarkControllerTest {
             "https://updated.com",
             "new notes",
             true,
+            List.of(),
             List.of()
         );
 

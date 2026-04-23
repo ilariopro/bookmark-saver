@@ -15,6 +15,18 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, JpaSpecificationExecutor<Bookmark> {
     /**
+     * Deletes all bookmark-list associations for the given list ID.
+     *
+     * @param listId The ID of the list whose associations should be removed.
+     */
+    @Modifying
+    @Query(
+        value = "DELETE FROM bookmark_lists WHERE list_id = :listId",
+        nativeQuery = true
+    )
+    void deleteAllByListId(Long listId);
+
+    /**
      * Deletes all bookmark-tag associations for the given tag ID.
      *
      * @param tagId The ID of the tag whose associations should be removed.

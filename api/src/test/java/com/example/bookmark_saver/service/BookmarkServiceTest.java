@@ -127,6 +127,7 @@ class BookmarkServiceTest {
             "https://example.com",
             "notes",
             false,
+            List.of(),
             List.of()
         );
 
@@ -145,7 +146,8 @@ class BookmarkServiceTest {
             "https://example.com",
             "notes",
             false,
-            List.of(99L)
+            List.of(99L),
+            List.of()
         );
 
         when(tagRepository.findAllById(List.of(99L)))
@@ -168,6 +170,7 @@ class BookmarkServiceTest {
             "https://old.com",
             "new notes",
             true,
+            List.of(),
             List.of()
         );
 
@@ -192,6 +195,7 @@ class BookmarkServiceTest {
             "https://new.com",
             "notes",
             false,
+            List.of(),
             List.of()
         );
 
@@ -214,6 +218,7 @@ class BookmarkServiceTest {
             "https://example.com",
             "new notes",
             false,
+            List.of(),
             List.of()
         );
 
@@ -234,6 +239,7 @@ class BookmarkServiceTest {
             "https://example.com",
             "",
             false,
+            List.of(),
             List.of()
         );
 

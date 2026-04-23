@@ -34,6 +34,15 @@ public class Bookmark {
     @JsonManagedReference
     @ManyToMany
     @JoinTable(
+        name = "bookmark_lists",
+        joinColumns = @JoinColumn(name = "bookmark_id"),
+        inverseJoinColumns = @JoinColumn(name = "list_id")
+    )
+    private Set<BookmarkList> lists = new HashSet<>();
+
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
         name = "bookmark_tags",
         joinColumns = @JoinColumn(name = "bookmark_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id")
@@ -73,6 +82,10 @@ public class Bookmark {
         return this.favorite;
     }
 
+    public Set<BookmarkList> getLists() {
+        return this.lists;
+    }
+
     public Set<Tag> getTags() {
         return this.tags;
     }
@@ -103,6 +116,10 @@ public class Bookmark {
 
     public void setFavorite(Boolean favorite) {
         this.favorite = Boolean.TRUE.equals(favorite);
+    }
+
+    public void setLists(Set<BookmarkList> lists) {
+        this.lists = lists;
     }
 
     public void setTags(Set<Tag> tags) {

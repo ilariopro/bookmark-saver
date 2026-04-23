@@ -16,6 +16,7 @@ public record BookmarkResponse(
     String url,
     String notes,
     Boolean favorite,
+    Set<BookmarkListResponse> lists,
     Set<TagResponse> tags,
     Metadata metadata,
     MetadataStatus metadataStatus,
@@ -23,15 +24,14 @@ public record BookmarkResponse(
     Instant updatedAt
 ) {
     public static BookmarkResponse from(Bookmark bookmark) {
+        Set<BookmarkListResponse> lists = bookmark.getLists()
+            .stream()
+            .map(BookmarkListResponse::from)
+            .collect(Collectors.toSet());
+
         Set<TagResponse> tags = bookmark.getTags()
             .stream()
-            .map(tag -> new TagResponse(
-                tag.getId(),
-                tag.getName(),
-                null,
-                tag.getCreatedAt(),
-                tag.getUpdatedAt()
-            ))
+            .map(TagResponse::from)
             .collect(Collectors.toSet());
 
         return new BookmarkResponse(
@@ -39,6 +39,7 @@ public record BookmarkResponse(
             bookmark.getUrl(),
             bookmark.getNotes(),
             bookmark.isFavorite(),
+            lists,
             tags,
             bookmark.getMetadata(),
             bookmark.getMetadataStatus(),

@@ -1,8 +1,10 @@
 package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Bookmark;
+import com.example.bookmark_saver.domain.BookmarkList;
 import com.example.bookmark_saver.domain.Tag;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
+import com.example.bookmark_saver.repository.BookmarkListRepository;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 
@@ -18,7 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /**
- * Service for managing bookmarks and their associations with tags.
+ * Service for managing bookmarks and their associations with lists and tags.
  *
  * Provides CRUD operations on {@link Bookmark} entities, dynamic filtering,
  * and triggers asynchronous metadata enrichment on save and URL update.
@@ -36,6 +38,11 @@ public class BookmarkService {
     private TagRepository tagRepository;
 
     /**
+     * Repository for accessing and persisting lists.
+     */
+    private BookmarkListRepository listRepository;
+
+    /**
      * Asynchronous bookmark metadata update service.
      */
     private MetadataService metadataService;
@@ -43,15 +50,18 @@ public class BookmarkService {
     /**
      * @param bookmarkRepository The bookmark repository.
      * @param tagRepository      The tag repository.
+     * @param listRepository     The list repository.
      * @param metadataService    The metadata enrichment service.
      */
     public BookmarkService(
         BookmarkRepository bookmarkRepository,
         TagRepository tagRepository,
+        BookmarkListRepository listRepository,
         MetadataService metadataService
     ) {
         this.bookmarkRepository = bookmarkRepository;
         this.tagRepository = tagRepository;
+        this.listRepository = listRepository;
         this.metadataService = metadataService;
     }
 
@@ -125,6 +135,7 @@ public class BookmarkService {
         bookmark.setUrl(request.url());
         bookmark.setNotes(request.notes());
         bookmark.setFavorite(request.favorite());
+        bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
         
         Bookmark saved = bookmarkRepository.save(bookmark);
@@ -154,6 +165,7 @@ public class BookmarkService {
         bookmark.setUrl(request.url());
         bookmark.setNotes(request.notes());
         bookmark.setFavorite(request.favorite());
+        bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
 
         Bookmark updated = bookmarkRepository.save(bookmark);
@@ -163,6 +175,23 @@ public class BookmarkService {
         }
 
         return updated;
+    }
+
+    /**
+     * Replaces the list associations of a bookmark.
+     *
+     * @param bookmarkId The ID of the bookmark.
+     * @param listIds    The IDs of the lists to associate.
+     * 
+     * @return The updated {@link Bookmark}.
+     * @throws EntityNotFoundException If the bookmark or any list ID is not found.
+     */
+    public Bookmark updateLists(Long bookmarkId, List<Long> listIds) {
+        Bookmark bookmark = findById(bookmarkId);
+
+        bookmark.setLists(fetchLists(listIds));
+
+        return bookmarkRepository.save(bookmark);
     }
 
     /**
@@ -196,12 +225,26 @@ public class BookmarkService {
     }
 
     /**
+     * Fetches and validates a set of {@link BookmarkList} entities by their IDs.
+     */
+    private Set<BookmarkList> fetchLists(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        List<BookmarkList> lists = listRepository.findAllById(ids);
+
+        if (lists.size() != ids.size()) {
+            throw new EntityNotFoundException(
+                "One or more lists not found. Expected all listIds to exist: " + ids
+            );
+        }
+
+        return new HashSet<>(lists);
+    }
+
+    /**
      * Fetches and validates a set of {@link Tag} entities by their IDs.
-     *
-     * @param ids The list of tag IDs.
-     * 
-     * @return A {@link Set} of matching {@link Tag} entities, or an empty set if IDs are null or empty.
-     * @throws EntityNotFoundException If any of the provided IDs do not match an existing tag.
      */
     private Set<Tag> fetchTags(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {

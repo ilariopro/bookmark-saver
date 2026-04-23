@@ -1,13 +1,14 @@
 package com.example.bookmark_saver.controller;
 
-import com.example.bookmark_saver.dto.common.PageInfo;
-import com.example.bookmark_saver.dto.common.PagedResponse;
-import com.example.bookmark_saver.dto.common.BasicResponse;
+import com.example.bookmark_saver.domain.Bookmark;
+import com.example.bookmark_saver.dto.common.ApiListResponse;
+import com.example.bookmark_saver.dto.common.ApiResponse;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
 import com.example.bookmark_saver.dto.request.IdListRequest;
 import com.example.bookmark_saver.dto.response.BookmarkResponse;
 import com.example.bookmark_saver.service.BookmarkService;
 import com.example.bookmark_saver.utility.CommaSeparatedParser;
+import com.example.bookmark_saver.utility.ResponseFactory;
 
 import jakarta.validation.Valid;
 
@@ -52,25 +53,23 @@ public class BookmarkController {
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite If non-null, filters by favorite status.
+     * @param list     // TODO add support for list filtering
      * @param tags     If non-blank, filters by tag names (case-insensitive).
      * @param pageable The pagination information.
      * 
      * @return A paged list of {@link BookmarkResponse}.
      */
     @GetMapping
-    public ResponseEntity<PagedResponse<BookmarkResponse>> list(
+    public ResponseEntity<ApiListResponse<BookmarkResponse>> list(
         @RequestParam(required = false) Boolean favorite,
         @RequestParam(required = false) String tags,
         Pageable pageable
     ) {
         List<String> parsedTags = CommaSeparatedParser.parse(tags);
-        
-        Page<BookmarkResponse> page = service
-            .findAll(favorite, parsedTags, pageable)
-            .map(BookmarkResponse::from);
+        Page<Bookmark> bookmarks = service.findAll(favorite, parsedTags, pageable);
 
         return ResponseEntity.ok(
-            PagedResponse.of(page.getContent(), PageInfo.from(page))
+            ResponseFactory.page(bookmarks, BookmarkResponse::from)
         );
     }
 
@@ -82,11 +81,11 @@ public class BookmarkController {
      * @return The matching {@link BookmarkResponse}.
      */
     @GetMapping("/{bookmarkId}")
-    public ResponseEntity<BasicResponse<BookmarkResponse>> get(
+    public ResponseEntity<ApiResponse<BookmarkResponse>> get(
         @PathVariable Long bookmarkId
     ) {
         return ResponseEntity.ok(
-            BasicResponse.of(BookmarkResponse.from(service.findById(bookmarkId)))
+            ResponseFactory.one(service.findById(bookmarkId), BookmarkResponse::from)
         );
     }
 
@@ -98,12 +97,12 @@ public class BookmarkController {
      * @return The created {@link BookmarkResponse} with HTTP 201.
      */
     @PostMapping
-    public ResponseEntity<BasicResponse<BookmarkResponse>> create(
+    public ResponseEntity<ApiResponse<BookmarkResponse>> create(
         @Valid @RequestBody BookmarkRequest request
     ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(BasicResponse.of(BookmarkResponse.from(service.save(request))));
+            .body(ResponseFactory.one(service.save(request), BookmarkResponse::from));
     }
 
     /**
@@ -115,12 +114,30 @@ public class BookmarkController {
      * @return The updated {@link BookmarkResponse}.
      */
     @PutMapping("/{bookmarkId}")
-    public ResponseEntity<BasicResponse<BookmarkResponse>> update(
+    public ResponseEntity<ApiResponse<BookmarkResponse>> update(
         @PathVariable Long bookmarkId,
         @Valid @RequestBody BookmarkRequest request
     ) {
         return ResponseEntity.ok(
-            BasicResponse.of(BookmarkResponse.from(service.update(bookmarkId, request)))
+            ResponseFactory.one(service.update(bookmarkId, request), BookmarkResponse::from)
+        );
+    }
+
+    /**
+     * Replaces the list associations of a bookmark.
+     *
+     * @param bookmarkId The ID of the bookmark.
+     * @param request    The request containing the new list IDs.
+     * 
+     * @return The updated {@link BookmarkResponse}.
+     */
+    @PutMapping("/{bookmarkId}/lists")
+    public ResponseEntity<ApiResponse<BookmarkResponse>> updateLists(
+        @PathVariable Long bookmarkId,
+        @RequestBody IdListRequest request
+    ) {
+        return ResponseEntity.ok(
+            ResponseFactory.one(service.updateLists(bookmarkId, request.ids()), BookmarkResponse::from)
         );
     }
 
@@ -133,14 +150,12 @@ public class BookmarkController {
      * @return The updated {@link BookmarkResponse}.
      */
     @PutMapping("/{bookmarkId}/tags")
-    public ResponseEntity<BasicResponse<BookmarkResponse>> updateTags(
+    public ResponseEntity<ApiResponse<BookmarkResponse>> updateTags(
         @PathVariable Long bookmarkId,
         @RequestBody IdListRequest request
     ) {
         return ResponseEntity.ok(
-            BasicResponse.of(
-                BookmarkResponse.from(service.updateTags(bookmarkId, request.ids()))
-            )
+            ResponseFactory.one(service.updateTags(bookmarkId, request.ids()), BookmarkResponse::from)
         );
     }
 

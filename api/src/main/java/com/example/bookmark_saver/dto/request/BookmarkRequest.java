@@ -17,5 +17,7 @@ public record BookmarkRequest(
     
     Boolean favorite,
 
+    List<Long> listIds,
+
     List<Long> tagIds
 ) {}
