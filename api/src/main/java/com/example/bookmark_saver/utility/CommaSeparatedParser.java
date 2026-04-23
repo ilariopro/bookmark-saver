@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * // TODO add description
+ * Parses comma-separated input into a clean list of distinct, trimmed values.
  */
 public class CommaSeparatedParser {
     /**
