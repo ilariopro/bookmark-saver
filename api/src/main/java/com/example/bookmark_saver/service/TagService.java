@@ -8,8 +8,6 @@ import com.example.bookmark_saver.repository.TagRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -54,14 +52,12 @@ public class TagService {
     }
 
     /**
-     * Returns a paginated list of tags.
-     *
-     * @param pageable The pagination information.
+     * Returns the complete list of tags.
      * 
-     * @return A {@link Page} of {@link Tag} entities.
+     * @return The complete of tag entities.
      */
-    public Page<Tag> findAll(Pageable pageable) {
-        return tagRepository.findAll(pageable);
+    public List<Tag> findAll() {
+        return tagRepository.findAll();
     }
 
     /**
@@ -69,7 +65,7 @@ public class TagService {
      *
      * @param tagId The ID of the tag.
      * 
-     * @return The matching {@link Tag}.
+     * @return The matching tag.
      * @throws EntityNotFoundException If no tag is found with the given ID.
      */
     public Tag findById(Long tagId) {
@@ -85,7 +81,7 @@ public class TagService {
      *
      * @param request The tag creation request.
      * 
-     * @return The saved {@link Tag}.
+     * @return The saved tag.
      */
     public Tag save(TagRequest request) {
         Tag tag = new Tag();
@@ -104,7 +100,7 @@ public class TagService {
      * @param tagId   The ID of the tag to update.
      * @param request The update request containing the new name.
      * 
-     * @return The updated or merged {@link Tag}.
+     * @return The updated or merged tag.
      * @throws EntityNotFoundException If no tag is found with the given ID.
      */
     @Transactional
@@ -161,7 +157,7 @@ public class TagService {
      * @param tagId       The ID of the tag.
      * @param bookmarkIds The IDs of the bookmarks to associate.
      * 
-     * @return The updated {@link Tag} with its new associations.
+     * @return The updated tag with its new associations.
      * @throws EntityNotFoundException If no tag is found with the given ID.
      */
     @Transactional
@@ -198,10 +194,6 @@ public class TagService {
 
     /**
      * Normalizes a tag name.
-     *
-     * @param name The raw tag name.
-     * 
-     * @return The normalized name.
      */
     private String normalizeName(String name) {
         return name

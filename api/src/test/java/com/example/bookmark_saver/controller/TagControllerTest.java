@@ -8,9 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,7 +21,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(TagController.class)
+@WebMvcTest(
+    controllers = TagController.class,
+    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class
+)
 class TagControllerTest {
     /**
      * HTTP test client.
@@ -46,11 +48,11 @@ class TagControllerTest {
     // ---------------------------------------------------------------
 
     @Test
-    void listReturnsPagedTags() throws Exception {
-        Page<Tag> page = new PageImpl<>(List.of(TagFixture.withDefaults()));
+    void listReturnsTagList() throws Exception {
+        List<Tag> tags = List.of(TagFixture.withDefaults());
 
-        when(service.findAll(any()))
-            .thenReturn(page);
+        when(service.findAll())
+            .thenReturn(tags);
 
         mockMvc
             .perform(get("/api/tags"))

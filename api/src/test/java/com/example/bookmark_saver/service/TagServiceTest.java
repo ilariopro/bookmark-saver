@@ -13,9 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -57,16 +54,16 @@ class TagServiceTest {
     // ---------------------------------------------------------------
 
     @Test
-    void findAllReturnsPaginatedTags() {
-        Page<Tag> page = new PageImpl<>(List.of(TagFixture.withDefaults()));
+    void findAllReturnsAllTags() {
+        List<Tag> tags = List.of(TagFixture.withDefaults());
 
-        when(tagRepository.findAll(any(Pageable.class)))
-            .thenReturn(page);
+        when(tagRepository.findAll())
+            .thenReturn(tags);
 
-        Page<Tag> result = service.findAll(Pageable.unpaged());
+        List<Tag> result = service.findAll();
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getName()).isEqualTo("java");
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getName()).isEqualTo("java");
     }
 
     // ---------------------------------------------------------------

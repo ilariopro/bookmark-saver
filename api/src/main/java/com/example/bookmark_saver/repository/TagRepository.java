@@ -16,7 +16,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      * Finds a tag by its name.
      *
      * @param name The name to search for.
-     * @return An {@link Optional} containing the matching {@link Tag}, or empty if not found.
+     * @return An {@link Optional} containing the matching tag, or empty if not found.
      */
     Optional<Tag> findByName(String name);
 }

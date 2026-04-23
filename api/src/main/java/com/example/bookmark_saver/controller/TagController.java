@@ -1,17 +1,15 @@
 package com.example.bookmark_saver.controller;
 
-import com.example.bookmark_saver.dto.common.PageInfo;
-import com.example.bookmark_saver.dto.common.PagedResponse;
-import com.example.bookmark_saver.dto.common.BasicResponse;
+import com.example.bookmark_saver.dto.common.ApiListResponse;
+import com.example.bookmark_saver.dto.common.ApiResponse;
 import com.example.bookmark_saver.dto.request.IdListRequest;
 import com.example.bookmark_saver.dto.request.TagRequest;
 import com.example.bookmark_saver.dto.response.TagResponse;
 import com.example.bookmark_saver.service.TagService;
+import com.example.bookmark_saver.utility.ResponseFactory;
 
 import jakarta.validation.Valid;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,22 +43,14 @@ public class TagController {
     }
 
     /**
-     * Returns a paginated list of tags.
-     *
-     * @param pageable The pagination information.
+     * Returns all tags.
      * 
-     * @return A paged list of {@link TagResponse}.
+     * @return The complete list of {@link TagResponse}.
      */
     @GetMapping
-    public ResponseEntity<PagedResponse<TagResponse>> list(
-        Pageable pageable
-    ) {
-        Page<TagResponse> page = service
-            .findAll(pageable)
-            .map(TagResponse::from);
-
+    public ResponseEntity<ApiListResponse<TagResponse>> list() {
         return ResponseEntity.ok(
-            PagedResponse.of(page.getContent(), PageInfo.from(page))
+            ResponseFactory.list(service.findAll(), TagResponse::from)
         );
     }
 
@@ -72,11 +62,11 @@ public class TagController {
      * @return The matching {@link TagResponse}.
      */
     @GetMapping("/{tagId}")
-    public ResponseEntity<BasicResponse<TagResponse>> get(
+    public ResponseEntity<ApiResponse<TagResponse>> get(
         @PathVariable Long tagId
     ) {
         return ResponseEntity.ok(
-            BasicResponse.of(TagResponse.from(service.findById(tagId)))
+            ResponseFactory.one(service.findById(tagId), TagResponse::from)
         );
     }
 
@@ -88,12 +78,12 @@ public class TagController {
      * @return The created {@link TagResponse} with HTTP 201.
      */
     @PostMapping
-    public ResponseEntity<BasicResponse<TagResponse>> create(
+    public ResponseEntity<ApiResponse<TagResponse>> create(
         @Valid @RequestBody TagRequest request
     ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(BasicResponse.of(TagResponse.from(service.save(request))));
+            .body(ResponseFactory.one(service.save(request), TagResponse::from));
     }
 
     /**
@@ -105,12 +95,12 @@ public class TagController {
      * @return The updated {@link TagResponse}.
      */
     @PutMapping("/{tagId}")
-    public ResponseEntity<BasicResponse<TagResponse>> update(
+    public ResponseEntity<ApiResponse<TagResponse>> update(
         @PathVariable Long tagId,
         @Valid @RequestBody TagRequest request
     ) {
         return ResponseEntity.ok(
-            BasicResponse.of(TagResponse.from(service.update(tagId, request)))
+            ResponseFactory.one(service.update(tagId, request), TagResponse::from)
         );
     }
 
@@ -123,14 +113,12 @@ public class TagController {
      * @return The updated {@link TagResponse}.
      */
     @PutMapping("/{tagId}/bookmarks")
-    public ResponseEntity<BasicResponse<TagResponse>> updateBookmarks(
+    public ResponseEntity<ApiResponse<TagResponse>> updateBookmarks(
         @PathVariable Long tagId,
         @RequestBody IdListRequest request
     ) {
         return ResponseEntity.ok(
-            BasicResponse.of(
-                TagResponse.from(service.updateBookmarks(tagId, request.ids()))
-            )
+            ResponseFactory.one(service.updateBookmarks(tagId, request.ids()), TagResponse::from)
         );
     }
 

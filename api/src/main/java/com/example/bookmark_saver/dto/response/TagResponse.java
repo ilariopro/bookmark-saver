@@ -12,20 +12,20 @@ import java.util.stream.Collectors;
 public record TagResponse(
     Long id,
     String name,
-    Set<BookmarkResponse> bookmarks,
+    Set<Long> bookmarkIds,
     Instant createdAt,
     Instant updatedAt
 ) {
     public static TagResponse from(Tag tag) {
-        Set<BookmarkResponse> bookmarks = tag.getBookmarks()
+        Set<Long> bookmarkIds = tag.getBookmarks()
             .stream()
-            .map(BookmarkResponse::from)
+            .map(bookmark -> bookmark.getId())
             .collect(Collectors.toSet());
 
         return new TagResponse(
             tag.getId(),
             tag.getName(),
-            bookmarks,
+            bookmarkIds,
             tag.getCreatedAt(),
             tag.getUpdatedAt()
         );
