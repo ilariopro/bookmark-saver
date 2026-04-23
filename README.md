@@ -1,17 +1,17 @@
-# Bookmark Saver API
+# Bookmark Saver
 
 > ⚠️ This project is in an early development stage. Features and APIs may change.
 
-A RESTful API built with **Java** and **Spring Boot** for saving and organizing bookmarks using tags.
+A RESTful API built with **Java** and **Spring Boot** for saving and organizing bookmarks using lists and tags.
 
 The project provides a clean and scalable backend architecture with support for bookmark management, tagging, filtering, pagination, and automatic metadata enrichment.
 
 ## Features
 
 - Create, update, retrieve, and delete bookmarks
-- Organize bookmarks with tags
-- Bulk tag ↔ bookmark association updates
-- Filter bookmarks by favorite and tag
+- Organize bookmarks with lists and tags
+- Bulk lists / tag associations
+- Filter bookmark results via query parameters
 - Pagination support
 - Automatic metadata enrichment
 - Flyway database migrations
@@ -71,8 +71,20 @@ GET    /api/bookmarks
 GET    /api/bookmarks/{bookmarkId}
 POST   /api/bookmarks
 PUT    /api/bookmarks/{bookmarkId}
+PUT    /api/bookmarks/{bookmarkId}/lists
 PUT    /api/bookmarks/{bookmarkId}/tags
 DELETE /api/bookmarks/{bookmarkId}
+```
+
+### Lists
+
+```http
+GET    /api/lists
+GET    /api/lists/{listId}
+POST   /api/lists
+PUT    /api/lists/{listId}
+PUT    /api/lists/{listId}/bookmarks
+DELETE /api/lists/{listId}
 ```
 
 ### Tags
@@ -91,7 +103,8 @@ Bookmarks can be filtered and paginated using query parameters.
 #### Supported filters
 
 - `favorite` → filter favorite bookmarks
-- `tags` → filter by comma-separeted tag names (case-insensitive)
+- `listIds`  → filter by comma-separeted list ids
+- `tagIds`   → filter by comma-separeted tag ids
 
 #### Pagination parameters
 
@@ -105,7 +118,7 @@ Examples:
 
 ```http
 GET /api/bookmarks?favorite=true
-GET /api/bookmarks?favorite=true&tags=design,tech
+GET /api/bookmarks?favorite=true&listIds=1&tagIds=1,2
 GET /api/bookmarks?favorite=true&page=0&size=10&sort=createdAt,desc
 ```
 
@@ -113,7 +126,7 @@ GET /api/bookmarks?favorite=true&page=0&size=10&sort=createdAt,desc
 
 The project is actively evolving with a focus on:
 
-- bookmark / tag management
+- bookmark / list / tag management
 - clean REST API design
 - security
 - scalability
@@ -124,9 +137,9 @@ Planned improvements and future work:
 
 - [x] Support multiple tags in filtering
 - [x] Improve metadata extraction
-- [ ] Support for bookmark lists
+- [x] Support for bookmark lists
+- [x] Add full test coverage
 - [ ] Add JWT authentication with protected routes
-- [ ] Add full test coverage
 - [ ] Add user interface
 
 ## License
