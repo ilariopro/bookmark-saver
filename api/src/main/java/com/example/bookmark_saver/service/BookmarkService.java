@@ -69,34 +69,46 @@ public class BookmarkService {
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite  If non-null, filters by favorite status.
-     * @param tags      If non-blank, filters by tag names (case-insensitive).
+     * @param listId    If non-blank, filters by list id.
+     * @param tagIds    If non-blank, filters by tag ids.
      * @param pageable  The pagination information.
      * 
      * @return A {@link Page} of matching {@link Bookmark} entities.
      */
     public Page<Bookmark> findAll(
         Boolean favorite,
-        List<String> tags,
+        Long listId,
+        List<Long> tagIds,
         Pageable pageable
     ) {
         Specification<Bookmark> spec = (root, query, criteria) -> criteria.conjunction();
 
         if (favorite != null) {
             spec = spec.and((root, query, criteria) ->
-                criteria.equal(root.get("favorite"), favorite)
+                criteria.equal(
+                    root.get("favorite"),
+                    favorite
+                )
             );
         }
 
-        if (tags != null && !tags.isEmpty()) {
-            for (String tag : tags) {
-                if (tag.isBlank()) continue;
+        if (listId != null) {
+            spec = spec.and((root, query, criteria) ->
+                criteria.equal(
+                    root.join("list").get("id"),
+                    listId
+                )
+            );
+        }
 
+        if (tagIds != null && !tagIds.isEmpty()) {
+            for (Long tagId : tagIds) {
                 spec = spec.and((root, query, criteria) -> {
                     query.distinct(true);
 
                     return criteria.equal(
-                        criteria.lower(root.join("tags").get("name")),
-                        tag.toLowerCase()
+                        root.join("tags").get("id"),
+                        tagId
                     );
                 });
             }

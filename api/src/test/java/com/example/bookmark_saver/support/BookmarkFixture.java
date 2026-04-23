@@ -7,22 +7,22 @@ import com.example.bookmark_saver.domain.Bookmark;
  */
 public class BookmarkFixture {
     public static Bookmark withDefaults() {
-        return create(1L, "https://example.com");
+        return create(1L, "https://example.com", null);
     }
 
     public static Bookmark withId(Long id) {
-        return create(id, "https://example.com");
+        return create(id, "https://example.com", null);
     }
 
     public static Bookmark withUrl(String url) {
-        return create(1L, url);
+        return create(1L, url, null);
     }
 
-    public static Bookmark create(Long id, String url) {
+    public static Bookmark create(Long id, String url, String notes) {
         Bookmark bookmark = new Bookmark();
 
         bookmark.setUrl(url);
-        bookmark.setNotes("some notes");
+        bookmark.setNotes(notes);
         bookmark.setFavorite(false);
         
         try {

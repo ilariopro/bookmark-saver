@@ -1,11 +1,14 @@
 package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Bookmark;
+import com.example.bookmark_saver.domain.BookmarkList;
 import com.example.bookmark_saver.domain.Tag;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
+import com.example.bookmark_saver.repository.BookmarkListRepository;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 import com.example.bookmark_saver.support.BookmarkFixture;
+import com.example.bookmark_saver.support.BookmarkListFixture;
 import com.example.bookmark_saver.support.TagFixture;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -36,6 +39,12 @@ class BookmarkServiceTest {
      */
     @Mock
     private BookmarkRepository bookmarkRepository;
+
+    /**
+     * List repository mock.
+     */
+    @Mock
+    private BookmarkListRepository listRepository;
 
     /**
      * Tag repository mock.
@@ -75,7 +84,7 @@ class BookmarkServiceTest {
         when(bookmarkRepository.findAll(anySpec(), any(Pageable.class)))
             .thenReturn(page);
 
-        Page<Bookmark> result = service.findAll(null, List.of(), Pageable.unpaged());
+        Page<Bookmark> result = service.findAll(null, null, List.of(), Pageable.unpaged());
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getUrl()).isEqualTo("https://example.com");
@@ -86,7 +95,7 @@ class BookmarkServiceTest {
         when(bookmarkRepository.findAll(anySpec(), any(Pageable.class)))
             .thenReturn(Page.empty());
 
-        service.findAll(true, List.of(), Pageable.unpaged());
+        service.findAll(true, null, List.of(), Pageable.unpaged());
 
         verify(bookmarkRepository).findAll(anySpec(), any(Pageable.class));
     }
@@ -141,13 +150,31 @@ class BookmarkServiceTest {
     }
 
     @Test
-    void saveThrowsWhenTagIdDoesNotExist() {
+    void saveThrowsWhenListIdDoesNotExist() {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "notes",
             false,
             List.of(99L),
             List.of()
+        );
+
+        when(listRepository.findAllById(List.of(99L)))
+            .thenReturn(List.of());
+
+        assertThatThrownBy(() -> service.save(request))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessageContaining("99");
+    }
+
+    @Test
+    void saveThrowsWhenTagIdDoesNotExist() {
+        BookmarkRequest request = new BookmarkRequest(
+            "https://example.com",
+            "notes",
+            false,
+            List.of(),
+            List.of(99L)
         );
 
         when(tagRepository.findAllById(List.of(99L)))
@@ -188,12 +215,12 @@ class BookmarkServiceTest {
 
     @Test
     void updateTriggersMetadataEnrichmentWhenUrlChanges() {
-        Bookmark existing = BookmarkFixture.create(1L, "https://old.com");
-        Bookmark updated = BookmarkFixture.create(1L, "https://new.com");
+        Bookmark existing = BookmarkFixture.create(1L, "https://old.com", "Old notes");
+        Bookmark updated = BookmarkFixture.create(1L, "https://new.com", "New notes");
         
         BookmarkRequest request = new BookmarkRequest(
             "https://new.com",
-            "notes",
+            "New notes",
             false,
             List.of(),
             List.of()
@@ -247,6 +274,39 @@ class BookmarkServiceTest {
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.update(99L, request))
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessageContaining("99");
+    }
+
+    // ---------------------------------------------------------------
+    // updateLists
+    // ---------------------------------------------------------------
+
+    @Test
+    void updateListsReplacesAllAssociations() {
+        Bookmark existing = BookmarkFixture.withDefaults();
+        BookmarkList list = BookmarkListFixture.withId(10L);
+
+        when(bookmarkRepository.findById(1L))
+            .thenReturn(Optional.of(existing));
+
+        when(listRepository.findAllById(List.of(10L)))
+            .thenReturn(List.of(list));
+        
+        when(bookmarkRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Bookmark result = service.updateLists(1L, List.of(10L));
+
+        assertThat(result.getLists()).containsExactly(list);
+    }
+
+    @Test
+    void updateListsThrowsWhenBookmarkNotFound() {
+        when(bookmarkRepository.findById(99L))
+            .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.updateLists(99L, List.of(1L)))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("99");
     }

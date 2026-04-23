@@ -53,8 +53,8 @@ public class BookmarkController {
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite If non-null, filters by favorite status.
-     * @param list     // TODO add support for list filtering
-     * @param tags     If non-blank, filters by tag names (case-insensitive).
+     * @param listId   If non-blank, filters by list id.
+     * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable The pagination information.
      * 
      * @return A paged list of {@link BookmarkResponse}.
@@ -62,11 +62,27 @@ public class BookmarkController {
     @GetMapping
     public ResponseEntity<ApiListResponse<BookmarkResponse>> list(
         @RequestParam(required = false) Boolean favorite,
-        @RequestParam(required = false) String tags,
+        @RequestParam(required = false) String listId,
+        @RequestParam(required = false) String tagIds,
         Pageable pageable
     ) {
-        List<String> parsedTags = CommaSeparatedParser.parse(tags);
-        Page<Bookmark> bookmarks = service.findAll(favorite, parsedTags, pageable);
+        Long parsedListId = CommaSeparatedParser.parse(listId)
+            .stream()
+            .findFirst()
+            .map(Long::valueOf)
+            .orElse(null);
+
+        List<Long> parsedTagIds = CommaSeparatedParser.parse(tagIds)
+            .stream()
+            .map(Long::valueOf)
+            .toList();
+
+        Page<Bookmark> bookmarks = service.findAll(
+            favorite,
+            parsedListId,
+            parsedTagIds,
+            pageable
+        );
 
         return ResponseEntity.ok(
             ResponseFactory.page(bookmarks, BookmarkResponse::from)

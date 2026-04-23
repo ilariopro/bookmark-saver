@@ -54,7 +54,7 @@ class BookmarkControllerTest {
         Bookmark bookmark = BookmarkFixture.withDefaults();
         Page<Bookmark> page = new PageImpl<>(List.of(bookmark));
 
-        when(service.findAll(any(), any(), any()))
+        when(service.findAll(any(), any(), any(), any()))
             .thenReturn(page);
 
         mockMvc
@@ -66,7 +66,7 @@ class BookmarkControllerTest {
 
     @Test
     void listWithFavoriteFilterPassesParamToService() throws Exception {
-        when(service.findAll(eq(true), any(), any()))
+        when(service.findAll(eq(true), any(), any(), any()))
             .thenReturn(Page.empty());
 
         mockMvc
@@ -74,20 +74,32 @@ class BookmarkControllerTest {
             .param("favorite", "true"))
             .andExpect(status().isOk());
 
-        verify(service).findAll(eq(true), any(), any());
+        verify(service).findAll(eq(true), any(), any(), any());
     }
 
-    @Test
-    void listWithTagsParamParsesAndPassesTags() throws Exception {
-        when(service.findAll(any(), eq(List.of("java", "spring")), any()))
+    void listWithListIdsTakesFirstOnly() throws Exception {
+        when(service.findAll(any(), eq(10L), any(), any()))
             .thenReturn(Page.empty());
 
         mockMvc
             .perform(get("/api/bookmarks")
-            .param("tags", "java, spring"))
+            .param("listId", "10,20,30"))
             .andExpect(status().isOk());
 
-        verify(service).findAll(any(), eq(List.of("java", "spring")), any());
+        verify(service).findAll(any(), eq(10L), any(), any());
+    }
+
+    @Test
+    void listWithTagIdsParsesAndPassesIds() throws Exception {
+        when(service.findAll(any(), any(), eq(List.of(1L, 2L)), any()))
+            .thenReturn(Page.empty());
+
+        mockMvc
+            .perform(get("/api/bookmarks")
+            .param("tagIds", "1,2"))
+            .andExpect(status().isOk());
+
+        verify(service).findAll(any(), any(), eq(List.of(1L, 2L)), any());
     }
 
     // ---------------------------------------------------------------
@@ -130,6 +142,8 @@ class BookmarkControllerTest {
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.data.url").value("https://example.com"));
+
+        verify(service).save(any());
     }
 
     @Test
@@ -155,7 +169,7 @@ class BookmarkControllerTest {
         
         BookmarkRequest request = new BookmarkRequest(
             "https://updated.com",
-            "new notes",
+            "notes",
             true,
             List.of(),
             List.of()
@@ -170,6 +184,8 @@ class BookmarkControllerTest {
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.url").value("https://updated.com"));
+
+        verify(service).update(eq(1L), any());
     }
 
     // ---------------------------------------------------------------
