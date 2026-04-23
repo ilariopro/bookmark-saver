@@ -53,7 +53,7 @@ public class BookmarkController {
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite If non-null, filters by favorite status.
-     * @param listId   If non-blank, filters by list id.
+     * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable The pagination information.
      * 
@@ -62,24 +62,16 @@ public class BookmarkController {
     @GetMapping
     public ResponseEntity<ApiListResponse<BookmarkResponse>> list(
         @RequestParam(required = false) Boolean favorite,
-        @RequestParam(required = false) String listId,
+        @RequestParam(required = false) String listIds,
         @RequestParam(required = false) String tagIds,
         Pageable pageable
     ) {
-        Long parsedListId = CommaSeparatedParser.parse(listId)
-            .stream()
-            .findFirst()
-            .map(Long::valueOf)
-            .orElse(null);
-
-        List<Long> parsedTagIds = CommaSeparatedParser.parse(tagIds)
-            .stream()
-            .map(Long::valueOf)
-            .toList();
+        List<Long> parsedListIds = parseCommaSeparatedIds(listIds);
+        List<Long> parsedTagIds = parseCommaSeparatedIds(tagIds);
 
         Page<Bookmark> bookmarks = service.findAll(
             favorite,
-            parsedListId,
+            parsedListIds,
             parsedTagIds,
             pageable
         );
@@ -189,5 +181,15 @@ public class BookmarkController {
         service.delete(bookmarkId);
  
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Parses comma-separated IDs into a list of Long.
+     */
+    private List<Long> parseCommaSeparatedIds(String ids) {
+        return CommaSeparatedParser.parse(ids)
+            .stream()
+            .map(Long::valueOf)
+            .toList();
     }
 }

@@ -77,16 +77,17 @@ class BookmarkControllerTest {
         verify(service).findAll(eq(true), any(), any(), any());
     }
 
-    void listWithListIdsTakesFirstOnly() throws Exception {
-        when(service.findAll(any(), eq(10L), any(), any()))
+    @Test
+    void listWithListIdsParsesAndPassesIds() throws Exception {
+        when(service.findAll(any(), eq(List.of(1L, 2L)), any(), any()))
             .thenReturn(Page.empty());
 
         mockMvc
             .perform(get("/api/bookmarks")
-            .param("listId", "10,20,30"))
+            .param("listIds", "1,2"))
             .andExpect(status().isOk());
 
-        verify(service).findAll(any(), eq(10L), any(), any());
+        verify(service).findAll(any(), eq(List.of(1L, 2L)), any(), any());
     }
 
     @Test
