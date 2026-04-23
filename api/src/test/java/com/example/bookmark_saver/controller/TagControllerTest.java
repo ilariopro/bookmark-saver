@@ -48,7 +48,7 @@ class TagControllerTest {
     // ---------------------------------------------------------------
 
     @Test
-    void listReturnsTagList() throws Exception {
+    void listReturnsAllTags() throws Exception {
         List<Tag> tags = List.of(TagFixture.withDefaults());
 
         when(service.findAll())
@@ -93,6 +93,8 @@ class TagControllerTest {
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.data.name").value("java"));
+
+        verify(service).save(any());
     }
 
     @Test
@@ -126,6 +128,8 @@ class TagControllerTest {
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.name").value("spring"));
+
+        verify(service).update(eq(1L), any());
     }
 
     // ---------------------------------------------------------------

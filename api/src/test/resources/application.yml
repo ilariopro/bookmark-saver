@@ -1,0 +1,15 @@
+logging:
+  level:
+    # Suppress expected connection-failure warnings in MetadataService tests
+    com.example.bookmark_saver.service.MetadataService: ERROR
+
+    # Suppress FK ordering warnings from Hibernate DDL generation
+    org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl: ERROR
+
+spring:
+  flyway:
+    enabled: false
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
