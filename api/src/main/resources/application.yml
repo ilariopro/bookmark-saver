@@ -1,6 +1,9 @@
 auth:
   enabled: ${AUTH_ENABLED:false}
 
+cors:
+  origins: ${APP_WEB_URL}
+
 spring:
   application:
     name: bookmark-saver
@@ -20,6 +23,15 @@ spring:
 
   mvc:
     throw-exception-if-no-handler-found: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:}
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI:}
+          audiences: ${OAUTH2_AUDIENCES:}
+        roles-claim: ${OAUTH2_ROLES_CLAIM:}
 
   web:
     resources:
