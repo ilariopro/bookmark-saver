@@ -68,7 +68,6 @@ public class BookmarkService {
     /**
      * Returns a paginated list of bookmarks, optionally filtered.
      *
-     * @param favorite  If non-null, filters by favorite status.
      * @param listIds   If non-blank, filters by list ids.
      * @param tagIds    If non-blank, filters by tag ids.
      * @param pageable  The pagination information.
@@ -76,21 +75,11 @@ public class BookmarkService {
      * @return A {@link Page} of matching {@link Bookmark} entities.
      */
     public Page<Bookmark> findAll(
-        Boolean favorite,
         List<Long> listIds,
         List<Long> tagIds,
         Pageable pageable
     ) {
         Specification<Bookmark> spec = (root, query, criteria) -> criteria.conjunction();
-
-        if (favorite != null) {
-            spec = spec.and((root, query, criteria) ->
-                criteria.equal(
-                    root.get("favorite"),
-                    favorite
-                )
-            );
-        }
 
         if (listIds != null && !listIds.isEmpty()) {
             for (Long listId : listIds) {
@@ -150,7 +139,6 @@ public class BookmarkService {
         
         bookmark.setUrl(request.url());
         bookmark.setNotes(request.notes());
-        bookmark.setFavorite(request.favorite());
         bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
         
@@ -180,7 +168,6 @@ public class BookmarkService {
 
         bookmark.setUrl(request.url());
         bookmark.setNotes(request.notes());
-        bookmark.setFavorite(request.favorite());
         bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
 

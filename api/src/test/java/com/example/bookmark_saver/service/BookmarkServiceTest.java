@@ -84,20 +84,10 @@ class BookmarkServiceTest {
         when(bookmarkRepository.findAll(anySpec(), any(Pageable.class)))
             .thenReturn(page);
 
-        Page<Bookmark> result = service.findAll(null, null, List.of(), Pageable.unpaged());
+        Page<Bookmark> result = service.findAll(null, List.of(), Pageable.unpaged());
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getUrl()).isEqualTo("https://example.com");
-    }
-
-    @Test
-    void findAllWithFavoriteFilterPassesSpecificationToRepository() {
-        when(bookmarkRepository.findAll(anySpec(), any(Pageable.class)))
-            .thenReturn(Page.empty());
-
-        service.findAll(true, null, List.of(), Pageable.unpaged());
-
-        verify(bookmarkRepository).findAll(anySpec(), any(Pageable.class));
     }
 
     // ---------------------------------------------------------------
@@ -135,7 +125,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "notes",
-            false,
             List.of(),
             List.of()
         );
@@ -154,7 +143,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "notes",
-            false,
             List.of(99L),
             List.of()
         );
@@ -172,7 +160,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "notes",
-            false,
             List.of(),
             List.of(99L)
         );
@@ -196,7 +183,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://old.com",
             "new notes",
-            true,
             List.of(),
             List.of()
         );
@@ -210,7 +196,6 @@ class BookmarkServiceTest {
         Bookmark result = service.update(1L, request);
 
         assertThat(result.getNotes()).isEqualTo("new notes");
-        assertThat(result.isFavorite()).isTrue();
     }
 
     @Test
@@ -221,7 +206,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://new.com",
             "New notes",
-            false,
             List.of(),
             List.of()
         );
@@ -244,7 +228,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "new notes",
-            false,
             List.of(),
             List.of()
         );
@@ -265,7 +248,6 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "",
-            false,
             List.of(),
             List.of()
         );

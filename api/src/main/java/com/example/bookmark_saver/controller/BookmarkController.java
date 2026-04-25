@@ -52,7 +52,6 @@ public class BookmarkController {
     /**
      * Returns a paginated list of bookmarks, optionally filtered.
      *
-     * @param favorite If non-null, filters by favorite status.
      * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable The pagination information.
@@ -61,7 +60,6 @@ public class BookmarkController {
      */
     @GetMapping
     public ResponseEntity<ApiListResponse<BookmarkResponse>> list(
-        @RequestParam(required = false) Boolean favorite,
         @RequestParam(required = false) String listIds,
         @RequestParam(required = false) String tagIds,
         Pageable pageable
@@ -70,7 +68,6 @@ public class BookmarkController {
         List<Long> parsedTagIds = parseCommaSeparatedIds(tagIds);
 
         Page<Bookmark> bookmarks = service.findAll(
-            favorite,
             parsedListIds,
             parsedTagIds,
             pageable

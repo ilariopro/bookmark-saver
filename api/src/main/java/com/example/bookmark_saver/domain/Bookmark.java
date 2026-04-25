@@ -29,8 +29,6 @@ public class Bookmark {
     
     private String notes;
 
-    private boolean favorite = false;
-
     @JsonManagedReference
     @ManyToMany
     @JoinTable(
@@ -78,10 +76,6 @@ public class Bookmark {
         return this.notes;
     }
 
-    public Boolean isFavorite() {
-        return this.favorite;
-    }
-
     public Set<BookmarkList> getLists() {
         return this.lists;
     }
@@ -112,10 +106,6 @@ public class Bookmark {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public void setFavorite(Boolean favorite) {
-        this.favorite = Boolean.TRUE.equals(favorite);
     }
 
     public void setLists(Set<BookmarkList> lists) {

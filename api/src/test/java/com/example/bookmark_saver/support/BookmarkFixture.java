@@ -23,7 +23,6 @@ public class BookmarkFixture {
 
         bookmark.setUrl(url);
         bookmark.setNotes(notes);
-        bookmark.setFavorite(false);
         
         try {
             var field = Bookmark.class.getDeclaredField("id");

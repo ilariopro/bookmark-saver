@@ -14,8 +14,6 @@ public record BookmarkRequest(
     String url,
 
     String notes,
-    
-    Boolean favorite,
 
     List<Long> listIds,
 
