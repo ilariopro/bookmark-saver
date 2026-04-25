@@ -1,0 +1,193 @@
+.bookmark-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: box-shadow 200ms ease, transform 200ms ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    &.is-pending {
+        opacity: 0.7;
+    }
+}
+
+// Immagine
+
+.card-image-container {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    position: relative;
+
+    // quando l'immagine fallisce il load, il container mostra il placeholder
+    &.image-failed::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.08) 100%);
+    }
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.07) 100%);
+    color: rgba(0, 0, 0, 0.25);
+
+    mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+    }
+
+    span {
+        font-size: 11px;
+        max-width: 80%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+// Header
+.card-header {
+    position: relative;
+    padding-right: 40px; // spazio per l'icona di edit
+}
+
+.site-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.favicon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.favicon-fallback {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.card-subtitle {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+// Content
+.card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.description {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(0, 0, 0, 0.6);
+    display: -webkit-box;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+
+.bookmark-notes {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.5);
+    font-style: italic;
+    margin: 0;
+
+    mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+}
+
+.status-message {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin: 0;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    &.pending {
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    &.failed  {
+        color: #e53935;
+        margin: auto;
+    }
+}
+
+.bookmark-tags {
+    margin-top: auto; // spinge i tag in fondo al content
+    margin: 16px 0;
+}
+
+// Actions
+.card-actions {
+    display: flex;
+    align-items: center;
+
+    .spacer {
+        flex: 1;
+    }
+
+    .created-at {
+        font-size: 11px;
+        color: rgba(0, 0, 0, 0.4);
+        padding-right: 8px;
+    }
+}

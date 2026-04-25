@@ -1,0 +1,40 @@
+<h3 class="sidebar-section-title">Lists</h3>
+
+<mat-selection-list
+  [multiple]="false"
+  [hideSingleSelectionIndicator]="true"
+  (click)="onListClick()"
+  (selectionChange)="onListChange($event.options[0].value)">
+
+  @for (list of state.allLists(); track list.id) {
+    <mat-list-option
+      [value]="list.id"
+      [selected]="state.selectedListKey() === list.id">
+      <mat-icon matListItemIcon>{{ list.icon }}</mat-icon>
+      <span matListItemTitle>{{ list.name }}</span>
+      @if (list.count) {
+        <span matListItemLine>{{ list.count }} bookmarks</span>
+      }
+    </mat-list-option>
+  }
+
+</mat-selection-list>
+
+<mat-divider />
+
+<h3 class="sidebar-section-title">Tags</h3>
+
+<mat-chip-listbox
+    class="sidebar-tag-list mat-mdc-chip-set-stacked"
+    multiple
+    [value]="state.selectedTagIdsArray()"
+    (change)="onTagsChange($event)">
+
+    @for (tag of state.tags(); track tag.id) {
+        <mat-chip-option class="sidebar-tag-item" [value]="tag.id">
+        {{ tag.name }}
+        <!-- <span class="sidebar-tag-count">{{ tag.bookmarkIds.length }}</span> -->
+        </mat-chip-option>
+    }
+
+</mat-chip-listbox>

@@ -1,0 +1,46 @@
+.bookmarks-container {
+  padding: 24px;
+}
+
+.bookmarks-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .list-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .bookmark-count {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Loading / error / empty
+.state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.state-message {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0;
+
+  &.error {
+    color: #e53935;
+  }
+}
+
+// Grid responsive
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}

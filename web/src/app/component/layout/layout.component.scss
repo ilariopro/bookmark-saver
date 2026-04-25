@@ -1,0 +1,81 @@
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+
+  .app-name {
+    margin: 0;
+    letter-spacing: 0.1em;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+.toolbar {
+  flex-shrink: 0;
+  z-index: 100;
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.sidenav-container {
+  flex: 1;
+  overflow: hidden; // scroll gestito internamente dal sidenav-content
+}
+
+.sidenav {
+  width: 260px;           // larghezza fissa
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;       // la sidebar stessa scrolla se il contenuto è lungo
+  padding-bottom: 24px;
+}
+
+.main-content {
+  padding: 0;
+  overflow-y: auto;
+
+  p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+}
+
+// ── Active filters badge ─────────────────────────────────────────
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-variant);
+  font-size: 13px;
+
+  .filter-badge {
+    padding: 8px;
+    border-radius: 99px;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
+// ── Mobile overrides ──
+
+.is-mobile {
+  height: auto;        // non vincola l'altezza a 100vh
+  overflow: visible;   // lascia che il body scrolli
+
+  .sidenav-container {
+    flex: 1 0 auto;
+    overflow: visible;
+  }
+
+  .main-content {
+    overflow-y: visible; // su mobile non è il main-content a scrollare, ma il body
+  }
+}
