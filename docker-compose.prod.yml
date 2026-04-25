@@ -1,14 +1,16 @@
-include:
-  - ./docker-compose.base.yml
-
 services:
-  app:
+
+  # ==============
+  # Application
+  # ==============
+
+  api:
     build:
       context: ./api
       dockerfile: Dockerfile.prod
-    container_name: bookmark_saver_app
+    container_name: bookmark_saver_api
     depends_on:
-      postgres:
+      database:
         condition: service_healthy
       keycloak:
         condition: service_started
@@ -19,19 +21,21 @@ services:
     ports:
       - "8080:8080"
 
-  # web:
-  #   build:
-  #     context: ./web
-  #     dockerfile: Dockerfile.prod
-  #   container_name: bookmark_saver_web
-  #   depends_on:
-  #     - app
-  #   ports:
-  #     - "80:80"
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.prod
+    container_name: bookmark_saver_web
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - api
+    ports:
+      - "80:80"
 
-  postgres:
+  database:
     image: postgres:16
-    container_name: bookmark_saver_db
+    container_name: bookmark_saver_database
     env_file:
       - .env
     environment:
@@ -39,12 +43,65 @@ services:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - database_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # ==============
+  # Keycloak
+  # ==============
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    command: start
+    container_name: bookmark_saver_keycloak
+    depends_on:
+      keycloak-database:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-database:5432/${KEYCLOAK_DATABASE_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DATABASE_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
+      KC_HEALTH_ENABLED: "true"
+      # KC_PROXY_HEADERS: xforwarded
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9000/health/ready || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+      start_period: 60s
+    ports:
+      - "8180:8080"
+    # volumes:
+    #   - ./keycloak.example.json:/opt/keycloak/data/import/keycloak.json
+
+  keycloak-database:
+    image: postgres:16
+    container_name: bookmark_saver_keycloak_database
+    environment:
+      POSTGRES_USER: ${KEYCLOAK_DATABASE_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DATABASE_PASSWORD}
+      POSTGRES_DB: ${KEYCLOAK_DATABASE_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${KEYCLOAK_DATABASE_USER} -d
+            ${KEYCLOAK_DATABASE_NAME}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - keycloak_database_data:/var/lib/postgresql/data
+
 volumes:
-  postgres_data:
+  database_data:
+  keycloak_database_data:
