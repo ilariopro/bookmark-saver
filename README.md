@@ -2,43 +2,53 @@
 
 > ⚠️ This project is in an early development stage. Features and APIs may change.
 
-A RESTful API built with **Java** and **Spring Boot** for saving and organizing bookmarks using lists and tags.
+A full-stack application for saving and organizing bookmarks, built with Spring Boot and Angular.
 
-The project provides a clean and scalable backend architecture with support for bookmark management, tagging, filtering, pagination, and automatic metadata enrichment.
+It provides a scalable backend API and a web interface, with support for lists, tags, filtering, and pagination. 
 
 ## Features
 
-- Create, update, retrieve, and delete bookmarks
+- Bookmark management (CRUD)
 - Organize bookmarks with lists and tags
-- Bulk lists / tag associations
-- Filter bookmark results via query parameters
-- Pagination support
-- Automatic metadata enrichment
+- Filtering and pagination
+- Automatic bookmark metadata extraction
+- REST API + Web UI
 - Flyway database migrations
 - PostgreSQL support
+- Docker-based setup
+- Authentication layer (via Keycloak, WIP)
 
 ## Tech Stack
+
+### Backend
 
 - Java
 - Spring Boot
 - Spring Data JPA
 - Hibernate
+
+### Frontend
+
+- Angular
+
+### Infrastructure
+
 - PostgreSQL
 - Flyway
 - Docker
+- Keycloak (work in progress)
 
 ## Getting Started
 
 ### Requirements
 
 - Java 21+
-- Maven
-- PostgreSQL
+- Node.js
 - Docker
 
 ### Run with Docker
 
-Before starting, create your local `.env` file from the example provided in the project:
+Create your local `.env` file from the example provided in the project:
 
 ```bash
 cp .env.example .env
@@ -56,7 +66,7 @@ This will load `docker-compose.dev.yml`
 
 If not specified, the application defaults to `docker-compose.prod.yml`.
 
-Finally, start the environment with:
+Finally, start everything with:
 
 ```bash
 docker compose up --build
@@ -64,83 +74,40 @@ docker compose up --build
 
 ## API Overview
 
-### Bookmarks
+The backend exposes a REST API for managing:
+
+- bookmarks
+- lists
+- tags
+
+Endpoints follow standard REST conventions:
 
 ```http
 GET    /api/bookmarks
-GET    /api/bookmarks/{bookmarkId}
+GET    /api/bookmarks/{id}
 POST   /api/bookmarks
-PUT    /api/bookmarks/{bookmarkId}
-PUT    /api/bookmarks/{bookmarkId}/lists
-PUT    /api/bookmarks/{bookmarkId}/tags
-DELETE /api/bookmarks/{bookmarkId}
+PUT    /api/bookmarks/{id}
+PUT    /api/bookmarks/{id}/lists
+PUT    /api/bookmarks/{id}/tags
+DELETE /api/bookmarks/{id}
 ```
 
-### Lists
-
-```http
-GET    /api/lists
-GET    /api/lists/{listId}
-POST   /api/lists
-PUT    /api/lists/{listId}
-PUT    /api/lists/{listId}/bookmarks
-DELETE /api/lists/{listId}
-```
-
-### Tags
-
-```http
-GET    /api/tags
-GET    /api/tags/{tagId}
-POST   /api/tags
-PUT    /api/tags/{tagId}
-PUT    /api/tags/{tagId}/bookmarks
-DELETE /api/tags/{tagId}
-```
-
-Bookmarks can be filtered and paginated using query parameters.
-
-#### Supported filters
-
-- `favorite` → filter favorite bookmarks
-- `listIds`  → filter by comma-separeted list ids
-- `tagIds`   → filter by comma-separeted tag ids
-
-#### Pagination parameters
-
-Standard Spring pagination parameters are supported:
-
-- `page`
-- `size`
-- `sort`
-
-Examples:
-
-```http
-GET /api/bookmarks?favorite=true
-GET /api/bookmarks?favorite=true&listIds=1&tagIds=1,2
-GET /api/bookmarks?favorite=true&page=0&size=10&sort=createdAt,desc
-```
+Supports filtering and pagination via query parameters.
 
 ## Project Status
 
-The project is actively evolving with a focus on:
-
-- bookmark / list / tag management
-- clean REST API design
-- security
-- scalability
+The project is evolving towards a complete self-hostable application.
 
 ### Roadmap
 
-Planned improvements and future work:
-
-- [x] Support multiple tags in filtering
-- [x] Improve metadata extraction
-- [x] Support for bookmark lists
-- [x] Add full test coverage
-- [ ] Add JWT authentication with protected routes
-- [ ] Add user interface
+- [x] Lists and tags support
+- [x] Filtering and pagination
+- [x] Flyway migrations
+- [x] Angular frontend setup
+- [ ] JWT authentication (Keycloak integration)
+- [ ] UI improvements
+- [ ] Database support improvements
+- [ ] Production-ready Docker setup
 
 ## License
 
