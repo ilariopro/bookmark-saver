@@ -1,23 +1,68 @@
 .bookmarks-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  &.is-mobile .bookmarks-content {
+    // padding-bottom: 84px; // altezza paginator (48px) + gap
+    min-height: 100vh;
+  }
+}
+
+.bookmarks-content {
+  flex: 1;
   padding: 24px;
 }
 
 .bookmarks-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 12px;
   margin-bottom: 24px;
 
-  .list-title {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
+  .spacer {
+    flex: 1;
   }
+}
 
-  .bookmark-count {
-    font-size: 13px;
-    color: rgba(0, 0, 0, 0.4);
+.title-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 2px;
+
+  h1, p {
+    width: 100%;
   }
+}
+
+.list-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.list-description {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.4;
+}
+
+.bookmark-count {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  order: 1; // dopo h1, prima di description
+}
+
+.list-description {
+  margin: 6px 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.4;
+  order: 2;
 }
 
 // Loading / error / empty
@@ -38,9 +83,32 @@
   }
 }
 
-// Grid responsive
 .bookmarks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
+}
+
+.scroll-sentinel {
+  height: 1px;       // invisibile ma rilevabile dall'observer
+  margin-top: 24px;
+}
+
+.loading-more {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.end-of-list {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 8px;
+}
+
+.add-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
 }

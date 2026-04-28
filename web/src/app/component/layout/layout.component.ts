@@ -1,5 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import { MediaMatcher } from '@angular/cdk/layout';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -12,6 +11,7 @@ import { AppSidebar } from '../sidebar/sidebar.component';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { FilterStateService } from '../../service/filter-state.service';
 import { AppBookmarks } from "../bookmarks/bookmarks.component";
+import { ResponsiveStateService } from '../../service/responsive-state.service';
 
 @Component({
   selector: 'app-layout',
@@ -29,31 +29,20 @@ import { AppBookmarks } from "../bookmarks/bookmarks.component";
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
 })
-export class AppLayout implements OnInit, OnDestroy {
-  private readonly api   = inject(BookmarkApiService);
-  readonly state         = inject(FilterStateService);
+export class AppLayout implements OnInit {
+  private readonly api        = inject(BookmarkApiService);
+  private readonly responsive = inject(ResponsiveStateService);
+  private readonly state      = inject(FilterStateService);
 
-  readonly isMobile      = signal(false);
-  readonly sidebarLoading = signal(false);
-  readonly sidebarError   = signal<string | null>(null);
+  public readonly sidebarLoading = signal(false);
+  public readonly sidebarError   = signal<string | null>(null);
 
-  private readonly _mql: MediaQueryList;
-  private readonly _mqlListener: () => void;
-
-  constructor() {
-    const media = inject(MediaMatcher);
-    this._mql = media.matchMedia('(max-width: 768px)');
-    this.isMobile.set(this._mql.matches);
-    this._mqlListener = () => this.isMobile.set(this._mql.matches);
-    this._mql.addEventListener('change', this._mqlListener);
-  }
-
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.loadSidebarData();
   }
 
-  ngOnDestroy(): void {
-    this._mql.removeEventListener('change', this._mqlListener);
+  public isMobile(): boolean {
+    return this.responsive.isMobile();
   }
 
   private loadSidebarData(): void {

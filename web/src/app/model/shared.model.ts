@@ -16,8 +16,8 @@ export interface PagedResponse<T> {
 
 export interface SidebarList {
     id: string;
-    type: 'default' | 'api'
     name: string;
+    description?: string,
     icon: string;
-    count?: number;
+    type: 'default' | 'api'
 }

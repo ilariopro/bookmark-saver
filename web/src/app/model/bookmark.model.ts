@@ -4,10 +4,11 @@ import { Tag } from "./tag.model";
 export interface Bookmark {
     id: number;
     url: string;
-    notes?: string;
+    favorite: boolean;
+    notes: string | null;
     lists: List[];
     tags: Tag[];
-    metadata?: Metadata;
+    metadata: Metadata | null;
     metadataStatus: 'PENDING' | 'SUCCESS' | 'FAILED'
     createdAt: string;
     updatedAt: string;
@@ -15,12 +16,32 @@ export interface Bookmark {
 
 export interface Metadata {
     title: string;
-    description?: string;
-    imageUrl?: string;
-    canonicalUrl?: string;
+    description: string | null;
+    imageUrl: string | null;
+    canonicalUrl: string | null;
     siteName: string;
     domain: string;
-    favicon?: string;
+    favicon: string | null;
     contentType: string;
     extractedAt: string;
+}
+
+export interface BookmarkQueryParams {
+    favorite: boolean;
+    listId: number | null;
+    tagIds: number[];
+}
+
+export interface BookmarkCreatePayload {
+    url: string;
+    notes?: string;
+    listIds: number[];
+    tagIds: number[];
+}
+
+export interface BookmarkUpdatePayload {
+    favorite?: boolean;
+    notes?: string;
+    listIds?: number[];
+    tagIds?: number[];
 }

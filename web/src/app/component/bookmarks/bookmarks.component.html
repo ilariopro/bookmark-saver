@@ -1,38 +1,73 @@
-<div class="bookmarks-container">
+<div class="bookmarks-container" [class.is-mobile]="responsive.isMobile()">
 
-  <!-- Intestazione -->
-  <div class="bookmarks-header">
-    <h1 class="list-title">{{ state.selectedList()?.name ?? '...' }}</h1>
-    @if (!loading() && bookmarks().length > 0) {
-      <span class="bookmark-count">{{ bookmarks().length }} bookmarks</span>
-    }
-  </div>
+  <div class="bookmarks-content" #top>
 
-  <!-- Loading -->
-  @if (loading()) {
-    <div class="state-container">
-      <mat-spinner diameter="40" />
-    </div>
+     <!-- Header -->
+    <div class="bookmarks-header">
+      <div class="title-container">
+        <h1 class="list-title">{{ state.selectedList()?.name ?? '...' }}</h1>
+        @if (!scroll.loading() && scroll.total() > 0) {
+          <span class="bookmark-count">{{ scroll.total() }} bookmarks</span>
+        }
+        @if (state.selectedList()?.type === 'api' && state.selectedList()?.description) {
+          <p class="list-description">{{ state.selectedList()!.description }}</p>
+        }
+      </div>
+      
+      <span class="spacer"></span>
 
-  <!-- Error -->
-  } @else if (error()) {
-    <div class="state-container">
-      <p class="state-message error">{{ error() }}</p>
-    </div>
-
-  <!-- Empty -->
-  } @else if (bookmarks().length === 0) {
-    <div class="state-container">
-      <p class="state-message">No bookmarks found.</p>
-    </div>
-
-  <!-- Grid -->
-  } @else {
-    <div class="bookmarks-grid">
-      @for (bookmark of bookmarks(); track bookmark.id) {
-        <app-bookmark-card [bookmark]="bookmark" />
+      @if (!responsive.isMobile()) {
+        <button mat-flat-button color="primary" (click)="openAddDialog()">
+          <mat-icon>add</mat-icon>
+          New
+        </button>
       }
     </div>
-  }
+    
+    @if (scroll.loading()) {
+      <div class="state-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else if (scroll.error()) {
+      <div class="state-container">
+        <p class="state-message error">{{ scroll.error() }}</p>
+      </div>
+    } @else if (scroll.items().length === 0) {
+      <div class="state-container">
+        <p class="state-message">No bookmarks found.</p>
+      </div>
+    } @else {
+      <div class="bookmarks-grid">
+        @for (bookmark of scroll.items(); track bookmark.id) {
+          <app-bookmark-card
+            [bookmark]="bookmark"
+            (updated)="reload()"
+            (deleted)="reload()" />
+        }
+      </div>
 
-</div>
+      <div #sentinel class="scroll-sentinel"></div>
+
+      @if (scroll.loadingMore()) {
+        <div class="loading-more">
+          <mat-spinner diameter="28" />
+        </div>
+      }
+
+      @if (!scroll.hasMore() && scroll.items().length > 0) {
+        <div class="end-of-list">
+          <button mat-button (click)="scrollToTop()">
+            <mat-icon>arrow_upward</mat-icon>
+            Back to top
+          </button>
+        </div>
+      }
+    }
+
+  </div>
+
+@if (responsive.isMobile()) {
+  <button mat-fab color="primary" class="add-fab" (click)="openAddDialog()">
+    <mat-icon>add</mat-icon>
+  </button>
+}

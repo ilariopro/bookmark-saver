@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>{{ isEdit() ? 'Edit List' : 'New List' }}</h2>
+
+<mat-dialog-content class="dialog-content">
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Name</mat-label>
+    <input matInput [(ngModel)]="name" placeholder="List name" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Description <span class="optional">(optional)</span></mat-label>
+    <textarea matInput [(ngModel)]="description" rows="3" placeholder="Short description..."></textarea>
+  </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!name.trim()"
+    (click)="save()">
+    Save
+  </button>
+</mat-dialog-actions>

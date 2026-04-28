@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>Edit Bookmark</h2>
+
+@if (data.bookmark.metadata?.title) {
+  <p class="bookmark-title">{{ data.bookmark.metadata!.title }}</p>
+}
+<p class="bookmark-url">{{ data.bookmark.url }}</p>
+
+<mat-dialog-content class="dialog-content">
+
+  <!-- Lists -->
+  <h3 class="section-label">Lists</h3>
+
+  @if (state.apiLists().length === 0) {
+    <p class="empty-hint">No lists available.</p>
+  } @else {
+    <div class="checkbox-group">
+      @for (list of state.apiLists(); track list.id) {
+        <mat-checkbox
+          [checked]="isListSelected(list.id)"
+          (change)="toggleList(list.id, $event.checked)">
+          {{ list.name }}
+        </mat-checkbox>
+      }
+    </div>
+  }
+
+  <!-- Tags -->
+  <h3 class="section-label">Tags</h3>
+
+  @if (state.tags().length === 0) {
+    <p class="empty-hint">No tags available.</p>
+  } @else {
+  <mat-chip-listbox
+    multiple
+    class="mat-mdc-chip-set-stacked"
+    [value]="selectedTagIds"
+    (change)="onTagsChange($event)">
+    @for (tag of state.tags(); track tag.id) {
+      <mat-chip-option [value]="tag.id">{{ tag.name }}</mat-chip-option>
+    }
+  </mat-chip-listbox>
+  }
+
+  <!-- Notes -->
+  <h3 class="section-label">Notes</h3>
+
+  <mat-form-field appearance="outline" class="notes-field">
+    <mat-label>Personal notes</mat-label>
+    <textarea
+      matInput
+      [(ngModel)]="notes"
+      rows="3"
+      placeholder="Add a note about this bookmark...">
+    </textarea>
+  </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()">Save</button>
+</mat-dialog-actions>

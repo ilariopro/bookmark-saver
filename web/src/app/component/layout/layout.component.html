@@ -2,54 +2,37 @@
 
     <mat-toolbar class="toolbar">
         @if (isMobile()) {
-        <button mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle menu">
+        <button mat-icon-button (click)="sidebar.toggle()" aria-label="Toggle menu">
             <mat-icon>menu</mat-icon>
         </button>
         }
         <span class="app-name">Bookmark Saver</span>
     </mat-toolbar>
 
-    <!-- Progress bar globale durante il caricamento iniziale -->
+    <!-- Progress bar -->
     @if (sidebarLoading()) {
         <mat-progress-bar mode="indeterminate" />
     }
 
-    <mat-sidenav-container class="sidenav-container">
+    <!-- Sidebar -->
+    <mat-sidenav-container class="sidebar-container">
 
         <mat-sidenav
-            #sidenav
-            class="sidenav"
+            #sidebar
+            class="sidebar"
             [mode]="isMobile() ? 'over' : 'side'"
             [opened]="!isMobile()"
             [fixedInViewport]="isMobile()"
-            [fixedTopGap]="64">
-
+            [fixedTopGap]="56">
             @if (sidebarError()) {
                 <p class="sidebar-error">{{ sidebarError() }}</p>
             } @else {
                 <app-sidebar />
             }
-
         </mat-sidenav>
 
             <mat-sidenav-content>
-
                 <div class="main-content">
-                    <!-- <h2>{{selectedListName()}}</h2>
-
-                    <div class="active-filters">
-                            <strong>Active filters:</strong>
-                            @for (tag of selectedTags(); track tag) {
-                                <span class="filter-badge">{{ tag }}</span>
-                            } @empty {
-                                <span class="filter-badge">-</span>
-                            }
-                    </div>
-
-                    @for (item of fillerContent; track $index) {
-                        <p>{{ item }}</p>
-                    } -->
-
                     <app-bookmarks />
                 </div>
             </mat-sidenav-content>

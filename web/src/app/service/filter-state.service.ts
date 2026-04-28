@@ -5,20 +5,19 @@ import { List } from '../model/list.model';
 import { Tag } from '../model/tag.model';
 import { SidebarList } from '../model/shared.model';
 
-export const DEFAULT_LIST: SidebarList = {
-  id: 'all',
-  type: 'default',
-  name: 'All Bookmarks',
-  icon: 'bookmarks'
-};
+export const DEFAULT_LISTS: SidebarList[] = [
+  { id: 'all',       name: 'All Bookmarks', icon: 'bookmarks', type: 'default' },
+  { id: 'favorites', name: 'Favorites',     icon: 'star',      type: 'default' },
+  { id: 'archived',  name: 'Archived',      icon: 'archive',   type: 'default' },
+];
 
 function toSidebarList(list: List): SidebarList {
   return {
     id: String(list.id),
-    type: 'api',
     name: list.name,
-    icon: 'list',
-    // count: list.bookmarkIds.length,
+    description: list.description || undefined,
+    icon: 'label',
+    type: 'api'
   };
 }
 
@@ -34,8 +33,8 @@ export class FilterStateService {
   public readonly apiLists = signal<List[]>([]);
   public readonly tags     = signal<Tag[]>([]);
 
-  public readonly allLists = computed<SidebarList[]>(() => [
-    DEFAULT_LIST,
+  public readonly lists = computed<SidebarList[]>(() => [
+    ...DEFAULT_LISTS,
     ...this.apiLists().map(toSidebarList),
   ]);
 
@@ -45,7 +44,7 @@ export class FilterStateService {
   );
 
   public readonly selectedList = computed<SidebarList | undefined>(() =>
-    this.allLists().find(list => String(list.id) === this.selectedListKey())
+    this.lists().find(list => String(list.id) === this.selectedListKey())
   );
 
   public readonly selectedTagIds = computed<Set<number>>(() => {
@@ -60,6 +59,12 @@ export class FilterStateService {
 
   public hasSelectedList(): boolean {
     return this.queryParams().get('list') !== null;
+  }
+
+  public resolveList(sidebarList: SidebarList): List | undefined {
+    if (sidebarList.type !== 'api') return undefined;
+
+    return this.apiLists().find(list => list.id === Number(sidebarList.id));
   }
 
   // ── Actions ───────────────────────────────────────────────────

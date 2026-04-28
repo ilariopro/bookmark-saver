@@ -1,40 +1,107 @@
-<h3 class="sidebar-section-title">Lists</h3>
+<div class="sidebar-content">
+  <div class="section-header">
+    <h3 class="sidebar-section-title">Lists</h3>
+    <button mat-icon-button class="section-add-btn"
+            matTooltip="New list"
+            (click)="openCreateListDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 
-<mat-selection-list
-  [multiple]="false"
-  [hideSingleSelectionIndicator]="true"
-  (click)="onListClick()"
-  (selectionChange)="onListChange($event.options[0].value)">
+  <mat-selection-list
+    cdkDropList
+    [multiple]="false"
+    [hideSingleSelectionIndicator]="true"
+    (cdkDropListDropped)="onListReorder($event)"
+    (click)="onListClick()"
+    (selectionChange)="onListChange($event.options[0].value)">
 
-  @for (list of state.allLists(); track list.id) {
-    <mat-list-option
-      [value]="list.id"
-      [selected]="state.selectedListKey() === list.id">
-      <mat-icon matListItemIcon>{{ list.icon }}</mat-icon>
-      <span matListItemTitle>{{ list.name }}</span>
-      @if (list.count) {
-        <span matListItemLine>{{ list.count }} bookmarks</span>
-      }
-    </mat-list-option>
-  }
+    @for (list of state.lists(); track list.id) {
+      <mat-list-option
+        class="sidebar-list-item"
+        [value]="list.id"
+        [selected]="state.selectedListKey() === list.id"
+        [cdkDragDisabled]="!isEdit() || list.type === 'default'"
+        cdkDrag>
 
-</mat-selection-list>
+        <div *cdkDragPreview class="drag-preview">
+          <mat-icon>drag_indicator</mat-icon>
+          <span>{{ list.name }}</span>
+        </div>
 
-<mat-divider />
+        <div *cdkDragPlaceholder class="drag-placeholder"></div>
 
-<h3 class="sidebar-section-title">Tags</h3>
+        <div class="list-item-row">
+          <mat-icon class="list-item-icon">
+            {{ isEdit() && list.type === 'api' ? 'drag_indicator' : list.icon }}
+          </mat-icon>
+          <span class="list-item-label">{{ list.name }}</span>
+          @if (list.type === 'api') {
+            <div class="list-item-actions" [class.hidden]="!isEdit()">
+              <button mat-icon-button class="list-action-btn"
+                      (click)="$event.stopPropagation(); openEditListDialog(list)"
+                      matTooltip="Rename">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="list-action-btn"
+                      (click)="$event.stopPropagation(); deleteList(list)"
+                      matTooltip="Delete">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
 
-<mat-chip-listbox
-    class="sidebar-tag-list mat-mdc-chip-set-stacked"
-    multiple
-    [value]="state.selectedTagIdsArray()"
-    (change)="onTagsChange($event)">
-
-    @for (tag of state.tags(); track tag.id) {
-        <mat-chip-option class="sidebar-tag-item" [value]="tag.id">
-        {{ tag.name }}
-        <!-- <span class="sidebar-tag-count">{{ tag.bookmarkIds.length }}</span> -->
-        </mat-chip-option>
+      </mat-list-option>
     }
+  </mat-selection-list>
+  
+  <mat-divider />
+  
+  <div class="section-header">
+    <h3 class="sidebar-section-title">Tags</h3>
+    <button mat-icon-button class="section-add-btn"
+            matTooltip="New tag"
+            (click)="openCreateTagDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  
+  <mat-chip-listbox
+      class="sidebar-tag-list mat-mdc-chip-set-stacked"
+      multiple
+      [value]="state.selectedTagIdsArray()"
+      (change)="onTagsChange($event)">
+  
+      @for (tag of state.tags(); track tag.id) {
+        <mat-chip-option class="sidebar-tag-item" [value]="tag.id">
+          {{ tag.name }}
+  
+          @if (isEdit()) {
+            <button matChipRemove
+                    (click)="$event.stopPropagation(); openEditTagDialog(tag)"
+                    matTooltip="Rename">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+  
+          @if (isEdit()) {
+            <button matChipRemove
+                    (click)="$event.stopPropagation(); deleteTag(tag.id)"
+                    matTooltip="Delete">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          }
+  
+        </mat-chip-option>
+      }
+  </mat-chip-listbox>
+</div>
 
-</mat-chip-listbox>
+<!-- Edit mode toggle -->
+<div class="sidebar-footer">
+  <button mat-stroked-button class="edit-mode-btn" (click)="toggleEditMode()">
+    <mat-icon>{{ isEdit() ? 'check' : 'edit' }}</mat-icon>
+    {{ isEdit() ? 'Done' : 'Edit' }}
+  </button>
+</div>

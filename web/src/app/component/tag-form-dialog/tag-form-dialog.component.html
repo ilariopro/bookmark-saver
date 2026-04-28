@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>{{ isEdit() ? 'Edit Tag' : 'New Tag' }}</h2>
+
+<mat-dialog-content class="dialog-content">
+
+    <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tag name</mat-label>
+        <input
+            matInput
+            [ngModel]="name()"
+            (ngModelChange)="onNameChange($event)"
+            [matAutocomplete]="auto"
+            placeholder="Enter a name..." />
+        
+            <mat-autocomplete #auto="matAutocomplete">
+                @for (tag of suggestions(); track tag.id) {
+                    <mat-option [value]="tag.name">{{ tag.name }}</mat-option>
+                }
+            </mat-autocomplete>
+    </mat-form-field>
+
+    @if (isMerge()) {
+        <div class="merge-warning">
+            <mat-icon>warning</mat-icon>
+            <span>
+                <strong>"{{ name().trim() }}"</strong> already exists.
+                All bookmarks will be merged into it. This cannot be undone.
+            </span>
+        </div>
+    }
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancel</button>
+    <button
+        mat-flat-button
+        [color]="isMerge() ? 'warn' : 'primary'"
+        [disabled]="isInvalid()"
+        (click)="save()">
+        Save
+    </button>
+</mat-dialog-actions>

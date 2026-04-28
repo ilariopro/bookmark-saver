@@ -14,7 +14,33 @@
     }
 }
 
-// Immagine
+// Favorite
+
+.favorite-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.20);
+  backdrop-filter: blur(4px);
+  transition: background 150ms ease;
+
+  mat-icon {
+    color: white;
+    transition: color 50ms ease, transform 50ms ease;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.30);
+  }
+
+  &.is-favorite mat-icon {
+    color: #ffbf00; // giallo/ambra — classico per i favorite
+    transform: scale(1.2);
+  }
+}
+
+// Image
 
 .card-image-container {
     width: 100%;
@@ -95,7 +121,7 @@
 
 .card-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     display: -webkit-box;
     line-clamp: 2;
     -webkit-line-clamp: 2;
@@ -109,7 +135,21 @@
     margin-top: 4px;
 }
 
-// Content
+.card-actions-header {
+  position: absolute;
+  top: 8px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  mat-icon:not(.menu-button mat-icon) {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
 .card-content {
     flex: 1;
     display: flex;
@@ -132,19 +172,42 @@
 
 .bookmark-notes {
     display: flex;
-    align-items: flex-start;
-    gap: 4px;
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.5);
-    font-style: italic;
-    margin: 0;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 150ms ease;
+    color: rgba(0, 0, 0, 0.45);
 
-    mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
+    &:hover {
+        background: rgba(0, 0, 0, 0.04);
+    }
+
+    &.is-expanded {
+        align-items: flex-start;
+        color: rgba(0, 0, 0, 0.6);
+    }
+
+    .notes-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
         flex-shrink: 0;
-        margin-top: 1px;
+    }
+
+    .notes-text {
+        flex: 1;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .notes-chevron {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        margin-left: auto;
     }
 }
 
@@ -172,8 +235,8 @@
 }
 
 .bookmark-tags {
-    margin-top: auto; // spinge i tag in fondo al content
-    margin: 16px 0;
+  margin-top: auto;
+  padding-top: 8px;
 }
 
 // Actions

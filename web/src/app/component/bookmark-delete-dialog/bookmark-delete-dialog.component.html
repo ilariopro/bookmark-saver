@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Delete Bookmark</h2>
+
+@if (data.title) {
+    <p class="bookmark-title">{{ data.title }}</p>
+}
+<p class="bookmark-url">{{ data.url }}</p>
+
+<mat-dialog-content class="dialog-content">
+    <p class="confirm-message">
+        Are you sure you want to delete this bookmark? This action is irreversible.
+    </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="warn" (click)="confirm()">Delete</button>
+</mat-dialog-actions>

@@ -1,7 +1,16 @@
 <mat-card class="bookmark-card" [class.is-pending]="isPending">
 
-    <!-- Image -->
     <div class="card-image-container">
+        <!-- Favorite button -->
+        <button mat-icon-button
+                class="favorite-btn"
+                [class.is-favorite]="isFavorite()"
+                (click)="toggleFavorite()"
+                [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'">
+            <mat-icon>{{ isFavorite() ? 'star' : 'star_outline' }}</mat-icon>
+        </button>
+        
+        <!-- Image -->
         @if (bookmark().metadata?.imageUrl) {
             <img mat-card-image
                 class="card-image"
@@ -18,7 +27,7 @@
 
     <mat-card-header class="card-header">
 
-        <!-- Favicon + dominio -->
+        <!-- Favicon + site domain -->
         <div class="site-info" mat-card-avatar>
             @if (faviconUrl) {
                 <img [src]="faviconUrl" [alt]="displayDomain" class="favicon" />
@@ -30,11 +39,28 @@
         <mat-card-title class="card-title">{{ displayTitle }}</mat-card-title>
         <mat-card-subtitle class="card-subtitle">{{ displayDomain }}</mat-card-subtitle>
 
+          <div class="card-actions-header">
+            <button mat-icon-button [matMenuTriggerFor]="cardMenu" class="menu-button">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+        </div>
+
     </mat-card-header>
+
+    <mat-menu #cardMenu>
+        <button mat-menu-item (click)="openEditDialog()">
+            <mat-icon>edit</mat-icon>
+            Edit
+        </button>
+        <button mat-menu-item class="delete-item" (click)="openDeleteDialog()">
+            <mat-icon>delete</mat-icon>
+            Delete
+        </button>
+    </mat-menu>
 
     <mat-card-content class="card-content">
 
-        <!-- Stato metadata -->
+        <!-- Metadata status -->
         @if (isPending) {
             <p class="status-message pending">
                 <mat-icon>schedule</mat-icon> Fetching metadata...
@@ -47,12 +73,17 @@
             <p class="description">{{ bookmark().metadata!.description }}</p>
         }
 
-        <!-- Note utente -->
+        <!-- Notes -->
         @if (bookmark().notes) {
-            <p class="bookmark-notes">
-                <mat-icon>notes</mat-icon>
-                {{ bookmark().notes }}
-            </p>
+            <div class="bookmark-notes" [class.is-expanded]="notesExpanded()" (click)="toggleNotes()">
+                <mat-icon class="notes-icon">notes</mat-icon>
+                @if (notesExpanded()) {
+                    <span class="notes-text">{{ bookmark().notes }}</span>
+                }
+                <mat-icon class="notes-chevron">
+                    {{ notesExpanded() ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+            </div>
         }
 
         <!-- Tags -->

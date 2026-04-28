@@ -6,9 +6,8 @@
 
   .app-name {
     margin: 0;
-    letter-spacing: 0.1em;
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 1.4rem;
+    font-weight: 600;
   }
 }
 
@@ -17,25 +16,42 @@
   z-index: 100;
   background-color: white;
   border-bottom: 1px solid #ddd;
+
+  &.is-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
 }
 
-.sidenav-container {
+.sidebar-container {
   flex: 1;
-  overflow: hidden; // scroll gestito internamente dal sidenav-content
+  overflow: hidden;
+
+  &.is-fixed {
+    margin-top: 56px;
+  }
 }
 
-.sidenav {
+.sidebar {
   width: 260px;           // larghezza fissa
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;       // la sidebar stessa scrolla se il contenuto è lungo
-  padding-bottom: 24px;
+
+  ::ng-deep .mat-drawer-inner-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 }
 
 .main-content {
   padding: 0;
   overflow-y: auto;
+  height: 100%;
 
   p {
     margin-bottom: 12px;
@@ -67,15 +83,28 @@
 // ── Mobile overrides ──
 
 .is-mobile {
-  height: auto;        // non vincola l'altezza a 100vh
-  overflow: visible;   // lascia che il body scrolli
+  height: auto;
+  overflow: visible;
 
-  .sidenav-container {
+  .app-name {
+    font-size: 1.2rem;
+  }
+
+  .toolbar {
+    padding: 0 8px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .sidebar-container {
     flex: 1 0 auto;
     overflow: visible;
+    margin-top: 56px;
   }
 
   .main-content {
-    overflow-y: visible; // su mobile non è il main-content a scrollare, ma il body
+    overflow-y: visible;
   }
 }
