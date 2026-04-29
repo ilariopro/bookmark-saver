@@ -51,7 +51,7 @@ class BookmarkListControllerTest {
     void listReturnsAllLists() throws Exception {
         List<BookmarkList> lists = List.of(BookmarkListFixture.withDefaults());
 
-        when(service.findAll())
+        when(service.findAll(any()))
             .thenReturn(lists);
 
         mockMvc
@@ -124,7 +124,7 @@ class BookmarkListControllerTest {
             .thenReturn(updated);
 
         mockMvc
-            .perform(put("/api/lists/1")
+            .perform(patch("/api/lists/1")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())

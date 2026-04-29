@@ -8,6 +8,7 @@ import com.example.bookmark_saver.repository.BookmarkRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -52,12 +53,14 @@ public class BookmarkListService {
     }
 
     /**
-     * Returns the complete list of lists.
+     * Returns all lists.
      * 
-     * @return The complete of list entities.
+     * @param sort Sort options
+     * 
+     * @return The complete list of {@link BookmarkList}
      */
-    public List<BookmarkList> findAll() {
-        return listRepository.findAll();
+    public List<BookmarkList> findAll(Sort sort) {
+        return listRepository.findAll(sort);
     }
 
     /**
@@ -107,9 +110,12 @@ public class BookmarkListService {
     @Transactional
     public BookmarkList update(Long listId, BookmarkListRequest request) {
         BookmarkList list = findById(listId);
+        
+        String name = request.name() != null ? normalizeName(request.name()) : list.getName();
+        String description = request.description() != null ? request.description() : list.getDescription();
 
-        list.setName(normalizeName(request.name()));
-        list.setDescription(request.description());
+        list.setName(name);
+        list.setDescription(description);
 
         return listRepository.save(list);
     }

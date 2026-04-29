@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -57,10 +58,10 @@ class BookmarkListServiceTest {
     void findAllReturnsAllLists() {
         List<BookmarkList> lists = List.of(BookmarkListFixture.withDefaults());
 
-        when(listRepository.findAll())
+        when(listRepository.findAll(any(Sort.class)))
             .thenReturn(lists);
 
-        List<BookmarkList> result = service.findAll();
+        List<BookmarkList> result = service.findAll(Sort.unsorted());
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getName()).isEqualTo("My List");
@@ -99,7 +100,12 @@ class BookmarkListServiceTest {
         when(listRepository.save(any()))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-        BookmarkList result = service.save(new BookmarkListRequest("  My list  ", null));
+        BookmarkListRequest request = new BookmarkListRequest(
+            "  My list  ",
+            null
+        );
+
+        BookmarkList result = service.save(request);
 
         assertThat(result.getName()).isEqualTo("My list");
     }
@@ -119,7 +125,12 @@ class BookmarkListServiceTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        BookmarkList result = service.update(1L, new BookmarkListRequest("Updated List", null));
+        BookmarkListRequest request = new BookmarkListRequest(
+            "Updated List",
+            null
+        );
+
+        BookmarkList result = service.update(1L, request);
 
         assertThat(result.getName()).isEqualTo("Updated List");
     }
