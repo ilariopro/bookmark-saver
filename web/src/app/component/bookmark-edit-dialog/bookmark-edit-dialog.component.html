@@ -16,6 +16,7 @@
     <div class="checkbox-group">
       @for (list of state.apiLists(); track list.id) {
         <mat-checkbox
+          color="primary"
           [checked]="isListSelected(list.id)"
           (change)="toggleList(list.id, $event.checked)">
           {{ list.name }}

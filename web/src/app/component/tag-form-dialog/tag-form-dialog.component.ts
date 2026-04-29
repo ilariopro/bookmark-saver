@@ -13,7 +13,7 @@ import { FilterStateService } from '../../service/filter-state.service';
 import { Tag } from '../../model/tag.model';
 
 export interface TagFormDialogData {
-  tag?: Tag; // presente = edit, assente = create
+  tag?: Tag;
 }
 
 export interface TagFormDialogResult {
@@ -50,12 +50,12 @@ export class TagFormDialogComponent {
   readonly suggestions = computed(() => {
     const input = this.name().trim().toLowerCase();
 
-    if (!input) return [];
+    if (!input || this.isMatch()) return [];
 
     return this.otherTags().filter(tag => tag.name.toLowerCase().includes(input));
   });
 
-  readonly isMerge = computed(() =>
+  readonly isMatch = computed(() =>
     this.otherTags().some(tag => tag.name.toLowerCase() === this.name().trim().toLowerCase())
   );
 
@@ -71,12 +71,25 @@ export class TagFormDialogComponent {
     return !!this.data.tag;
   }
 
+  canSave(): boolean {
+    if (this.isInvalid()) {
+      return false;
+    }
+
+    if (!this.isEdit() && this.isMatch()) {
+      return false;
+    }
+
+    return true;
+  }
+
   onNameChange(value: string): void {
     this.name.set(value);
   }
 
   save(): void {
     if (this.isInvalid()) return;
+
     this.dialogRef.close({ name: this.name().trim() } satisfies TagFormDialogResult);
   }
 

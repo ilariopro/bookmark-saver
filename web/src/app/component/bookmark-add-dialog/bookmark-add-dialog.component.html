@@ -6,9 +6,10 @@
     <mat-form-field appearance="outline" class="full-width">
         <mat-label>URL</mat-label>
         <input matInput
-            [formControl]="$any(form.get('url'))"
             placeholder="https://..."
-            type="url" />
+            type="url"
+            [formControl]="$any(form.get('url'))"
+            (keydown.enter)="save()" />
         @if (urlError) {
             <mat-error>{{ urlError }}</mat-error>
         }

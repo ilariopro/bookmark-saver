@@ -4,14 +4,23 @@
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Name</mat-label>
-    <input matInput [(ngModel)]="name" placeholder="List name" />
+    <input matInput
+      placeholder="List name"
+      [ngModel]="name()"
+      (ngModelChange)="onNameChange($event)"
+      (keydown.enter)="save()" />
   </mat-form-field>
-
+  
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Description <span class="optional">(optional)</span></mat-label>
-    <textarea matInput [(ngModel)]="description" rows="3" placeholder="Short description..."></textarea>
+    <textarea matInput
+      rows="3"
+      placeholder="Short description..."
+      [ngModel]="description()"
+      (ngModelChange)="onDescriptionChange($event)"
+      (keydown.enter)="save()"></textarea>
   </mat-form-field>
-
+  
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
@@ -19,7 +28,7 @@
   <button
     mat-flat-button
     color="primary"
-    [disabled]="!name.trim()"
+    [disabled]="!canSave()"
     (click)="save()">
     Save
   </button>

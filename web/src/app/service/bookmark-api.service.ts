@@ -56,8 +56,10 @@ export class BookmarkApiService {
   // ── Lists ─────────────────────────────────────────────────────
 
   public getLists(): Observable<List[]> {
+    const params = new HttpParams().set('sort', 'createdAt,asc');
+
     return this.http
-      .get<Response<List[]>>(`${this.baseUrl}/lists`)
+      .get<Response<List[]>>(`${this.baseUrl}/lists`, { params })
       .pipe(map(response => response.data));
   }
 
@@ -80,8 +82,10 @@ export class BookmarkApiService {
   // ── Tags ──────────────────────────────────────────────────────
 
   public getTags(): Observable<Tag[]> {
+    const params = new HttpParams().set('sort', 'name,asc');
+
     return this.http
-      .get<Response<Tag[]>>(`${this.baseUrl}/tags?sort=name,asc`)
+      .get<Response<Tag[]>>(`${this.baseUrl}/tags`, { params })
       .pipe(map(response => response.data));
   }
 

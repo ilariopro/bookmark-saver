@@ -8,6 +8,6 @@ export interface List {
 }
 
 export interface ListPayload {
-    name: string;
-    description: string | null;
+    name?: string;
+    description?: string;
 }
