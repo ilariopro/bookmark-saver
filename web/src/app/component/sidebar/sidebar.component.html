@@ -9,10 +9,8 @@
   </div>
 
   <mat-selection-list
-    cdkDropList
     [multiple]="false"
     [hideSingleSelectionIndicator]="true"
-    (cdkDropListDropped)="onListReorder($event)"
     (click)="onListClick()"
     (selectionChange)="onListChange($event.options[0].value)">
 
@@ -20,20 +18,11 @@
       <mat-list-option
         class="sidebar-list-item"
         [value]="list.id"
-        [selected]="state.selectedListKey() === list.id"
-        [cdkDragDisabled]="!isEdit() || list.type === 'default'"
-        cdkDrag>
-
-        <div *cdkDragPreview class="drag-preview">
-          <mat-icon>drag_indicator</mat-icon>
-          <span>{{ list.name }}</span>
-        </div>
-
-        <div *cdkDragPlaceholder class="drag-placeholder"></div>
+        [selected]="state.selectedListKey() === list.id">
 
         <div class="list-item-row">
           <mat-icon class="list-item-icon">
-            {{ isEdit() && list.type === 'api' ? 'drag_indicator' : list.icon }}
+            {{ list.icon }}
           </mat-icon>
           <span class="list-item-label">{{ list.name }}</span>
           @if (list.type === 'api') {
@@ -44,9 +33,9 @@
                 <mat-icon>edit</mat-icon>
               </button>
               <button mat-icon-button class="list-action-btn"
-                      (click)="$event.stopPropagation(); deleteList(list)"
+                      (click)="$event.stopPropagation(); openDeleteListDialog(list)"
                       matTooltip="Delete">
-                <mat-icon>cancel</mat-icon>
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
           }
@@ -87,9 +76,9 @@
   
           @if (isEdit()) {
             <button matChipRemove
-                    (click)="$event.stopPropagation(); deleteTag(tag.id)"
+                    (click)="$event.stopPropagation(); openDeleteTagDialog(tag)"
                     matTooltip="Delete">
-              <mat-icon>cancel</mat-icon>
+              <mat-icon>delete</mat-icon>
             </button>
           }
   

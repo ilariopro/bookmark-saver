@@ -102,8 +102,8 @@ export class BookmarkCardComponent implements OnInit{
 
       this.api.updateBookmark(this.bookmark().id, {
         notes:   result.notes,
-        listIds: result.listIds.map(id => ({ id })) as any,
-        tagIds:  result.tagIds.map(id  => ({ id })) as any,
+        listIds: result.listIds.map(id => id) as number[],
+        tagIds:  result.tagIds.map(id  => id) as number[],
       }).subscribe(() => this.updated.emit());
     });
   }

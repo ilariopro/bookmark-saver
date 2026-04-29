@@ -10,7 +10,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
 import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
@@ -18,13 +17,13 @@ import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { SidebarList } from '../../model/shared.model';
 import { Tag } from '../../model/tag.model';
+import { CommonDeleteDialogComponent, CommonDeleteDialogData } from '../common-delete-dialog/common-delete-dialog.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [
     CommonModule,
-    DragDropModule,
     MatButtonModule,
     MatChipsModule,
     MatDialogModule,
@@ -56,15 +55,6 @@ export class AppSidebar {
 
   onListChange(listId: string): void {
     if (!this.isEdit()) this.state.selectList(listId);
-  }
-
-  onListReorder(event: CdkDragDrop<any[]>): void {
-    const lists = [...this.state.apiLists()];
-
-    moveItemInArray(lists, event.previousIndex, event.currentIndex);
-
-    this.state.apiLists.set(lists);
-    // TODO: PATCH all'API per persistere l'ordine
   }
 
   onTagsChange(event: MatChipListboxChange): void {
@@ -107,17 +97,30 @@ export class AppSidebar {
     });
   }
 
-  deleteList(sidebarList: SidebarList): void {
+  openDeleteListDialog(sidebarList: SidebarList): void {
     const list = this.state.resolveList(sidebarList);
 
     if (!list) return;
 
-    this.api.deleteList(list.id).subscribe(() => {
-      this.state.apiLists.update(prev => prev.filter(list => list.id !== list.id));
+    const ref = this.dialog.open(CommonDeleteDialogComponent, {
+      data: {
+        name: list.name,
+        title: 'Delete List',
+        type: 'list'
+       } satisfies CommonDeleteDialogData,
+      width: '440px',
+    });
 
-      if (this.state.selectedListKey() === sidebarList.id) {
-        this.state.selectList('all');
-      }
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+
+      this.api.deleteList(list.id).subscribe(() => {
+        this.state.apiLists.update(prev => prev.filter(l => l.id !== list.id));
+        
+        if (this.state.selectedListKey() === sidebarList.id) {
+          this.state.selectList('all');
+        }
+      });
     });
   }
 
@@ -129,12 +132,11 @@ export class AppSidebar {
       width: '440px',
     });
     
-    // riuso il ListFormDialog senza description per i tag
     ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
       if (!result) return;
 
-      this.api.createTag({ name: result.name }).subscribe(tag => {
-        this.state.tags.update(prev => [...prev, tag]);
+      this.api.createTag({ name: result.name }).subscribe(() => {
+        this.api.getTags().subscribe(tags => this.state.tags.set(tags));
       });
     });
   }
@@ -149,19 +151,31 @@ export class AppSidebar {
       if (!result) return;
 
       this.api.updateTag(tag.id, { name: result.name }).subscribe(() => {
-        // il merge/rename può cambiare struttura — ricarica i tag dal server
         this.api.getTags().subscribe(tags => this.state.tags.set(tags));
       });
     });
   }
 
-  deleteTag(tagId: number): void {
-    this.api.deleteTag(tagId).subscribe(() => {
-      this.state.tags.update(prev => prev.filter(tag => tag.id !== tagId));
+  openDeleteTagDialog(tag: Tag): void {
+    const ref = this.dialog.open(CommonDeleteDialogComponent, {
+      data: {
+        name: tag.name,
+        title: 'Delete Tag',
+        type: 'tag'
+      } satisfies CommonDeleteDialogData,
+      width: '440px',
+    });
 
-      this.state.setSelectedTags(
-        this.state.selectedTagIdsArray().filter(id => id !== tagId)
-      );
+    ref.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+
+      this.api.deleteTag(tag.id).subscribe(() => {
+        this.state.tags.update(prev => prev.filter(t => t.id !== tag.id));
+
+        this.state.setSelectedTags(
+          this.state.selectedTagIdsArray().filter(id => id !== tag.id)
+        );
+      });
     });
   }
 }
