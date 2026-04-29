@@ -10,10 +10,12 @@ import com.example.bookmark_saver.utility.ResponseFactory;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -45,12 +47,16 @@ public class TagController {
     /**
      * Returns all tags.
      * 
+     * @param sort Sort options.
+     * 
      * @return The complete list of {@link TagResponse}.
      */
     @GetMapping
-    public ResponseEntity<ApiListResponse<TagResponse>> list() {
+    public ResponseEntity<ApiListResponse<TagResponse>> list(
+        Sort sort
+    ) {
         return ResponseEntity.ok(
-            ResponseFactory.list(service.findAll(), TagResponse::from)
+            ResponseFactory.list(service.findAll(sort), TagResponse::from)
         );
     }
 
@@ -94,7 +100,7 @@ public class TagController {
      * 
      * @return The updated {@link TagResponse}.
      */
-    @PutMapping("/{tagId}")
+    @PatchMapping("/{tagId}")
     public ResponseEntity<ApiResponse<TagResponse>> update(
         @PathVariable Long tagId,
         @Valid @RequestBody TagRequest request

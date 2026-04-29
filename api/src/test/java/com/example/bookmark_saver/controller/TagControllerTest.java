@@ -51,7 +51,7 @@ class TagControllerTest {
     void listReturnsAllTags() throws Exception {
         List<Tag> tags = List.of(TagFixture.withDefaults());
 
-        when(service.findAll())
+        when(service.findAll(any()))
             .thenReturn(tags);
 
         mockMvc
@@ -123,7 +123,7 @@ class TagControllerTest {
             .thenReturn(updated);
 
         mockMvc
-            .perform(put("/api/tags/1")
+            .perform(patch("/api/tags/1")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())

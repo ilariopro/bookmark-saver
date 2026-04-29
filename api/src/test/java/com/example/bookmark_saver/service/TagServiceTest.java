@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -57,10 +58,10 @@ class TagServiceTest {
     void findAllReturnsAllTags() {
         List<Tag> tags = List.of(TagFixture.withDefaults());
 
-        when(tagRepository.findAll())
+        when(tagRepository.findAll(any(Sort.class)))
             .thenReturn(tags);
 
-        List<Tag> result = service.findAll();
+        List<Tag> result = service.findAll(Sort.unsorted());
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getName()).isEqualTo("java");

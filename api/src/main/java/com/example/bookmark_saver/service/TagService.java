@@ -8,6 +8,7 @@ import com.example.bookmark_saver.repository.TagRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -52,12 +53,14 @@ public class TagService {
     }
 
     /**
-     * Returns the complete list of tags.
+     * Returns all tags.
      * 
-     * @return The complete of tag entities.
+     * @param sort Sort options.
+     * 
+     * @return The complete list of {@link Tag}.
      */
-    public List<Tag> findAll() {
-        return tagRepository.findAll();
+    public List<Tag> findAll(Sort sort) {
+        return tagRepository.findAll(sort);
     }
 
     /**
