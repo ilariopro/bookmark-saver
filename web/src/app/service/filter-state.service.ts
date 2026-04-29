@@ -8,7 +8,6 @@ import { SidebarList } from '../model/shared.model';
 export const DEFAULT_LISTS: SidebarList[] = [
   { id: 'all',       name: 'All Bookmarks', icon: 'bookmarks', type: 'default' },
   { id: 'favorites', name: 'Favorites',     icon: 'star',      type: 'default' },
-  { id: 'archived',  name: 'Archived',      icon: 'archive',   type: 'default' },
 ];
 
 function toSidebarList(list: List): SidebarList {
