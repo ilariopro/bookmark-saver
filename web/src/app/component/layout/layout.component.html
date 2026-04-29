@@ -22,6 +22,7 @@
             class="sidebar"
             [mode]="isMobile() ? 'over' : 'side'"
             [opened]="!isMobile()"
+            [disableClose]="!isMobile()"
             [fixedInViewport]="isMobile()"
             [fixedTopGap]="56">
             @if (sidebarError()) {
