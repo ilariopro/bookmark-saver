@@ -68,18 +68,29 @@ public class BookmarkService {
     /**
      * Returns a paginated list of bookmarks, optionally filtered.
      *
-     * @param listIds   If non-blank, filters by list ids.
-     * @param tagIds    If non-blank, filters by tag ids.
-     * @param pageable  The pagination information.
+     * @param favorite If non-null, filters by favorite status.
+     * @param listIds  If non-blank, filters by list ids.
+     * @param tagIds   If non-blank, filters by tag ids.
+     * @param pageable Pagination options.
      * 
      * @return A {@link Page} of matching {@link Bookmark} entities.
      */
     public Page<Bookmark> findAll(
+        Boolean favorite,
         List<Long> listIds,
         List<Long> tagIds,
         Pageable pageable
     ) {
         Specification<Bookmark> spec = (root, query, criteria) -> criteria.conjunction();
+
+        if (favorite != null) {
+            spec = spec.and((root, query, criteria) ->
+                criteria.equal(
+                    root.get("favorite"),
+                    favorite
+                )
+            );
+        }
 
         if (listIds != null && !listIds.isEmpty()) {
             for (Long listId : listIds) {
@@ -139,6 +150,7 @@ public class BookmarkService {
         
         bookmark.setUrl(request.url());
         bookmark.setNotes(request.notes());
+        bookmark.setFavorite(request.favorite());
         bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
         
@@ -164,16 +176,19 @@ public class BookmarkService {
         BookmarkRequest request
     ) {
         Bookmark bookmark = findById(bookmarkId);
-        String previousUrl = bookmark.getUrl();
 
-        bookmark.setUrl(request.url());
+        String previousUrl = bookmark.getUrl();
+        String currentUrl  = request.url() != null ? request.url() : previousUrl;
+
+        bookmark.setUrl(currentUrl);
         bookmark.setNotes(request.notes());
+        bookmark.setFavorite(request.favorite());
         bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
 
         Bookmark updated = bookmarkRepository.save(bookmark);
 
-        if (!previousUrl.equals(request.url())) {
+        if (!previousUrl.equals(currentUrl)) {
             metadataService.enrich(updated.getId());
         }
 

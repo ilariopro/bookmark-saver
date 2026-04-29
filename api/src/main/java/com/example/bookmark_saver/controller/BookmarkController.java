@@ -9,8 +9,8 @@ import com.example.bookmark_saver.dto.response.BookmarkResponse;
 import com.example.bookmark_saver.service.BookmarkService;
 import com.example.bookmark_saver.utility.CommaSeparatedParser;
 import com.example.bookmark_saver.utility.ResponseFactory;
-
-import jakarta.validation.Valid;
+import com.example.bookmark_saver.validation.OnCreate;
+import com.example.bookmark_saver.validation.OnUpdate;
 
 import java.util.List;
 
@@ -18,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -52,14 +54,16 @@ public class BookmarkController {
     /**
      * Returns a paginated list of bookmarks, optionally filtered.
      *
+     * @param favorite If non-null, filters by favorite status.
      * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
-     * @param pageable The pagination information.
+     * @param pageable Pagination options.
      * 
      * @return A paged list of {@link BookmarkResponse}.
      */
     @GetMapping
     public ResponseEntity<ApiListResponse<BookmarkResponse>> list(
+        @RequestParam(required = false) Boolean favorite,
         @RequestParam(required = false) String listIds,
         @RequestParam(required = false) String tagIds,
         Pageable pageable
@@ -68,6 +72,7 @@ public class BookmarkController {
         List<Long> parsedTagIds = parseCommaSeparatedIds(tagIds);
 
         Page<Bookmark> bookmarks = service.findAll(
+            favorite,
             parsedListIds,
             parsedTagIds,
             pageable
@@ -103,7 +108,7 @@ public class BookmarkController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<BookmarkResponse>> create(
-        @Valid @RequestBody BookmarkRequest request
+        @Validated(OnCreate.class) @RequestBody BookmarkRequest request
     ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -118,10 +123,10 @@ public class BookmarkController {
      * 
      * @return The updated {@link BookmarkResponse}.
      */
-    @PutMapping("/{bookmarkId}")
+    @PatchMapping("/{bookmarkId}")
     public ResponseEntity<ApiResponse<BookmarkResponse>> update(
         @PathVariable Long bookmarkId,
-        @Valid @RequestBody BookmarkRequest request
+        @Validated(OnUpdate.class) @RequestBody BookmarkRequest request
     ) {
         return ResponseEntity.ok(
             ResponseFactory.one(service.update(bookmarkId, request), BookmarkResponse::from)
