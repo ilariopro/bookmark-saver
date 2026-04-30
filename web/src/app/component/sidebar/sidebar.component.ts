@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatListModule } from '@angular/material/list';
@@ -7,16 +7,15 @@ import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog } from '@angular/material/dialog';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
-import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { SidebarList } from '../../model/shared.model';
 import { Tag } from '../../model/tag.model';
+import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
+import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
 import { CommonDeleteDialogComponent, CommonDeleteDialogData } from '../common-delete-dialog/common-delete-dialog.component';
 
 @Component({
@@ -37,29 +36,27 @@ import { CommonDeleteDialogComponent, CommonDeleteDialogData } from '../common-d
   styleUrl: './sidebar.component.scss',
 })
 export class AppSidebar {
-  readonly state  = inject(FilterStateService);
-  readonly api    = inject(BookmarkApiService);
-  readonly dialog = inject(MatDialog);
+  public readonly state  = inject(FilterStateService);
+  public readonly api    = inject(BookmarkApiService);
+  public readonly dialog = inject(MatDialog);
 
-  readonly isEdit = signal(false);
-
-  toggleEditMode(): void {
-    this.isEdit.set(!this.isEdit());
+  isSelectedList(list: SidebarList): boolean {
+    return this.state.selectedListKey() === list.id;
   }
 
-  // ── List actions ──────────────────────────────────────────────
-
   onListClick(): void {
-    if (!this.isEdit()) this.state.setSelectedTags([]);
+    this.state.setSelectedTags([]);
   }
 
   onListChange(listId: string): void {
-    if (!this.isEdit()) this.state.selectList(listId);
+    this.state.selectList(listId);
   }
 
   onTagsChange(event: MatChipListboxChange): void {
     this.state.setSelectedTags(event.value ?? []);
   }
+
+  // ── List actions ──────────────────────────────────────────────
 
   openCreateListDialog(): void {
     const ref = this.dialog.open(ListFormDialogComponent, {
@@ -70,11 +67,12 @@ export class AppSidebar {
     ref.afterClosed().subscribe((result: ListFormDialogResult | undefined) => {
       if (!result) return;
 
-      const { name, description } = result;
-
-      this.api.createList({ name, description }).subscribe(list => {
-        this.state.apiLists.update(prev => [...prev, list]);
-      });
+      this.api
+        .createList({
+          name: result.name,
+          description: result.description
+        })
+        .subscribe(list => this.state.apiLists.update(prev => [...prev, list]));
     });
   }
 
@@ -91,9 +89,11 @@ export class AppSidebar {
     ref.afterClosed().subscribe((result: ListFormDialogResult | undefined) => {
       if (!result) return;
 
-      this.api.updateList(list.id, result).subscribe(updated => {
-        this.state.apiLists.update(prev => prev.map(list => list.id === updated.id ? updated : list));
-      });
+      this.api
+        .updateList(list.id, result)
+        .subscribe(updated =>
+          this.state.apiLists.update(prev => prev.map(l => l.id === updated.id ? updated : l))
+        );
     });
   }
 
@@ -104,10 +104,10 @@ export class AppSidebar {
 
     const ref = this.dialog.open(CommonDeleteDialogComponent, {
       data: {
-        name: list.name,
         title: 'Delete List',
+        name: list.name,
         type: 'list'
-       } satisfies CommonDeleteDialogData,
+      } satisfies CommonDeleteDialogData,
       width: '440px',
     });
 
@@ -116,7 +116,7 @@ export class AppSidebar {
 
       this.api.deleteList(list.id).subscribe(() => {
         this.state.apiLists.update(prev => prev.filter(l => l.id !== list.id));
-        
+
         if (this.state.selectedListKey() === sidebarList.id) {
           this.state.selectList('all');
         }
@@ -131,13 +131,13 @@ export class AppSidebar {
       data: {},
       width: '440px',
     });
-    
+
     ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
       if (!result) return;
 
-      this.api.createTag({ name: result.name }).subscribe(() => {
-        this.api.getTags().subscribe(tags => this.state.tags.set(tags));
-      });
+      this.api.createTag({ name: result.name }).subscribe(() =>
+        this.api.getTags().subscribe(tags => this.state.tags.set(tags))
+      );
     });
   }
 
@@ -150,17 +150,17 @@ export class AppSidebar {
     ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
       if (!result) return;
 
-      this.api.updateTag(tag.id, { name: result.name }).subscribe(() => {
-        this.api.getTags().subscribe(tags => this.state.tags.set(tags));
-      });
+      this.api.updateTag(tag.id, { name: result.name }).subscribe(() =>
+        this.api.getTags().subscribe(tags => this.state.tags.set(tags))
+      );
     });
   }
 
   openDeleteTagDialog(tag: Tag): void {
     const ref = this.dialog.open(CommonDeleteDialogComponent, {
       data: {
-        name: tag.name,
         title: 'Delete Tag',
+        name: tag.name,
         type: 'tag'
       } satisfies CommonDeleteDialogData,
       width: '440px',

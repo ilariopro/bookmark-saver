@@ -11,92 +11,55 @@
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
+  padding-bottom: 16px;
 }
 
-.sidebar-section-title {
-  margin: 16px 16px 4px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--mat-sys-outline);    // colore del tema Material 3
-}
-
-.sidebar-tag-list {
-  padding: 8px 14px;
-  width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-
-  .sidebar-tag-item {
-    padding: 2px 4px;
-    margin-bottom: 8px;
-  }
-}
-
+// ── Section header ────────────────────────────────────────────
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-right: 4px;
-
-  .sidebar-section-title {
-    margin: 16px 16px 4px;
-  }
-
-  .section-add-btn {
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
+  padding: 0 4px 0 16px;
+  margin-top: 8px;
 }
 
-.list-option {
-  position: relative;
+.sidebar-section-title {
+  margin: 12px 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
 }
 
-.list-actions-overlay {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  background: white; // copre il testo sotto
-  z-index: 1;
-
-  button {
-    width: 32px;
-    height: 32px;
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-  }
+.section-add-btn {
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
-// sovrascrive il layout interno di mat-list-option
-::ng-deep mat-selection-list mat-list-option {
-  .mdc-list-item__content {
-    padding: 0;
-  }
+// ── Lists ─────────────────────────────────────────────────────
+::ng-deep mat-selection-list mat-list-option .mdc-list-item__content {
+  padding: 0;
 }
 
 .list-item-row {
   display: flex;
   align-items: center;
   width: 100%;
-  gap: 8px;
-  padding: 0 8px 0 0;
+  gap: 4px;
 }
 
 .list-item-icon {
   flex-shrink: 0;
-  color: rgba(0, 0, 0, 0.54);
   font-size: 20px;
   width: 20px;
   height: 20px;
-  margin: 0 8px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-right: 8px;
+
+  &.selected {
+    color: var(--mat-sys-primary);
+  }
 }
 
 .list-item-label {
@@ -107,76 +70,54 @@
   white-space: nowrap;
 }
 
-.list-item-actions {
+.list-menu-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
-  gap: 8px;
-
-  &.hidden {
-    visibility: hidden;
-    pointer-events: none;
-  }
-}
-
-.list-action-btn {
-  width: 24px;
-  height: 24px;
-  padding: 0;
+  justify-content: center;
+  transition: opacity 150ms ease;
 
   ::ng-deep .mat-mdc-button-touch-target {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
   }
 
-  mat-icon {
+  ::ng-deep mat-icon {
+    margin: 0;
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: rgba(0, 0, 0, 0.5);
+    line-height: 18px;
   }
 }
 
-.sidebar-footer {
-  flex-shrink: 0;
-  padding: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+// ── Tags ──────────────────────────────────────────────────────
+.sidebar-tag-list {
+  padding: 8px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
 
-  .edit-mode-btn {
-    width: 100%;
+.sidebar-tag-item {
+  margin-bottom: 6px;
+  max-width: 100%;
+
+  ::ng-deep .mdc-evolution-chip__text-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
   }
 }
 
-.drag-preview {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 16px;
-  height: 48px;
-  width: 260px;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  // font-size: 14px;
-
-  mat-icon {
-    color: rgba(0, 0, 0, 0.4);
-  }
-}
-
-.drag-placeholder {
-  height: 48px;
-  background: rgba(0, 0, 0, 0.04);
-  border: 2px dashed rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-}
-
-.drag-handle {
-  cursor: grab;
-  color: rgba(0, 0, 0, 0.3);
-  &:active { cursor: grabbing; }
-}
-
-.cdk-drag-animating {
-  transition: transform 200ms ease;
+.tag-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }

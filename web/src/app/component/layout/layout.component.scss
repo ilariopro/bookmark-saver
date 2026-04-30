@@ -39,11 +39,11 @@
 }
 
 .sidebar {
-  width: 260px;           // larghezza fissa
+  width: 300px;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  overflow-y: auto;       // la sidebar stessa scrolla se il contenuto è lungo
+  overflow-y: auto;
 
   ::ng-deep .mat-drawer-inner-container {
     display: flex;

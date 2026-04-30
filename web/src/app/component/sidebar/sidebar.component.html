@@ -1,4 +1,6 @@
 <div class="sidebar-content">
+
+  <!-- Lists -->
   <div class="section-header">
     <h3 class="sidebar-section-title">Lists</h3>
     <button mat-icon-button class="section-add-btn"
@@ -16,37 +18,46 @@
 
     @for (list of state.lists(); track list.id) {
       <mat-list-option
-        class="sidebar-list-item"
         [value]="list.id"
         [selected]="state.selectedListKey() === list.id">
 
         <div class="list-item-row">
-          <mat-icon class="list-item-icon">
-            {{ list.icon }}
-          </mat-icon>
+          <mat-icon
+            class="list-item-icon"
+            [class.selected]="isSelectedList(list)"
+            >
+            {{ list.icon }}</mat-icon>
           <span class="list-item-label">{{ list.name }}</span>
+
           @if (list.type === 'api') {
-            <div class="list-item-actions" [class.hidden]="!isEdit()">
-              <button mat-icon-button class="list-action-btn"
-                      (click)="$event.stopPropagation(); openEditListDialog(list)"
-                      matTooltip="Rename">
+            <button mat-icon-button
+                    class="list-menu-btn"
+                    [matMenuTriggerFor]="listMenu"
+                    (click)="$event.stopPropagation()">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #listMenu>
+              <button mat-menu-item (click)="openEditListDialog(list)">
                 <mat-icon>edit</mat-icon>
+                Edit
               </button>
-              <button mat-icon-button class="list-action-btn"
-                      (click)="$event.stopPropagation(); openDeleteListDialog(list)"
-                      matTooltip="Delete">
+              <button mat-menu-item (click)="openDeleteListDialog(list)">
                 <mat-icon>delete</mat-icon>
+                Delete
               </button>
-            </div>
+            </mat-menu>
           }
         </div>
 
       </mat-list-option>
     }
+
   </mat-selection-list>
-  
+
   <mat-divider />
-  
+
+  <!-- Tags -->
   <div class="section-header">
     <h3 class="sidebar-section-title">Tags</h3>
     <button mat-icon-button class="section-add-btn"
@@ -55,42 +66,37 @@
       <mat-icon>add</mat-icon>
     </button>
   </div>
-  
-  <mat-chip-listbox
-      class="sidebar-tag-list mat-mdc-chip-set-stacked"
-      multiple
-      [value]="state.selectedTagIdsArray()"
-      (change)="onTagsChange($event)">
-  
-      @for (tag of state.tags(); track tag.id) {
-        <mat-chip-option class="sidebar-tag-item" [value]="tag.id">
-          {{ tag.name }}
-  
-          @if (isEdit()) {
-            <button matChipRemove
-                    (click)="$event.stopPropagation(); openEditTagDialog(tag)"
-                    matTooltip="Rename">
-              <mat-icon>edit</mat-icon>
-            </button>
-          }
-  
-          @if (isEdit()) {
-            <button matChipRemove
-                    (click)="$event.stopPropagation(); openDeleteTagDialog(tag)"
-                    matTooltip="Delete">
-              <mat-icon>delete</mat-icon>
-            </button>
-          }
-  
-        </mat-chip-option>
-      }
-  </mat-chip-listbox>
-</div>
 
-<!-- Edit mode toggle -->
-<div class="sidebar-footer">
-  <button mat-stroked-button class="edit-mode-btn" (click)="toggleEditMode()">
-    <mat-icon>{{ isEdit() ? 'check' : 'edit' }}</mat-icon>
-    {{ isEdit() ? 'Done' : 'Edit' }}
-  </button>
+  <mat-chip-listbox
+    class="sidebar-tag-list mat-mdc-chip-set-stacked"
+    multiple
+    [value]="state.selectedTagIdsArray()"
+    (change)="onTagsChange($event)">
+
+    @for (tag of state.tags(); track tag.id) {
+      <mat-chip-option class="sidebar-tag-item" [value]="tag.id">
+        <span class="tag-label">{{ tag.name }}</span>
+
+        <button matChipRemove
+                [matMenuTriggerFor]="tagMenu"
+                (click)="$event.stopPropagation()">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+
+        <mat-menu #tagMenu>
+          <button mat-menu-item (click)="openEditTagDialog(tag)">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-menu-item (click)="openDeleteTagDialog(tag)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-menu>
+
+      </mat-chip-option>
+    }
+
+  </mat-chip-listbox>
+
 </div>
