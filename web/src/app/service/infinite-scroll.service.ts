@@ -17,8 +17,6 @@ export class InfiniteScrollService<T> {
     private loader?: PageLoader<T>;
     private observer?: IntersectionObserver;
 
-    // ── Setup ─────────────────────────────────────────────────────
-
     public setLoader(loader: PageLoader<T>): void {
         this.loader = loader;
     }
@@ -42,10 +40,7 @@ export class InfiniteScrollService<T> {
         this.observer?.disconnect();
     }
 
-    // ── Actions ───────────────────────────────────────────────────
-
-    // da chiamare quando cambiano i filtri
-    async reset(): Promise<void> {
+    public async reset(): Promise<void> {
         this.page = 0;
         this.items.set([]);
         this.hasMore.set(true);

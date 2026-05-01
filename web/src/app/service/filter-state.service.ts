@@ -39,7 +39,7 @@ export class FilterStateService {
 
   // ── Selezione corrente ────────────────────────────────────────
   public readonly selectedListKey = computed<string | null>(() =>
-    this.queryParams().get('list') ?? 'all'
+    this.queryParams().get('list')
   );
 
   public readonly selectedList = computed<SidebarList | undefined>(() =>
