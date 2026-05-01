@@ -7,8 +7,28 @@
 
 <mat-dialog-content class="dialog-content">
 
+  <!-- Notes -->
+  <h3 class="section-label">Notes</h3>
+
+  <mat-form-field appearance="outline" class="notes-field">
+    <mat-label>Personal notes</mat-label>
+    <textarea
+      matInput
+      [(ngModel)]="notes"
+      rows="3"
+      placeholder="Add a note about this bookmark...">
+    </textarea>
+  </mat-form-field>
+
   <!-- Lists -->
-  <h3 class="section-label">Lists</h3>
+  <div class="section-header">
+    <h3 class="section-label">Lists</h3>
+    <button mat-icon-button class="section-add-btn"
+            matTooltip="New list"
+            (click)="openCreateListDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 
   @if (state.apiLists().length === 0) {
     <p class="empty-hint">No lists available.</p>
@@ -26,34 +46,31 @@
   }
 
   <!-- Tags -->
-  <h3 class="section-label">Tags</h3>
+  <div class="section-header">
+    <h3 class="section-label">Tags</h3>
+    <button mat-icon-button class="section-add-btn"
+            matTooltip="New tag"
+            (click)="openCreateTagDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 
   @if (state.tags().length === 0) {
     <p class="empty-hint">No tags available.</p>
   } @else {
-  <mat-chip-listbox
-    multiple
-    class="mat-mdc-chip-set-stacked"
-    [value]="selectedTagIds"
-    (change)="onTagsChange($event)">
-    @for (tag of state.tags(); track tag.id) {
-      <mat-chip-option [value]="tag.id">{{ tag.name }}</mat-chip-option>
+    <!-- NOTE: force creation of listbox when tag number changes -->
+    @for (_ of [state.tags().length]; track _) {
+      <mat-chip-listbox
+        multiple
+        class="mat-mdc-chip-set-stacked"
+        [value]="selectedTagIds()"
+        (change)="onTagsChange($event)">
+        @for (tag of state.tags(); track tag.id) {
+          <mat-chip-option [value]="tag.id">{{ tag.name }}</mat-chip-option>
+        }
+      </mat-chip-listbox>
     }
-  </mat-chip-listbox>
   }
-
-  <!-- Notes -->
-  <h3 class="section-label">Notes</h3>
-
-  <mat-form-field appearance="outline" class="notes-field">
-    <mat-label>Personal notes</mat-label>
-    <textarea
-      matInput
-      [(ngModel)]="notes"
-      rows="3"
-      placeholder="Add a note about this bookmark...">
-    </textarea>
-  </mat-form-field>
 
 </mat-dialog-content>
 

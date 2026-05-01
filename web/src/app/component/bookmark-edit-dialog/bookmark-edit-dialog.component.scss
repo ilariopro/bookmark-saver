@@ -24,6 +24,12 @@
   padding-top: 16px !important;
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .section-label {
   margin: 4px 0 0;
   font-size: 11px;
@@ -31,6 +37,10 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.45);
+}
+
+.section-add-btn {
+  flex-shrink: 0;
 }
 
 .checkbox-group {

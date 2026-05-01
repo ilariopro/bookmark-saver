@@ -2,11 +2,21 @@
 
   <div class="bookmarks-content" #top>
 
+    @if (scroll.loading()) {
+      <div class="state-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else if (scroll.error()) {
+      <div class="state-container">
+        <p class="state-message error">{{ scroll.error() }}</p>
+      </div>
+    }
+
      <!-- Header -->
     <div class="bookmarks-header">
       <div class="title-container">
         <h1 class="list-title">{{ state.selectedList()?.name ?? '...' }}</h1>
-        @if (!scroll.loading() && scroll.total() > 0) {
+        @if (hasBookmarks()) {
           <span class="bookmark-count">{{ scroll.total() }} bookmarks</span>
         }
         @if (state.selectedList()?.type === 'api' && state.selectedList()?.description) {
@@ -24,15 +34,7 @@
       }
     </div>
     
-    @if (scroll.loading()) {
-      <div class="state-container">
-        <mat-spinner diameter="40" />
-      </div>
-    } @else if (scroll.error()) {
-      <div class="state-container">
-        <p class="state-message error">{{ scroll.error() }}</p>
-      </div>
-    } @else if (scroll.items().length === 0) {
+    @if (!hasBookmarks()) {
       <div class="state-container">
         <p class="state-message">No bookmarks found.</p>
       </div>
@@ -54,7 +56,7 @@
         </div>
       }
 
-      @if (!scroll.hasMore() && scroll.items().length > 0) {
+      @if (!scroll.hasMore() && hasBookmarks()) {
         <div class="end-of-list">
           <button mat-button (click)="scrollToTop()">
             <mat-icon>arrow_upward</mat-icon>

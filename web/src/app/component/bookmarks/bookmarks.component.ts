@@ -54,7 +54,15 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
       () => {
         this.state.selectedList();
         this.state.selectedTagIdsArray();
-        this.scroll.reset();
+        this.reload();
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        this.state.tags();
+        this.refresh();
       },
       { allowSignalWrites: true }
     );
@@ -79,6 +87,10 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
     this.scroll.reset();
   }
 
+  public hasBookmarks(): boolean {
+    return !this.scroll.loading() && this.scroll.total() > 0;
+  }
+
   public openAddDialog(): void {
     const ref = this.dialog.open(BookmarkAddDialogComponent, { width: '440px' });
 
@@ -95,7 +107,7 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
   }
 
   public scrollToTop(): void {
-    this.topRef()?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    this.topRef()?.nativeElement.scrollIntoView({ behavior: 'instant' });
   }
 
   private extractQueryParams(): BookmarkQueryParams {
@@ -106,5 +118,15 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
       listId:   list?.type === 'api' ? Number(list.id) : null,
       tagIds:   this.state.selectedTagIdsArray(),
     };
+  }
+
+  private refresh(): void {
+    const { favorite, listId, tagIds } = this.extractQueryParams();
+
+    firstValueFrom(this.api.getBookmarks(favorite, listId, tagIds, 0))
+      .then(response => {
+        this.scroll.items.set(response.data);
+        this.scroll.total.set(response.meta.total);
+      });
   }
 }

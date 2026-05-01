@@ -112,7 +112,7 @@ export class BookmarkCardComponent implements OnInit{
     const ref = this.dialog.open(BookmarkDeleteDialogComponent, {
       data: {
         title: this.bookmark().metadata?.title,
-        url:   this.bookmark().url,
+        url: this.bookmark().url,
       },
       width: '440px',
     });
