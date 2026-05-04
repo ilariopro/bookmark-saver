@@ -37,6 +37,12 @@ export class BookmarkApiService {
     return this.http.get<PagedResponse<Bookmark>>(`${this.baseUrl}/bookmarks`, { params });
   }
 
+  getBookmark(bookmarkId: number): Observable<Bookmark> {
+    return this.http
+      .get<Response<Bookmark>>(`${this.baseUrl}/bookmarks/${bookmarkId}`)
+      .pipe(map(response => response.data));
+  }
+
   public createBookmark(payload: BookmarkCreatePayload): Observable<Bookmark> {
     return this.http
       .post<Response<Bookmark>>(`${this.baseUrl}/bookmarks`, payload)

@@ -14,9 +14,10 @@ import { FilterStateService } from '../../service/filter-state.service';
 import { ResponsiveStateService } from '../../service/responsive-state.service';
 import { InfiniteScrollService } from '../../service/infinite-scroll.service';
 import { BookmarkCardComponent } from '../bookmark-card/bookmark-card.component';
-import { BookmarkAddDialogComponent, BookmarkAddDialogResult } from '../bookmark-add-dialog/bookmark-add-dialog.component';
 import { Bookmark, BookmarkQueryParams } from '../../model/bookmark.model';
 import { firstValueFrom } from 'rxjs';
+import { MetadataPollingService } from '../../service/metadata-polling.servie';
+import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
 
 @Component({
   selector: 'app-bookmarks',
@@ -38,6 +39,7 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
   public  readonly state      = inject(FilterStateService);
   public  readonly responsive = inject(ResponsiveStateService);
   public  readonly scroll     = inject(InfiniteScrollService<Bookmark>);
+  private readonly metadata   = inject(MetadataPollingService);
 
   private readonly injector = inject(Injector);
   private readonly sentinel = viewChild<ElementRef>('sentinel');
@@ -52,7 +54,10 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
 
     effect(
       () => {
-        this.state.selectedList();
+        const list = this.state.selectedList();
+
+        if (!list) return;
+
         this.state.selectedTagIdsArray();
         this.reload();
       },
@@ -92,17 +97,27 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
   }
 
   public openAddDialog(): void {
-    const ref = this.dialog.open(BookmarkAddDialogComponent, { width: '440px' });
+    const ref = this.dialog.open(BookmarkFormDialogComponent, { data: {}, width: '440px' });
 
-    ref.afterClosed().subscribe((result: BookmarkAddDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: BookmarkFormDialogResult | undefined) => {
       if (!result) return;
 
       this.api.createBookmark({
-        url:     result.url,
+        url:     result.url!,
         notes:   result.notes,
         listIds: result.listIds.map(id => ({ id })) as any,
         tagIds:  result.tagIds.map(id  => ({ id })) as any,
-      }).subscribe(() => this.scroll.reset());
+      }).subscribe(bookmark => {
+        this.scroll.reset();
+
+        if (bookmark.metadataStatus === 'PENDING') {
+          this.metadata.pollUntilResolved(bookmark.id, resolved => {
+            this.scroll.items.update(prev =>
+              prev.map(b => b.id === resolved.id ? resolved : b)
+            );
+          });
+        }
+      });
     });
   }
 
