@@ -1,31 +1,46 @@
-<h2 mat-dialog-title>Edit Bookmark</h2>
+<h2 mat-dialog-title>{{ isEdit() ? 'Edit Bookmark' : 'New Bookmark' }}</h2>
 
-@if (data.bookmark.metadata?.title) {
-  <p class="bookmark-title">{{ data.bookmark.metadata!.title }}</p>
+@if (isEdit()) {
+  @if (data.bookmark!.metadata?.title) {
+    <p class="bookmark-title">{{ data.bookmark!.metadata!.title }}</p>
+  }
+  <p class="bookmark-url">{{ data.bookmark!.url }}</p>
 }
-<p class="bookmark-url">{{ data.bookmark.url }}</p>
 
 <mat-dialog-content class="dialog-content">
 
-  <!-- Notes -->
-  <h3 class="section-label">Notes</h3>
+  @if (!isEdit()) {
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>URL</mat-label>
+      <input matInput
+             type="url"
+             placeholder="https://..."
+             [formControl]="$any(urlForm.get('url'))"
+             (keydown.enter)="save()" />
+      @if (urlError) {
+        <mat-error>{{ urlError }}</mat-error>
+      }
+    </mat-form-field>
+  }
 
-  <mat-form-field appearance="outline" class="notes-field">
+  <!-- Notes -->
+  <div class="section-header">
+    <h3 class="section-label">Notes</h3>
+  </div>
+
+  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Personal notes</mat-label>
-    <textarea
-      matInput
-      [(ngModel)]="notes"
-      rows="3"
-      placeholder="Add a note about this bookmark...">
-    </textarea>
+    <textarea matInput
+              [ngModel]="notes()"
+              (ngModelChange)="notes.set($event)"
+              rows="3"
+              placeholder="Add a note about this bookmark..."></textarea>
   </mat-form-field>
 
   <!-- Lists -->
   <div class="section-header">
     <h3 class="section-label">Lists</h3>
-    <button mat-icon-button class="section-add-btn"
-            matTooltip="New list"
-            (click)="openCreateListDialog()">
+    <button mat-icon-button matTooltip="New list" (click)="openCreateListDialog()">
       <mat-icon>add</mat-icon>
     </button>
   </div>
@@ -48,9 +63,7 @@
   <!-- Tags -->
   <div class="section-header">
     <h3 class="section-label">Tags</h3>
-    <button mat-icon-button class="section-add-btn"
-            matTooltip="New tag"
-            (click)="openCreateTagDialog()">
+    <button mat-icon-button matTooltip="New tag" (click)="openCreateTagDialog()">
       <mat-icon>add</mat-icon>
     </button>
   </div>
@@ -58,7 +71,7 @@
   @if (state.tags().length === 0) {
     <p class="empty-hint">No tags available.</p>
   } @else {
-    <!-- NOTE: force creation of listbox when tag number changes -->
+    <!-- force chip listbox recreation when tag count changes -->
     @for (_ of [state.tags().length]; track _) {
       <mat-chip-listbox
         multiple
@@ -76,5 +89,9 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()">Cancel</button>
-  <button mat-flat-button color="primary" (click)="save()">Save</button>
+  <button mat-flat-button color="primary"
+          [disabled]="isEdit() ? isUnchanged() : urlForm.invalid"
+          (click)="save()">
+    Save
+  </button>
 </mat-dialog-actions>

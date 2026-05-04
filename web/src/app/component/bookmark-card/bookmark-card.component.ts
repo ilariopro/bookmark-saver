@@ -11,11 +11,8 @@ import { Bookmark } from '../../model/bookmark.model';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import {
-  BookmarkEditDialogComponent,
-  BookmarkEditDialogResult
-} from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
 import { BookmarkDeleteDialogComponent } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
+import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
 
 @Component({
   selector: 'app-bookmark-card',
@@ -51,6 +48,10 @@ export class BookmarkCardComponent implements OnInit{
 
   get displayDomain(): string {
     return this.bookmark().metadata?.domain || new URL(this.bookmark().url).hostname;
+  }
+
+  get createdAt(): string {
+    return new Date(this.bookmark().createdAt).toLocaleString();
   }
 
   get faviconUrl(): string | null {
@@ -92,12 +93,12 @@ export class BookmarkCardComponent implements OnInit{
   }
 
   public openEditDialog(): void {
-    const ref = this.dialog.open(BookmarkEditDialogComponent, {
+    const ref = this.dialog.open(BookmarkFormDialogComponent, {
       data: { bookmark: this.bookmark() },
       width: '440px',
     });
 
-    ref.afterClosed().subscribe((result: BookmarkEditDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: BookmarkFormDialogResult | undefined) => {
       if (!result) return;
 
       this.api.updateBookmark(this.bookmark().id, {
