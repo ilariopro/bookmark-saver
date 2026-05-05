@@ -28,6 +28,7 @@ export interface Metadata {
 
 export interface BookmarkQueryParams {
     favorite: boolean;
+    archived: boolean;
     listId: number | null;
     tagIds: number[];
 }

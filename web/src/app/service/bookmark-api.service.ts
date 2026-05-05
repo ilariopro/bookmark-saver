@@ -18,7 +18,8 @@ export class BookmarkApiService {
   // ── Bookmarks ─────────────────────────────────────────────────
 
   public getBookmarks(
-    favorites = false,
+    favorites: boolean,
+    archived: boolean,
     listId: number | null = null,
     tagIds: number[] = [],
     page = 0,
@@ -30,8 +31,9 @@ export class BookmarkApiService {
       .set('size', size)
       .set('sort', sort);
 
+    if (listId !== null) params = params.set('listId', listId);
     if (favorites)       params = params.set('favorite', true);
-    if (listId !== null) params = params.set('listIds', listId);
+    if (archived)        params = params.set('archived', true);
     if (tagIds.length)   params = params.set('tagIds', tagIds.join(','));
 
     return this.http.get<PagedResponse<Bookmark>>(`${this.baseUrl}/bookmarks`, { params });

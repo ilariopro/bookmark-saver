@@ -89,7 +89,7 @@
         <!-- Tags -->
         @if (bookmark().tags.length > 0) {
             <mat-chip-set class="bookmark-tags">
-                @for (tag of bookmark().tags; track tag.id) {
+                @for (tag of displayTags; track tag.id) {
                     <mat-chip>{{ tag.name }}</mat-chip>
                 }
             </mat-chip-set>

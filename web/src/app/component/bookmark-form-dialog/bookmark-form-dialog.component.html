@@ -91,7 +91,7 @@
     </mat-autocomplete>
   </mat-form-field>
 
-  <!-- Tag selezionati -->
+  <!-- Selected tags -->
   @if (selectedTags().length > 0) {
     <mat-chip-set class="selected-tags">
       @for (tag of selectedTags(); track tag.id) {

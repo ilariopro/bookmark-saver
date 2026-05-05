@@ -18,6 +18,7 @@ import { Bookmark, BookmarkQueryParams } from '../../model/bookmark.model';
 import { firstValueFrom } from 'rxjs';
 import { MetadataPollingService } from '../../service/metadata-polling.servie';
 import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'app-bookmarks',
@@ -42,14 +43,16 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
   private readonly metadata   = inject(MetadataPollingService);
 
   private readonly injector = inject(Injector);
+  private readonly notify   = inject(NotificationService);
+
   private readonly sentinel = viewChild<ElementRef>('sentinel');
   private readonly topRef   = viewChild<ElementRef>('top');
 
   constructor() {
     this.scroll.setLoader(page => {
-      const { favorite, listId, tagIds } = this.extractQueryParams();
+      const { favorite, archived, listId, tagIds } = this.extractQueryParams();
 
-      return firstValueFrom(this.api.getBookmarks(favorite, listId, tagIds, page));
+      return firstValueFrom(this.api.getBookmarks(favorite, archived, listId, tagIds, page));
     });
 
     effect(
@@ -109,6 +112,7 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
         tagIds:  result.tagIds.map(id  => ({ id })) as any,
       }).subscribe(bookmark => {
         this.scroll.reset();
+        this.notify.success('Bookmark created');
 
         if (bookmark.metadataStatus === 'PENDING') {
           this.metadata.pollUntilResolved(bookmark.id, resolved => {
@@ -129,16 +133,17 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
     const list = this.state.selectedList();
 
     return {
-      favorite: list?.type === 'default' && list?.id === 'favorites',
+      favorite: list?.id === 'favorites',
+      archived: list?.id === 'archived',
       listId:   list?.type === 'api' ? Number(list.id) : null,
       tagIds:   this.state.selectedTagIdsArray(),
     };
   }
 
   private refresh(): void {
-    const { favorite, listId, tagIds } = this.extractQueryParams();
+    const { favorite, archived, listId, tagIds } = this.extractQueryParams();
 
-    firstValueFrom(this.api.getBookmarks(favorite, listId, tagIds, 0))
+    firstValueFrom(this.api.getBookmarks(favorite, archived, listId, tagIds, 0))
       .then(response => {
         this.scroll.items.set(response.data);
         this.scroll.total.set(response.meta.total);

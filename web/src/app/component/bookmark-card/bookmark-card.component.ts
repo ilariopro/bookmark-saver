@@ -13,6 +13,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { BookmarkDeleteDialogComponent } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
 import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'app-bookmark-card',
@@ -36,8 +37,9 @@ export class BookmarkCardComponent implements OnInit{
   public readonly isFavorite    = signal(false);
   public readonly notesExpanded = signal(false);
 
-  private readonly dialog = inject(MatDialog);
   private readonly api    = inject(BookmarkApiService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notify = inject(NotificationService);
 
   public readonly updated = output<void>();
   public readonly deleted = output<void>();
@@ -48,6 +50,10 @@ export class BookmarkCardComponent implements OnInit{
 
   get displayDomain(): string {
     return this.bookmark().metadata?.domain || new URL(this.bookmark().url).hostname;
+  }
+
+  get displayTags() {
+    return [...this.bookmark().tags].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   get createdAt(): string {
@@ -105,7 +111,10 @@ export class BookmarkCardComponent implements OnInit{
         notes:   result.notes,
         listIds: result.listIds.map(id => id) as number[],
         tagIds:  result.tagIds.map(id  => id) as number[],
-      }).subscribe(() => this.updated.emit());
+      }).subscribe(() => {
+        this.updated.emit();
+        this.notify.success('Bookmark updated');
+      });
     });
   }
 
@@ -122,7 +131,10 @@ export class BookmarkCardComponent implements OnInit{
       if (!confirmed) return;
       
       this.api.deleteBookmark(this.bookmark().id)
-        .subscribe(() => this.deleted.emit());
+        .subscribe(() => {
+          this.deleted.emit();
+          this.notify.success('Bookmark deleted');
+        });
     });
   }
 }
