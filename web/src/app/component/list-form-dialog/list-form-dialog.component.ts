@@ -7,9 +7,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { List } from '../../model/list.model';
+import { ApiList } from '../../model/sidebar.model';
 
 export interface ListFormDialogData {
-  list?: List;
+  list?: ApiList;
 }
 
 export interface ListFormDialogResult {

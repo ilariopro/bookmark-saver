@@ -13,11 +13,3 @@ export interface PagedResponse<T> {
         previous: boolean;
     }
 }
-
-export interface SidebarList {
-    id: string;
-    name: string;
-    description?: string,
-    icon: string;
-    type: 'default' | 'api'
-}

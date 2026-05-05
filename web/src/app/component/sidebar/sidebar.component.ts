@@ -12,11 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { SidebarList } from '../../model/shared.model';
 import { Tag } from '../../model/tag.model';
 import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
 import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
 import { CommonDeleteDialogComponent, CommonDeleteDialogData } from '../common-delete-dialog/common-delete-dialog.component';
+import { ApiList, DefaultListId } from '../../model/sidebar.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -40,16 +40,12 @@ export class AppSidebar {
   public readonly api    = inject(BookmarkApiService);
   public readonly dialog = inject(MatDialog);
 
-  isSelectedList(list: SidebarList): boolean {
-    return this.state.selectedListKey() === list.id;
+  onSelectDefaultList(id: DefaultListId): void {
+    this.state.selectDefaultList(id);
   }
 
-  onListClick(): void {
-    this.state.setSelectedTags([]);
-  }
-
-  onListChange(listId: string): void {
-    this.state.selectList(listId);
+  onSelectApiList(id: number): void {
+    this.state.selectApiList(id);
   }
 
   onTagsChange(event: MatChipListboxChange): void {
@@ -76,11 +72,7 @@ export class AppSidebar {
     });
   }
 
-  openEditListDialog(sidebarList: SidebarList): void {
-    const list = this.state.resolveList(sidebarList);
-
-    if (!list) return;
-
+  openEditListDialog(list: ApiList): void {
     const ref = this.dialog.open(ListFormDialogComponent, {
       data: { list },
       width: '440px',
@@ -97,11 +89,7 @@ export class AppSidebar {
     });
   }
 
-  openDeleteListDialog(sidebarList: SidebarList): void {
-    const list = this.state.resolveList(sidebarList);
-
-    if (!list) return;
-
+  openDeleteListDialog(list: ApiList): void {
     const ref = this.dialog.open(CommonDeleteDialogComponent, {
       data: {
         title: 'Delete List',
@@ -117,9 +105,9 @@ export class AppSidebar {
       this.api.deleteList(list.id).subscribe(() => {
         this.state.apiLists.update(prev => prev.filter(l => l.id !== list.id));
 
-        if (this.state.selectedListKey() === sidebarList.id) {
-          this.state.selectList('all');
-        }
+        // if (this.state.selectedListKey() === list.id) {
+        //   this.state.selectList('all');
+        // }
       });
     });
   }

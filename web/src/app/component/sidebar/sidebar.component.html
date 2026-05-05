@@ -1,6 +1,29 @@
 <div class="sidebar-content">
 
-  <!-- Lists -->
+  <!-- Default lists -->
+  <mat-selection-list
+    [multiple]="false"
+    [hideSingleSelectionIndicator]="true"
+    (selectionChange)="onSelectDefaultList($event.options[0].value)">
+
+    @for (list of state.defaultLists(); track list.id) {
+      <mat-list-option
+        [selected]="state.selectedList()?.id === list.id"
+        [value]="list.id">
+        <div class="list-item-row">
+          <mat-icon class="list-item-icon" [class.selected]="state.selectedList()?.id === list.id">
+            {{ list.icon }}
+          </mat-icon>
+          <span class="list-item-label">{{ list.name }}</span>
+        </div>
+      </mat-list-option>
+    }
+
+  </mat-selection-list>
+
+  <mat-divider />
+
+  <!-- API Lists -->
   <div class="section-header">
     <h3 class="sidebar-section-title">Lists</h3>
     <button mat-icon-button class="section-add-btn"
@@ -13,43 +36,37 @@
   <mat-selection-list
     [multiple]="false"
     [hideSingleSelectionIndicator]="true"
-    (click)="onListClick()"
-    (selectionChange)="onListChange($event.options[0].value)">
+    (selectionChange)="onSelectApiList($event.options[0].value)">
 
-    @for (list of state.lists(); track list.id) {
+    @for (list of state.apiLists(); track list.id) {
       <mat-list-option
-        [value]="list.id"
-        [selected]="state.selectedListKey() === list.id">
-
+        [selected]="state.selectedList()?.id === list.id"
+        [value]="list.id">
         <div class="list-item-row">
-          <mat-icon
-            class="list-item-icon"
-            [class.selected]="isSelectedList(list)"
-            >
-            {{ list.icon }}</mat-icon>
+          <mat-icon class="list-item-icon" [class.selected]="state.selectedList()?.id === list.id">
+            {{ list.icon }}
+          </mat-icon>
           <span class="list-item-label">{{ list.name }}</span>
 
-          @if (list.type === 'api') {
-            <button mat-icon-button
-                    class="list-menu-btn"
-                    [matMenuTriggerFor]="listMenu"
-                    (click)="$event.stopPropagation()">
-              <mat-icon>more_vert</mat-icon>
+          <button mat-icon-button
+                  class="list-menu-btn"
+                  [class.always-visible]="state.selectedList()?.id === list.id"
+                  [matMenuTriggerFor]="listMenu"
+                  (click)="$event.stopPropagation()">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #listMenu>
+            <button mat-menu-item (click)="openEditListDialog(list)">
+              <mat-icon>edit</mat-icon>
+              Edit
             </button>
-
-            <mat-menu #listMenu>
-              <button mat-menu-item (click)="openEditListDialog(list)">
-                <mat-icon>edit</mat-icon>
-                Edit
-              </button>
-              <button mat-menu-item (click)="openDeleteListDialog(list)">
-                <mat-icon>delete</mat-icon>
-                Delete
-              </button>
-            </mat-menu>
-          }
+            <button mat-menu-item (click)="openDeleteListDialog(list)">
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </mat-menu>
         </div>
-
       </mat-list-option>
     }
 

@@ -9,6 +9,7 @@ import { List, ListPayload } from '../model/list.model';
 import { Bookmark, BookmarkCreatePayload, BookmarkUpdatePayload } from '../model/bookmark.model';
 import { Response, PagedResponse } from '../model/shared.model';
 import { Tag, TagPayload } from '../model/tag.model';
+import { ApiList } from '../model/sidebar.model';
 
 @Injectable({providedIn: 'root' })
 export class BookmarkApiService {
@@ -18,7 +19,7 @@ export class BookmarkApiService {
   // ── Bookmarks ─────────────────────────────────────────────────
 
   public getBookmarks(
-    favorites: boolean,
+    favorite: boolean,
     archived: boolean,
     listId: number | null = null,
     tagIds: number[] = [],
@@ -31,9 +32,9 @@ export class BookmarkApiService {
       .set('size', size)
       .set('sort', sort);
 
-    if (listId !== null) params = params.set('listId', listId);
-    if (favorites)       params = params.set('favorite', true);
+    if (favorite)        params = params.set('favorite', true);
     if (archived)        params = params.set('archived', true);
+    if (listId !== null) params = params.set('listIds', listId);
     if (tagIds.length)   params = params.set('tagIds', tagIds.join(','));
 
     return this.http.get<PagedResponse<Bookmark>>(`${this.baseUrl}/bookmarks`, { params });
@@ -63,24 +64,24 @@ export class BookmarkApiService {
 
   // ── Lists ─────────────────────────────────────────────────────
 
-  public getLists(): Observable<List[]> {
+  public getLists(): Observable<ApiList[]> {
     const params = new HttpParams().set('sort', 'createdAt,asc');
 
     return this.http
       .get<Response<List[]>>(`${this.baseUrl}/lists`, { params })
-      .pipe(map(response => response.data));
+      .pipe(map(response => response.data.map(list => this.toApiList(list))));
   }
 
-  public createList(payload: ListPayload): Observable<List> {
+  public createList(payload: ListPayload): Observable<ApiList> {
     return this.http
       .post<Response<List>>(`${this.baseUrl}/lists`, payload)
-      .pipe(map(response => response.data));
+      .pipe(map(response => this.toApiList(response.data)));
   }
 
-  public updateList(listId: number, payload: ListPayload): Observable<List> {
+  public updateList(listId: number, payload: ListPayload): Observable<ApiList> {
     return this.http
       .patch<Response<List>>(`${this.baseUrl}/lists/${listId}`, payload)
-      .pipe(map(response => response.data));
+      .pipe(map(response => this.toApiList(response.data)));
   }
 
   public deleteList(listId: number): Observable<void> {
@@ -111,5 +112,13 @@ export class BookmarkApiService {
 
   public deleteTag(tagId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/tags/${tagId}`);
+  }
+
+  private toApiList(list: List): ApiList {
+    return {
+      ...list,
+      type: 'api',
+      icon: 'label'
+    };
   }
 }

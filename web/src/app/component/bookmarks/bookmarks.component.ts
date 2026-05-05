@@ -133,9 +133,9 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
     const list = this.state.selectedList();
 
     return {
-      favorite: list?.id === 'favorites',
-      archived: list?.id === 'archived',
-      listId:   list?.type === 'api' ? Number(list.id) : null,
+      favorite: list?.type === 'default' && list?.id === 'favorites',
+      archived: list?.type === 'default' && list?.id === 'archived',
+      listId:   list?.type === 'api' ? list.id : null,
       tagIds:   this.state.selectedTagIdsArray(),
     };
   }

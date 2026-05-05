@@ -52,10 +52,6 @@ export class AppLayout implements OnInit {
     this.api.getLists().subscribe({
       next: lists => {
         this.state.apiLists.set(lists);
-
-        if (!this.state.hasSelectedList()) {
-          this.state.selectList('all');
-        }
       },
       error: () => this.sidebarError.set('Error loading lists.'),
     });

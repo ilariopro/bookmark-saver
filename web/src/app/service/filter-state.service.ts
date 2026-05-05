@@ -1,82 +1,81 @@
 import { Injectable, inject, computed, signal } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { List } from '../model/list.model';
+import { filter, map } from 'rxjs';
+
+import { ApiList, DEFAULT_LISTS, DefaultList, DefaultListId } from '../model/sidebar.model';
 import { Tag } from '../model/tag.model';
-import { SidebarList } from '../model/shared.model';
 
-export const DEFAULT_LISTS: SidebarList[] = [
-  { id: 'all',       name: 'All Bookmarks', icon: 'bookmarks', type: 'default' },
-  { id: 'favorites', name: 'Favorites',     icon: 'star',      type: 'default' },
-];
-
-function toSidebarList(list: List): SidebarList {
-  return {
-    id: String(list.id),
-    name: list.name,
-    description: list.description || undefined,
-    icon: 'label',
-    type: 'api'
-  };
-}
+export type SelectedList = DefaultList | ApiList;
 
 @Injectable({ providedIn: 'root' })
 export class FilterStateService {
   private readonly router = inject(Router);
   private readonly route  = inject(ActivatedRoute);
 
+  // ── Remote data ───────────────────────────────────────────────
+  readonly apiLists = signal<ApiList[]>([]);
+  readonly tags     = signal<Tag[]>([]);
+
+  // ── Route e query params come signal ──────────────────────────
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(event => (event as NavigationEnd).urlAfterRedirects.split('?')[0]),
+    ),
+    { initialValue: this.router.url.split('?')[0] }
+  );
+
   private readonly queryParams = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
 
-  public readonly apiLists = signal<List[]>([]);
-  public readonly tags     = signal<Tag[]>([]);
-
-  public readonly lists = computed<SidebarList[]>(() => [
-    ...DEFAULT_LISTS,
-    ...this.apiLists().map(toSidebarList),
-  ]);
-
   // ── Selezione corrente ────────────────────────────────────────
-  public readonly selectedListKey = computed<string>(() =>
-    this.queryParams().get('list') ?? 'all'
-  );
+  readonly selectedList = computed<SelectedList | undefined>(() => {
+    const path = this.currentPath();
 
-  public readonly selectedList = computed<SidebarList | undefined>(() =>
-    this.lists().find(list => String(list.id) === this.selectedListKey())
-  );
+    if (path.startsWith('/favorites')) return DEFAULT_LISTS[1];
+    if (path.startsWith('/archived'))  return DEFAULT_LISTS[2];
 
-  public readonly selectedTagIds = computed<Set<number>>(() => {
-    const tags = this.queryParams().get('tags');
+    if (path.startsWith('/lists/')) {
+      const id = Number(path.split('/lists/')[1]);
+      return this.apiLists().find(l => l.id === id);
+    }
 
-    return tags 
-      ? new Set(tags.split(',').map(Number))
-      : new Set<number>();
+    return DEFAULT_LISTS[0];
   });
 
-  public readonly selectedTagIdsArray = computed(() => Array.from(this.selectedTagIds()));
+  readonly selectedTagIds = computed<Set<number>>(() => {
+    const raw = this.queryParams().get('tags');
+    return raw ? new Set(raw.split(',').map(Number)) : new Set<number>();
+  });
 
-  public hasSelectedList(): boolean {
-    return this.queryParams().get('list') !== null;
+  readonly selectedTagIdsArray = computed(() =>
+    Array.from(this.selectedTagIds())
+  );
+
+  defaultLists(): DefaultList[] {
+    return DEFAULT_LISTS;
   }
 
-  public resolveList(sidebarList: SidebarList): List | undefined {
-    if (sidebarList.type !== 'api') return undefined;
-
-    return this.apiLists().find(list => list.id === Number(sidebarList.id));
+  // ── Navigazione ───────────────────────────────────────────────
+  selectDefaultList(id: DefaultListId): void {
+    const paths: Record<DefaultListId, string> = {
+      all:       '/bookmarks',
+      favorites: '/favorites',
+      archived:  '/archived',
+    };
+    this.router.navigate([paths[id]]);
   }
 
-  // ── Actions ───────────────────────────────────────────────────
-  public selectList(id: string | number): void {
+  selectApiList(id: number): void {
+    this.router.navigate(['/lists', id]);
+  }
+
+  setSelectedTags(tagIds: number[]): void {
     this.router.navigate([], {
-      queryParams: { list: String(id), tags: null },
-      queryParamsHandling: 'merge',
-    });
-  }
-
-  public setSelectedTags(tagIds: number[]): void {
-    this.router.navigate([], {
-      queryParams: { tags: tagIds.length ? tagIds.join(',') : null },
+      queryParams:         { tags: tagIds.length ? tagIds.join(',') : null },
       queryParamsHandling: 'merge',
     });
   }
