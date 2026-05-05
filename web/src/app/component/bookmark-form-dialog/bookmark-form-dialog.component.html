@@ -107,7 +107,7 @@
 
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions class="action-buttons" align="end">
   <button mat-button (click)="cancel()">Cancel</button>
   <button mat-flat-button color="primary"
           [disabled]="isEdit() ? isUnchanged() : urlForm.invalid"

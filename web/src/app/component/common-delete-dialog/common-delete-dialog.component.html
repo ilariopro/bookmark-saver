@@ -4,11 +4,11 @@
 
 <mat-dialog-content class="dialog-content">
     <p class="confirm-message">
-        Are you sure you want to delete this {{ data.type }}? This action is irreversible.
+        Are you sure you want to delete this {{ data.type }}?
     </p>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions class="action-buttons" align="end">
     <button mat-button (click)="cancel()">Cancel</button>
     <button mat-flat-button color="warn" (click)="confirm()">Delete</button>
 </mat-dialog-actions>
