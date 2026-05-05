@@ -1,15 +1,15 @@
 <h2 mat-dialog-title>{{ isEdit() ? 'Edit Bookmark' : 'New Bookmark' }}</h2>
 
-@if (isEdit()) {
-  @if (data.bookmark!.metadata?.title) {
-    <p class="bookmark-title">{{ data.bookmark!.metadata!.title }}</p>
-  }
-  <p class="bookmark-url">{{ data.bookmark!.url }}</p>
-}
-
 <mat-dialog-content class="dialog-content">
 
-  @if (!isEdit()) {
+  @if (isEdit()) {
+    <div class="full-width">
+      @if (data.bookmark!.metadata?.title) {
+        <p class="bookmark-title">{{ data.bookmark!.metadata!.title }}</p>
+      }
+      <p class="bookmark-url">{{ data.bookmark!.url }}</p>
+    </div>
+  } @else {
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>URL</mat-label>
       <input matInput
@@ -28,7 +28,7 @@
     <h3 class="section-label">Notes</h3>
   </div>
 
-  <mat-form-field appearance="outline" class="full-width">
+  <mat-form-field appearance="outline" class="full-width notes-field">
     <mat-label>Personal notes</mat-label>
     <textarea matInput
               [ngModel]="notes()"
@@ -48,16 +48,24 @@
   @if (state.apiLists().length === 0) {
     <p class="empty-hint">No lists available.</p>
   } @else {
-    <div class="checkbox-group">
-      @for (list of state.apiLists(); track list.id) {
-        <mat-checkbox
-          color="primary"
-          [checked]="isListSelected(list.id)"
-          (change)="toggleList(list.id, $event.checked)">
-          {{ list.name }}
-        </mat-checkbox>
-      }
-    </div>
+    <mat-expansion-panel class="lists-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-description>
+          {{ selectedListIds().length > 0 ? selectedListIds().length + ' selected' : 'None selected' }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="checkbox-group">
+        @for (list of state.apiLists(); track list.id) {
+          <mat-checkbox
+            color="primary"
+            [checked]="isListSelected(list.id)"
+            (change)="toggleList(list.id, $event.checked)">
+            {{ list.name }}
+          </mat-checkbox>
+        }
+      </div>
+    </mat-expansion-panel>
   }
 
   <!-- Tags -->
@@ -68,21 +76,33 @@
     </button>
   </div>
 
-  @if (state.tags().length === 0) {
-    <p class="empty-hint">No tags available.</p>
-  } @else {
-    <!-- force chip listbox recreation when tag count changes -->
-    @for (_ of [state.tags().length]; track _) {
-      <mat-chip-listbox
-        multiple
-        class="mat-mdc-chip-set-stacked"
-        [value]="selectedTagIds()"
-        (change)="onTagsChange($event)">
-        @for (tag of state.tags(); track tag.id) {
-          <mat-chip-option [value]="tag.id">{{ tag.name }}</mat-chip-option>
-        }
-      </mat-chip-listbox>
-    }
+  <!-- Autocomplete tag search -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Search tags</mat-label>
+    <input matInput
+          [ngModel]="tagSearch()"
+          (ngModelChange)="tagSearch.set($event)"
+          [matAutocomplete]="tagAuto"
+          placeholder="Type to search..." />
+    <mat-autocomplete #tagAuto (optionSelected)="addTag($event)">
+      @for (tag of tagSuggestions(); track tag.id) {
+        <mat-option [value]="tag.name">{{ tag.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <!-- Tag selezionati -->
+  @if (selectedTags().length > 0) {
+    <mat-chip-set class="selected-tags">
+      @for (tag of selectedTags(); track tag.id) {
+        <mat-chip (removed)="removeTag(tag.id)">
+          {{ tag.name }}
+          <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip>
+      }
+    </mat-chip-set>
   }
 
 </mat-dialog-content>

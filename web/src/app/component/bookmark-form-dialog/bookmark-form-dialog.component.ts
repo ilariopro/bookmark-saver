@@ -16,6 +16,8 @@ import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
 import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 export interface BookmarkFormDialogData {
   bookmark?: Bookmark;
@@ -35,10 +37,12 @@ export interface BookmarkFormDialogResult {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    MatAutocompleteModule,
     MatButtonModule,
     MatCheckboxModule,
     MatChipsModule,
     MatDialogModule,
+    MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -62,9 +66,10 @@ export class BookmarkFormDialogComponent {
   });
 
   // stato condiviso
-  readonly notes         = signal(this.data.bookmark?.notes ?? '');
+  readonly notes           = signal(this.data.bookmark?.notes ?? '');
   readonly selectedListIds = signal<number[]>(this.data.bookmark?.lists.map(l => l.id) ?? []);
   readonly selectedTagIds  = signal<number[]>(this.data.bookmark?.tags.map(t => t.id) ?? []);
+  readonly tagSearch       = signal('');
 
   readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
@@ -79,6 +84,20 @@ export class BookmarkFormDialogComponent {
                       this.selectedTagIds().every(id => originalTagIds.has(id));
 
     return sameNotes && sameLists && sameTags;
+  });
+
+  readonly selectedTags = computed(() =>
+    this.state.tags().filter(t => this.selectedTagIds().includes(t.id))
+  );
+
+  readonly tagSuggestions = computed(() => {
+    const input     = this.tagSearch().trim().toLowerCase();
+    const selected  = new Set(this.selectedTagIds());
+    const available = this.state.tags().filter(tag => !selected.has(tag.id));
+
+    if (!input) return available;
+    
+    return available.filter(tag => tag.name.toLowerCase().includes(input));
   });
 
   get urlError(): string {
@@ -138,9 +157,23 @@ export class BookmarkFormDialogComponent {
         this.api.getTags().subscribe(tags => {
           this.state.tags.set(tags);
           this.selectedTagIds.update(prev => [...prev, tag.id]);
+          this.tagSearch.set('');
         });
       });
     });
+  }
+
+  addTag(event: MatAutocompleteSelectedEvent): void {
+    const tag = this.state.tags().find(tag => tag.name === event.option.value);
+    
+    if (!tag) return;
+    
+    this.selectedTagIds.update(prev => [...prev, tag.id]);
+    this.tagSearch.set('');
+  }
+
+  removeTag(tagId: number): void {
+    this.selectedTagIds.update(prev => prev.filter(id => id !== tagId));
   }
 
   // ── Actions ───────────────────────────────────────────────────
