@@ -1,4 +1,16 @@
-<div class="sidebar-content">
+<div class="sidebar-content" [class.is-mobile]="responsive.isMobile()">
+
+  <div class="section-header">
+    <h3 class="app-name">Bookmark Saver</h3>
+      @if (responsive.isMobile()) {
+        <button mat-icon-button
+          class="close-button"
+          matTooltip="Close sidebar"
+          (click)="closeRequested.emit()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+  </div>
 
   <!-- Default lists -->
   <mat-selection-list
@@ -26,9 +38,10 @@
   <!-- API Lists -->
   <div class="section-header">
     <h3 class="sidebar-section-title">Lists</h3>
-    <button mat-icon-button class="section-add-btn"
-            matTooltip="New list"
-            (click)="openCreateListDialog()">
+    <button mat-icon-button
+        class="section-add-btn"
+        matTooltip="New list"
+        (click)="openCreateListDialog()">
       <mat-icon>add</mat-icon>
     </button>
   </div>
@@ -77,9 +90,10 @@
   <!-- Tags -->
   <div class="section-header">
     <h3 class="sidebar-section-title">Tags</h3>
-    <button mat-icon-button class="section-add-btn"
-            matTooltip="New tag"
-            (click)="openCreateTagDialog()">
+    <button mat-icon-button
+      class="section-add-btn"
+      matTooltip="New tag"
+      (click)="openCreateTagDialog()">
       <mat-icon>add</mat-icon>
     </button>
   </div>
@@ -95,8 +109,8 @@
         <span class="tag-label">{{ tag.name }}</span>
 
         <button matChipRemove
-                [matMenuTriggerFor]="tagMenu"
-                (click)="$event.stopPropagation()">
+          [matMenuTriggerFor]="tagMenu"
+          (click)="$event.stopPropagation()">
           <mat-icon>more_vert</mat-icon>
         </button>
 

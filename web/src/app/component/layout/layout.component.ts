@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -31,11 +31,12 @@ import { ResponsiveStateService } from '../../service/responsive-state.service';
 })
 export class AppLayout implements OnInit {
   private readonly api        = inject(BookmarkApiService);
+  private readonly document   = inject(DOCUMENT);
   private readonly responsive = inject(ResponsiveStateService);
   private readonly state      = inject(FilterStateService);
 
-  public readonly sidebarLoading = signal(false);
   public readonly sidebarError   = signal<string | null>(null);
+  public readonly sidebarLoading = signal(false);
 
   public ngOnInit(): void {
     this.loadSidebarData();
@@ -43,6 +44,16 @@ export class AppLayout implements OnInit {
 
   public isMobile(): boolean {
     return this.responsive.isMobile();
+  }
+
+  public onSidenavOpened(): void {
+    if (this.isMobile()) {
+      this.document.body.style.overflow = 'hidden';
+    }
+  }
+
+  public onSidenavClosed(): void {
+    this.document.body.style.overflow = '';
   }
 
   private loadSidebarData(): void {

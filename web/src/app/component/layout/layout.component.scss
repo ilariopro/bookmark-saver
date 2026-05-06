@@ -3,35 +3,17 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-
-  .app-name {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
 }
 
 .toolbar {
-  flex-shrink: 0;
-  z-index: 100;
   background-color: white;
   border-bottom: 1px solid #ddd;
-
-  &.is-fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
+  transition: transform 250ms ease;
 }
 
 .sidebar-container {
   flex: 1;
   overflow: hidden;
-
-  &.is-fixed {
-    margin-top: 56px;
-  }
 }
 
 .sidebar-error {
@@ -90,22 +72,9 @@
   height: auto;
   overflow: visible;
 
-  .app-name {
-    font-size: 1.2rem;
-  }
-
-  .toolbar {
-    padding: 0 8px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
-
   .sidebar-container {
     flex: 1 0 auto;
     overflow: visible;
-    margin-top: 56px;
   }
 
   .main-content {

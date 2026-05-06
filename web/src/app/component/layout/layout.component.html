@@ -1,20 +1,9 @@
 <div class="layout-container" [class.is-mobile]="isMobile()">
 
-    <mat-toolbar class="toolbar">
-        @if (isMobile()) {
-        <button mat-icon-button (click)="sidebar.toggle()" aria-label="Toggle menu">
-            <mat-icon>menu</mat-icon>
-        </button>
-        }
-        <span class="app-name">Bookmark Saver</span>
-    </mat-toolbar>
-
-    <!-- Progress bar -->
     @if (sidebarLoading()) {
         <mat-progress-bar mode="indeterminate" />
     }
 
-    <!-- Sidebar -->
     <mat-sidenav-container class="sidebar-container">
 
         <mat-sidenav
@@ -24,18 +13,30 @@
             [opened]="!isMobile()"
             [disableClose]="!isMobile()"
             [fixedInViewport]="isMobile()"
-            [fixedTopGap]="56">
+            (opened)="onSidenavOpened()"
+            (closed)="onSidenavClosed()">
             @if (sidebarError()) {
                 <p class="sidebar-error">{{ sidebarError() }}</p>
             } @else {
-                <app-sidebar />
+                <app-sidebar (closeRequested)="sidebar.close()" />
             }
         </mat-sidenav>
 
             <mat-sidenav-content>
+
                 <div class="main-content">
+
+                    <mat-toolbar class="toolbar">
+                        @if (isMobile()) {
+                            <button mat-icon-button (click)="sidebar.toggle()" aria-label="Toggle menu">
+                                <mat-icon>menu</mat-icon>
+                            </button>
+                        }
+                    </mat-toolbar>
+
                     <app-bookmarks />
                 </div>
+                
             </mat-sidenav-content>
 
     </mat-sidenav-container>

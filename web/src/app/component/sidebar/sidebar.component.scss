@@ -6,6 +6,13 @@
   overflow: hidden;
 }
 
+.app-name {
+  margin: 0;
+  padding: 10px 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
@@ -32,6 +39,7 @@
   color: rgba(0, 0, 0, 0.4);
 }
 
+.close-button,
 .section-add-btn {
   flex-shrink: 0;
   margin-right: 4px;
@@ -120,4 +128,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+}
+
+.is-mobile {
+  .app-name {
+    font-size: 1.2rem;
+    padding: 8px 0;
+  }
 }

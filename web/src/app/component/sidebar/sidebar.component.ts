@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatListModule } from '@angular/material/list';
@@ -17,6 +17,7 @@ import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dial
 import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
 import { CommonDeleteDialogComponent, CommonDeleteDialogData } from '../common-delete-dialog/common-delete-dialog.component';
 import { ApiList, DefaultListId } from '../../model/sidebar.model';
+import { ResponsiveStateService } from '../../service/responsive-state.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -36,9 +37,12 @@ import { ApiList, DefaultListId } from '../../model/sidebar.model';
   styleUrl: './sidebar.component.scss',
 })
 export class AppSidebar {
-  public readonly state  = inject(FilterStateService);
-  public readonly api    = inject(BookmarkApiService);
-  public readonly dialog = inject(MatDialog);
+  public readonly responsive = inject(ResponsiveStateService);
+  public readonly state      = inject(FilterStateService);
+  public readonly api        = inject(BookmarkApiService);
+  public readonly dialog     = inject(MatDialog);
+
+  public readonly closeRequested = output<void>();
 
   onSelectDefaultList(id: DefaultListId): void {
     this.state.selectDefaultList(id);
