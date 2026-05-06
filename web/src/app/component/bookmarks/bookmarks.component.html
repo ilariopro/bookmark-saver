@@ -1,6 +1,6 @@
 <div class="bookmarks-container" [class.is-mobile]="responsive.isMobile()">
 
-  <div class="bookmarks-content" #top>
+  <div class="bookmarks-content">
 
     @if (scroll.loading()) {
       <div class="state-container">
@@ -36,7 +36,7 @@
     
     @if (!hasBookmarks()) {
       <div class="state-container">
-        <p class="state-message">No bookmarks found.</p>
+        <p class="state-message">No bookmarks found</p>
       </div>
     } @else {
       <div class="bookmarks-grid">
@@ -58,10 +58,12 @@
 
       @if (!scroll.hasMore() && hasBookmarks()) {
         <div class="end-of-list">
-          <button mat-button (click)="scrollToTop()">
+          <p class="state-message">All bookmarks loaded</p> 
+          
+          <!-- <button mat-button (click)="scrollToTop()">
             <mat-icon>arrow_upward</mat-icon>
             Back to top
-          </button>
+          </button> -->
         </div>
       }
     }

@@ -37,16 +37,14 @@ import { NotificationService } from '../../service/notification.service';
 export class AppBookmarks implements AfterViewInit, OnDestroy {
   private readonly api        = inject(BookmarkApiService);
   private readonly dialog     = inject(MatDialog);
-  public  readonly state      = inject(FilterStateService);
+  private readonly injector   = inject(Injector);
+  private readonly notify     = inject(NotificationService);
   public  readonly responsive = inject(ResponsiveStateService);
   public  readonly scroll     = inject(InfiniteScrollService<Bookmark>);
+  public  readonly state      = inject(FilterStateService);
   private readonly metadata   = inject(MetadataPollingService);
 
-  private readonly injector = inject(Injector);
-  private readonly notify   = inject(NotificationService);
-
   private readonly sentinel = viewChild<ElementRef>('sentinel');
-  private readonly topRef   = viewChild<ElementRef>('top');
 
   constructor() {
     this.scroll.setLoader(page => {
@@ -123,10 +121,6 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
         }
       });
     });
-  }
-
-  public scrollToTop(): void {
-    this.topRef()?.nativeElement.scrollIntoView({ behavior: 'instant' });
   }
 
   private extractQueryParams(): BookmarkQueryParams {
