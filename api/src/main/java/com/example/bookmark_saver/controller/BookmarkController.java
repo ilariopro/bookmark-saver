@@ -4,7 +4,6 @@ import com.example.bookmark_saver.domain.Bookmark;
 import com.example.bookmark_saver.dto.common.ApiListResponse;
 import com.example.bookmark_saver.dto.common.ApiResponse;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
-import com.example.bookmark_saver.dto.request.IdListRequest;
 import com.example.bookmark_saver.dto.response.BookmarkResponse;
 import com.example.bookmark_saver.service.BookmarkService;
 import com.example.bookmark_saver.utility.CommaSeparatedParser;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,8 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for managing bookmarks.
  *
- * Exposes endpoints under {@code /api/bookmarks} for CRUD operations,
- * dynamic filtering, and bulk tag association updates.
+ * Exposes endpoints under {@code /api/bookmarks} for CRUD operations.
  */
 @RestController
 @RequestMapping("/api/bookmarks")
@@ -130,42 +127,6 @@ public class BookmarkController {
     ) {
         return ResponseEntity.ok(
             ResponseFactory.one(service.update(bookmarkId, request), BookmarkResponse::from)
-        );
-    }
-
-    /**
-     * Replaces the list associations of a bookmark.
-     *
-     * @param bookmarkId The ID of the bookmark.
-     * @param request    The request containing the new list IDs.
-     * 
-     * @return The updated {@link BookmarkResponse}.
-     */
-    @PutMapping("/{bookmarkId}/lists")
-    public ResponseEntity<ApiResponse<BookmarkResponse>> updateLists(
-        @PathVariable Long bookmarkId,
-        @RequestBody IdListRequest request
-    ) {
-        return ResponseEntity.ok(
-            ResponseFactory.one(service.updateLists(bookmarkId, request.ids()), BookmarkResponse::from)
-        );
-    }
-
-    /**
-     * Replaces the tag associations of a bookmark.
-     *
-     * @param bookmarkId The ID of the bookmark.
-     * @param request    The request containing the new tag IDs.
-     * 
-     * @return The updated {@link BookmarkResponse}.
-     */
-    @PutMapping("/{bookmarkId}/tags")
-    public ResponseEntity<ApiResponse<BookmarkResponse>> updateTags(
-        @PathVariable Long bookmarkId,
-        @RequestBody IdListRequest request
-    ) {
-        return ResponseEntity.ok(
-            ResponseFactory.one(service.updateTags(bookmarkId, request.ids()), BookmarkResponse::from)
         );
     }
 

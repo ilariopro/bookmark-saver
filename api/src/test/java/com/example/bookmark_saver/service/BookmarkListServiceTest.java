@@ -136,31 +136,6 @@ class BookmarkListServiceTest {
     }
 
     // ---------------------------------------------------------------
-    // updateBookmarks
-    // ---------------------------------------------------------------
-
-    @Test
-    void updateBookmarksReplacesAllAssociations() {
-        when(listRepository.findById(1L))
-            .thenReturn(Optional.of(BookmarkListFixture.withDefaults()));
-
-        service.updateBookmarks(1L, List.of(10L, 20L));
-
-        verify(bookmarkRepository).deleteAllByListId(1L);
-        verify(jdbcTemplate).batchUpdate(anyString(), anyList(), anyInt(), any());
-    }
-
-    @Test
-    void updateBookmarksThrowsWhenListNotFound() {
-        when(listRepository.findById(99L))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.updateBookmarks(99L, List.of(1L)))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("99");
-    }
-
-    // ---------------------------------------------------------------
     // delete
     // ---------------------------------------------------------------
 

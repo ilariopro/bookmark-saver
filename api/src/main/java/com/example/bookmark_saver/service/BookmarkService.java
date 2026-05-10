@@ -196,40 +196,6 @@ public class BookmarkService {
     }
 
     /**
-     * Replaces the list associations of a bookmark.
-     *
-     * @param bookmarkId The ID of the bookmark.
-     * @param listIds    The IDs of the lists to associate.
-     * 
-     * @return The updated {@link Bookmark}.
-     * @throws EntityNotFoundException If the bookmark or any list ID is not found.
-     */
-    public Bookmark updateLists(Long bookmarkId, List<Long> listIds) {
-        Bookmark bookmark = findById(bookmarkId);
-
-        bookmark.setLists(fetchLists(listIds));
-
-        return bookmarkRepository.save(bookmark);
-    }
-
-    /**
-     * Replaces the tag associations of a bookmark.
-     *
-     * @param bookmarkId The ID of the bookmark.
-     * @param tagIds     The IDs of the tags to associate.
-     * 
-     * @return The updated {@link Bookmark}.
-     * @throws EntityNotFoundException If the bookmark or any tag ID is not found.
-     */
-    public Bookmark updateTags(Long bookmarkId, List<Long> tagIds) {
-        Bookmark bookmark = findById(bookmarkId);
-
-        bookmark.setTags(fetchTags(tagIds));
-
-        return bookmarkRepository.save(bookmark);
-    }
-
-    /**
      * Deletes a bookmark by its ID.
      *
      * @param bookmarkId The ID of the bookmark to delete.

@@ -3,13 +3,11 @@ package com.example.bookmark_saver.service;
 import com.example.bookmark_saver.domain.BookmarkList;
 import com.example.bookmark_saver.dto.request.BookmarkListRequest;
 import com.example.bookmark_saver.repository.BookmarkListRepository;
-import com.example.bookmark_saver.repository.BookmarkRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,28 +26,12 @@ public class BookmarkListService {
     private BookmarkListRepository listRepository;
 
     /**
-     * Repository for accessing and persisting bookmarks.
-     */
-    private BookmarkRepository bookmarkRepository;
-
-    /**
-     * JDBC template for executing batch updates.
-     */
-    private JdbcTemplate jdbcTemplate;
-
-    /**
      * @param listRepository      The list repository.
-     * @param bookmarkRepository The bookmark repository.
-     * @param jdbcTemplate       The JDBC template for batch operations.
      */
     public BookmarkListService(
-        BookmarkListRepository listRepository,
-        BookmarkRepository bookmarkRepository,
-        JdbcTemplate jdbcTemplate
+        BookmarkListRepository listRepository
     ) {
         this.listRepository = listRepository;
-        this.bookmarkRepository = bookmarkRepository;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     /**
@@ -118,34 +100,6 @@ public class BookmarkListService {
         list.setDescription(description);
 
         return listRepository.save(list);
-    }
-
-    /**
-     * Replaces all bookmark associations for a list.
-     *
-     * @param listId      The ID of the list.
-     * @param bookmarkIds The IDs of the bookmarks to associate.
-     * 
-     * @return The updated list with its new associations.
-     * @throws EntityNotFoundException If no list is found with the given ID.
-     */
-    @Transactional
-    public BookmarkList updateBookmarks(Long listId, List<Long> bookmarkIds) {
-        findById(listId);
-
-        bookmarkRepository.deleteAllByListId(listId);
-
-        jdbcTemplate.batchUpdate(
-            "INSERT INTO bookmark_lists (bookmark_id, list_id) VALUES (?, ?)",
-            bookmarkIds,
-            bookmarkIds.size(),
-            (statement, bookmarkId) -> {
-                statement.setLong(1, bookmarkId);
-                statement.setLong(2, listId);
-            }
-        );
-
-        return findById(listId);
     }
 
     /**

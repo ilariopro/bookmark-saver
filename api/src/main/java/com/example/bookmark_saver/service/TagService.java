@@ -2,7 +2,6 @@ package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Tag;
 import com.example.bookmark_saver.dto.request.TagRequest;
-import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -28,27 +27,19 @@ public class TagService {
     private TagRepository tagRepository;
 
     /**
-     * Repository for accessing and persisting bookmarks.
-     */
-    private BookmarkRepository bookmarkRepository;
-
-    /**
      * JDBC template for executing batch updates.
      */
     private JdbcTemplate jdbcTemplate;
 
     /**
      * @param tagRepository      The tag repository.
-     * @param bookmarkRepository The bookmark repository.
      * @param jdbcTemplate       The JDBC template for batch operations.
      */
     public TagService(
         TagRepository tagRepository,
-        BookmarkRepository bookmarkRepository,
         JdbcTemplate jdbcTemplate
     ) {
         this.tagRepository = tagRepository;
-        this.bookmarkRepository = bookmarkRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -152,34 +143,6 @@ public class TagService {
         tag.setName(normalizedName);
 
         return tagRepository.save(tag);
-    }
-
-    /**
-     * Replaces all bookmark associations for a tag.
-     *
-     * @param tagId       The ID of the tag.
-     * @param bookmarkIds The IDs of the bookmarks to associate.
-     * 
-     * @return The updated tag with its new associations.
-     * @throws EntityNotFoundException If no tag is found with the given ID.
-     */
-    @Transactional
-    public Tag updateBookmarks(Long tagId, List<Long> bookmarkIds) {
-        findById(tagId);
-
-        bookmarkRepository.deleteAllByTagId(tagId);
-
-        jdbcTemplate.batchUpdate(
-            "INSERT INTO bookmark_tags (bookmark_id, tag_id) VALUES (?, ?)",
-            bookmarkIds,
-            bookmarkIds.size(),
-            (statement, bookmarkId) -> {
-                statement.setLong(1, bookmarkId);
-                statement.setLong(2, tagId);
-            }
-        );
-
-        return findById(tagId);
     }
 
     /**

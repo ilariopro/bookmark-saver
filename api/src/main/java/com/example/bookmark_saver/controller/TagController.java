@@ -2,7 +2,6 @@ package com.example.bookmark_saver.controller;
 
 import com.example.bookmark_saver.dto.common.ApiListResponse;
 import com.example.bookmark_saver.dto.common.ApiResponse;
-import com.example.bookmark_saver.dto.request.IdListRequest;
 import com.example.bookmark_saver.dto.request.TagRequest;
 import com.example.bookmark_saver.dto.response.TagResponse;
 import com.example.bookmark_saver.service.TagService;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,8 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for managing tags.
  *
- * Exposes endpoints under {@code /api/tags} for CRUD operations
- * and bulk bookmark association updates.
+ * Exposes endpoints under {@code /api/tags} for CRUD operations.
  */
 @RestController
 @RequestMapping("/api/tags")
@@ -107,24 +104,6 @@ public class TagController {
     ) {
         return ResponseEntity.ok(
             ResponseFactory.one(service.update(tagId, request), TagResponse::from)
-        );
-    }
-
-    /**
-     * Replaces the bookmark associations of a tag.
-     *
-     * @param tagId   The ID of the tag.
-     * @param request The request containing the new bookmark IDs.
-     * 
-     * @return The updated {@link TagResponse}.
-     */
-    @PutMapping("/{tagId}/bookmarks")
-    public ResponseEntity<ApiResponse<TagResponse>> updateBookmarks(
-        @PathVariable Long tagId,
-        @RequestBody IdListRequest request
-    ) {
-        return ResponseEntity.ok(
-            ResponseFactory.one(service.updateBookmarks(tagId, request.ids()), TagResponse::from)
         );
     }
 

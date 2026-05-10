@@ -1,15 +1,11 @@
 package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Bookmark;
-import com.example.bookmark_saver.domain.BookmarkList;
-import com.example.bookmark_saver.domain.Tag;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
 import com.example.bookmark_saver.repository.BookmarkListRepository;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 import com.example.bookmark_saver.support.BookmarkFixture;
-import com.example.bookmark_saver.support.BookmarkListFixture;
-import com.example.bookmark_saver.support.TagFixture;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -274,72 +270,6 @@ class BookmarkServiceTest {
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.update(99L, request))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("99");
-    }
-
-    // ---------------------------------------------------------------
-    // updateLists
-    // ---------------------------------------------------------------
-
-    @Test
-    void updateListsReplacesAllAssociations() {
-        Bookmark existing = BookmarkFixture.withDefaults();
-        BookmarkList list = BookmarkListFixture.withId(10L);
-
-        when(bookmarkRepository.findById(1L))
-            .thenReturn(Optional.of(existing));
-
-        when(listRepository.findAllById(List.of(10L)))
-            .thenReturn(List.of(list));
-        
-        when(bookmarkRepository.save(any()))
-            .thenAnswer(invocation -> invocation.getArgument(0));
-
-        Bookmark result = service.updateLists(1L, List.of(10L));
-
-        assertThat(result.getLists()).containsExactly(list);
-    }
-
-    @Test
-    void updateListsThrowsWhenBookmarkNotFound() {
-        when(bookmarkRepository.findById(99L))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.updateLists(99L, List.of(1L)))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("99");
-    }
-
-    // ---------------------------------------------------------------
-    // updateTags
-    // ---------------------------------------------------------------
-
-    @Test
-    void updateTagsReplacesAllAssociations() {
-        Bookmark existing = BookmarkFixture.withDefaults();
-        Tag tag = TagFixture.withId(10L);
-
-        when(bookmarkRepository.findById(1L))
-            .thenReturn(Optional.of(existing));
-
-        when(tagRepository.findAllById(List.of(10L)))
-            .thenReturn(List.of(tag));
-        
-        when(bookmarkRepository.save(any()))
-            .thenAnswer(invocation -> invocation.getArgument(0));
-
-        Bookmark result = service.updateTags(1L, List.of(10L));
-
-        assertThat(result.getTags()).containsExactly(tag);
-    }
-
-    @Test
-    void updateTagsThrowsWhenBookmarkNotFound() {
-        when(bookmarkRepository.findById(99L))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.updateTags(99L, List.of(1L)))
             .isInstanceOf(EntityNotFoundException.class)
             .hasMessageContaining("99");
     }

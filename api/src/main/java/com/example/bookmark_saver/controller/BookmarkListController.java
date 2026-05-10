@@ -1,24 +1,24 @@
 package com.example.bookmark_saver.controller;
 
-import com.example.bookmark_saver.dto.request.IdListRequest;
 import com.example.bookmark_saver.dto.common.ApiListResponse;
 import com.example.bookmark_saver.dto.common.ApiResponse;
 import com.example.bookmark_saver.dto.request.BookmarkListRequest;
 import com.example.bookmark_saver.dto.response.BookmarkListResponse;
 import com.example.bookmark_saver.service.BookmarkListService;
 import com.example.bookmark_saver.utility.ResponseFactory;
+import com.example.bookmark_saver.validation.OnCreate;
 
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,8 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller for managing lists.
  *
- * Exposes endpoints under {@code /api/lists} for CRUD operations
- * and bulk bookmark association updates.
+ * Exposes endpoints under {@code /api/lists} for CRUD operations.
  */
 @RestController
 @RequestMapping("/api/lists")
@@ -85,7 +84,7 @@ public class BookmarkListController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<BookmarkListResponse>> create(
-        @Valid @RequestBody BookmarkListRequest request
+        @Validated(OnCreate.class) @RequestBody BookmarkListRequest request
     ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -107,24 +106,6 @@ public class BookmarkListController {
     ) {
         return ResponseEntity.ok(
             ResponseFactory.one(service.update(listId, request), BookmarkListResponse::from)
-        );
-    }
-
-    /**
-     * Replaces the bookmark associations of a list.
-     *
-     * @param listId  The ID of the list.
-     * @param request The request containing the new bookmark IDs.
-     * 
-     * @return The updated {@link BookmarkListResponse}.
-     */
-    @PutMapping("/{listId}/bookmarks")
-    public ResponseEntity<ApiResponse<BookmarkListResponse>> updateBookmarks(
-        @PathVariable Long listId,
-        @RequestBody IdListRequest request
-    ) {
-        return ResponseEntity.ok(
-            ResponseFactory.one(service.updateBookmarks(listId, request.ids()), BookmarkListResponse::from)
         );
     }
 

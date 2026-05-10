@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * Repository for {@link BookmarkList} entities.
  *
- * Extends {@link JpaRepository} to provide standard CRUD and pagination operations.
+ * Extends {@link JpaRepository} to provide standard CRUD and sort operations.
  */
 public interface BookmarkListRepository extends JpaRepository<BookmarkList, Long> {}

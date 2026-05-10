@@ -167,31 +167,6 @@ class TagServiceTest {
     }
 
     // ---------------------------------------------------------------
-    // updateBookmarks
-    // ---------------------------------------------------------------
-
-    @Test
-    void updateBookmarksReplacesAllAssociations() {
-        when(tagRepository.findById(1L))
-            .thenReturn(Optional.of(TagFixture.withDefaults()));
-
-        service.updateBookmarks(1L, List.of(10L, 20L));
-
-        verify(bookmarkRepository).deleteAllByTagId(1L);
-        verify(jdbcTemplate).batchUpdate(anyString(), anyList(), anyInt(), any());
-    }
-
-    @Test
-    void updateBookmarksThrowsWhenTagNotFound() {
-        when(tagRepository.findById(99L))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.updateBookmarks(99L, List.of(1L)))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("99");
-    }
-
-    // ---------------------------------------------------------------
     // delete
     // ---------------------------------------------------------------
 
