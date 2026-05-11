@@ -30,6 +30,8 @@ public class Bookmark {
     private String notes;
 
     private Boolean favorite = false;
+    
+    private Boolean archived = false;
 
     @JsonManagedReference
     @ManyToMany
@@ -82,6 +84,10 @@ public class Bookmark {
         return this.favorite;
     }
 
+    public Boolean isArchived() {
+        return this.archived;
+    }
+
     public Set<BookmarkList> getLists() {
         return this.lists;
     }
@@ -116,6 +122,10 @@ public class Bookmark {
 
     public void setFavorite(Boolean favorite) {
         this.favorite = Boolean.TRUE.equals(favorite);
+    }
+
+    public void setArchived(Boolean archived) {
+        this.archived = Boolean.TRUE.equals(archived);
     }
 
     public void setLists(Set<BookmarkList> lists) {

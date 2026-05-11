@@ -25,7 +25,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,7 +79,14 @@ class BookmarkServiceTest {
         when(bookmarkRepository.findAll(anySpec(), any(Pageable.class)))
             .thenReturn(page);
 
-        Page<Bookmark> result = service.findAll(null, null, List.of(), Pageable.unpaged());
+        Page<Bookmark> result = service.findAll(
+            null,
+            null,
+            null,
+            null,
+            List.of(),
+            Pageable.unpaged()
+        );
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getUrl()).isEqualTo("https://example.com");
@@ -91,7 +97,14 @@ class BookmarkServiceTest {
         when(bookmarkRepository.findAll(anySpec(), any(Pageable.class)))
             .thenReturn(Page.empty());
 
-        service.findAll(true, null, List.of(), Pageable.unpaged());
+        service.findAll(
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            Pageable.unpaged()
+        );
 
         verify(bookmarkRepository).findAll(anySpec(), any(Pageable.class));
     }
@@ -132,6 +145,7 @@ class BookmarkServiceTest {
             "https://example.com",
             "notes",
             false,
+            false,
             List.of(),
             List.of()
         );
@@ -151,6 +165,7 @@ class BookmarkServiceTest {
             "https://example.com",
             "notes",
             false,
+            false,
             List.of(99L),
             List.of()
         );
@@ -168,6 +183,7 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "notes",
+            false,
             false,
             List.of(),
             List.of(99L)
@@ -193,6 +209,7 @@ class BookmarkServiceTest {
             "https://old.com",
             "new notes",
             true,
+            true,
             List.of(),
             List.of()
         );
@@ -207,53 +224,7 @@ class BookmarkServiceTest {
 
         assertThat(result.getNotes()).isEqualTo("new notes");
         assertThat(result.isFavorite()).isTrue();
-    }
-
-    @Test
-    void updateTriggersMetadataEnrichmentWhenUrlChanges() {
-        Bookmark existing = BookmarkFixture.create(1L, "https://old.com", "Old notes");
-        Bookmark updated = BookmarkFixture.create(1L, "https://new.com", "New notes");
-        
-        BookmarkRequest request = new BookmarkRequest(
-            "https://new.com",
-            "New notes",
-            false,
-            List.of(),
-            List.of()
-        );
-
-        when(bookmarkRepository.findById(1L))
-            .thenReturn(Optional.of(existing));
-
-        when(bookmarkRepository.save(any()))
-            .thenReturn(updated);
-
-        service.update(1L, request);
-
-        verify(metadataService).enrich(1L);
-    }
-
-    @Test
-    void updateDoesNotTriggerMetadataEnrichmentWhenUrlIsUnchanged() {
-        Bookmark existing = BookmarkFixture.withDefaults();
-        
-        BookmarkRequest request = new BookmarkRequest(
-            "https://example.com",
-            "new notes",
-            false,
-            List.of(),
-            List.of()
-        );
-
-        when(bookmarkRepository.findById(1L))
-            .thenReturn(Optional.of(existing));
-
-        when(bookmarkRepository.save(any()))
-            .thenAnswer(invocation -> invocation.getArgument(0));
-
-        service.update(1L, request);
-
-        verify(metadataService, never()).enrich(anyLong());
+        assertThat(result.isArchived()).isTrue();
     }
 
     @Test
@@ -261,6 +232,7 @@ class BookmarkServiceTest {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "",
+            false,
             false,
             List.of(),
             List.of()

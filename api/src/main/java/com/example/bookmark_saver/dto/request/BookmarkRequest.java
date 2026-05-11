@@ -18,6 +18,8 @@ public record BookmarkRequest(
     String notes,
 
     Boolean favorite,
+    
+    Boolean archived,
 
     List<Long> listIds,
 

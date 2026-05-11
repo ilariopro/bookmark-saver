@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,45 +31,33 @@ public class BookmarkService {
     /**
      * Repository for accessing and persisting bookmarks.
      */
+    @Autowired
     private BookmarkRepository bookmarkRepository;
-
-    /**
-     * Repository for accessing and persisting tags.
-     */
-    private TagRepository tagRepository;
 
     /**
      * Repository for accessing and persisting lists.
      */
+    @Autowired
     private BookmarkListRepository listRepository;
+
+    /**
+     * Repository for accessing and persisting tags.
+     */
+    @Autowired
+    private TagRepository tagRepository;
 
     /**
      * Asynchronous bookmark metadata update service.
      */
+    @Autowired
     private MetadataService metadataService;
-
-    /**
-     * @param bookmarkRepository The bookmark repository.
-     * @param tagRepository      The tag repository.
-     * @param listRepository     The list repository.
-     * @param metadataService    The metadata enrichment service.
-     */
-    public BookmarkService(
-        BookmarkRepository bookmarkRepository,
-        TagRepository tagRepository,
-        BookmarkListRepository listRepository,
-        MetadataService metadataService
-    ) {
-        this.bookmarkRepository = bookmarkRepository;
-        this.tagRepository = tagRepository;
-        this.listRepository = listRepository;
-        this.metadataService = metadataService;
-    }
 
     /**
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite If non-null, filters by favorite status.
+     * @param archived If non-null, filters by archived status.
+     * @param untagged If non-null, filters by untagged bookmarks.
      * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable Pagination options.
@@ -77,10 +66,18 @@ public class BookmarkService {
      */
     public Page<Bookmark> findAll(
         Boolean favorite,
+        Boolean archived,
+        Boolean untagged,
         List<Long> listIds,
         List<Long> tagIds,
         Pageable pageable
     ) {
+        if (Boolean.TRUE.equals(untagged) && tagIds != null && !tagIds.isEmpty()) {
+            throw new IllegalArgumentException(
+                "Cannot filter bookmarks by both untagged and tagIds"
+            );
+        }
+
         Specification<Bookmark> spec = (root, query, criteria) -> criteria.conjunction();
 
         if (favorite != null) {
@@ -89,6 +86,21 @@ public class BookmarkService {
                     root.get("favorite"),
                     favorite
                 )
+            );
+        }
+
+        if (archived != null) {
+            spec = spec.and((root, query, criteria) ->
+                criteria.equal(
+                    root.get("archived"),
+                    archived
+                )
+            );
+        }
+
+        if (Boolean.TRUE.equals(untagged)) {
+            spec = spec.and((root, query, criteria) ->
+                criteria.isEmpty(root.get("tags"))
             );
         }
 
@@ -147,10 +159,23 @@ public class BookmarkService {
      */
     public Bookmark save(BookmarkRequest request) {
         Bookmark bookmark = new Bookmark();
+
+        String notes = request.notes() != null && !request.notes().isBlank()
+            ? request.notes()
+            : null;
+
+        Boolean favorite = request.favorite() != null
+            ? request.favorite()
+            : false;
+
+        Boolean archived = request.archived() != null
+            ? request.archived()
+            : false;
         
         bookmark.setUrl(request.url());
-        bookmark.setNotes(request.notes());
-        bookmark.setFavorite(request.favorite());
+        bookmark.setNotes(notes);
+        bookmark.setFavorite(favorite);
+        bookmark.setArchived(archived);
         bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
         
@@ -177,22 +202,34 @@ public class BookmarkService {
     ) {
         Bookmark bookmark = findById(bookmarkId);
 
-        String previousUrl = bookmark.getUrl();
-        String currentUrl  = request.url() != null ? request.url() : previousUrl;
+        String notes = request.notes() != null && !request.notes().isBlank()
+            ? request.notes()
+            : null;
 
-        bookmark.setUrl(currentUrl);
-        bookmark.setNotes(request.notes());
-        bookmark.setFavorite(request.favorite());
-        bookmark.setLists(fetchLists(request.listIds()));
-        bookmark.setTags(fetchTags(request.tagIds()));
+        Boolean favorite = request.favorite() != null
+            ? request.favorite()
+            : bookmark.isFavorite();
 
-        Bookmark updated = bookmarkRepository.save(bookmark);
+        Boolean archived = request.archived() != null
+            ? request.archived()
+            : bookmark.isArchived();
 
-        if (!previousUrl.equals(currentUrl)) {
-            metadataService.enrich(updated.getId());
-        }
+        Set<BookmarkList> lists = request.listIds() != null
+            ? fetchLists(request.listIds())
+            : bookmark.getLists();
 
-        return updated;
+        Set<Tag> tags = request.tagIds() != null
+            ? fetchTags(request.tagIds())
+            : bookmark.getTags();
+
+        bookmark.setUrl(bookmark.getUrl());
+        bookmark.setNotes(notes);
+        bookmark.setFavorite(favorite);
+        bookmark.setArchived(archived);
+        bookmark.setLists(lists);
+        bookmark.setTags(tags);
+
+        return bookmarkRepository.save(bookmark);
     }
 
     /**

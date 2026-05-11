@@ -13,6 +13,7 @@ import com.example.bookmark_saver.validation.OnUpdate;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -39,19 +40,15 @@ public class BookmarkController {
     /**
      * Service for bookmark business logic.
      */
+    @Autowired
     private BookmarkService service;
-
-    /**
-     * @param service The bookmark service.
-     */
-    public BookmarkController(BookmarkService service) {
-        this.service = service;
-    }
 
     /**
      * Returns a paginated list of bookmarks, optionally filtered.
      *
      * @param favorite If non-null, filters by favorite status.
+     * @param archived If non-null, filters by archived status.
+     * @param untagged If non-null, filters by untagged bookmarks.
      * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable Pagination options.
@@ -61,15 +58,19 @@ public class BookmarkController {
     @GetMapping
     public ResponseEntity<ApiListResponse<BookmarkResponse>> list(
         @RequestParam(required = false) Boolean favorite,
+        @RequestParam(required = false) Boolean archived,
+        @RequestParam(required = false) Boolean untagged,
         @RequestParam(required = false) String listIds,
         @RequestParam(required = false) String tagIds,
         Pageable pageable
     ) {
         List<Long> parsedListIds = parseCommaSeparatedIds(listIds);
-        List<Long> parsedTagIds = parseCommaSeparatedIds(tagIds);
+        List<Long> parsedTagIds  = parseCommaSeparatedIds(tagIds);
 
         Page<Bookmark> bookmarks = service.findAll(
             favorite,
+            archived,
+            untagged,
             parsedListIds,
             parsedTagIds,
             pageable
