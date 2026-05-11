@@ -8,6 +8,11 @@ import java.util.List;
  */
 public class CommaSeparatedParser {
     /**
+     * Prevent instantiation.
+     */
+    private CommaSeparatedParser() {}
+
+    /**
      * Parses a comma-separated string into a normalized list of tokens.
      * 
      * Handles null input, trims whitespace, removes blank entries and duplicates.
