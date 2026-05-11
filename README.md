@@ -86,9 +86,7 @@ Endpoints follow standard REST conventions:
 GET    /api/bookmarks
 GET    /api/bookmarks/{id}
 POST   /api/bookmarks
-PUT    /api/bookmarks/{id}
-PUT    /api/bookmarks/{id}/lists
-PUT    /api/bookmarks/{id}/tags
+PATCH  /api/bookmarks/{id}
 DELETE /api/bookmarks/{id}
 ```
 
