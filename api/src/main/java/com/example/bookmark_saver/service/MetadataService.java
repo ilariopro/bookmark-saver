@@ -12,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
@@ -28,19 +29,13 @@ public class MetadataService {
     /**
      * Repository for accessing and persisting bookmarks.
      */
+    @Autowired
     private BookmarkRepository repository;
 
     /**
      * Logger for reporting metadata extraction failures.
      */
     private static final Logger logger = LoggerFactory.getLogger(MetadataService.class);
-
-    /**
-     * @param repository The bookmark repository.
-     */
-    public MetadataService(BookmarkRepository repository) {
-        this.repository = repository;
-    }
 
     /**
      * Asynchronously enriches a bookmark's metadata by its ID.

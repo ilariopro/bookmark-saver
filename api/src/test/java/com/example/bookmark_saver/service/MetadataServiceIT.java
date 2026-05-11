@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,12 @@ class MetadataServiceIT {
      */
     @Mock
     private BookmarkRepository repository;
+
+    /**
+     * Metadata service used under test, with mocked dependencies injected.
+     */
+    @InjectMocks
+    private MetadataService service;
 
     /**
      * Returns the base URL of the WireMock server.
@@ -70,7 +77,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getTitle())
@@ -87,7 +93,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getTitle())
@@ -104,7 +109,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getDescription())
@@ -126,7 +130,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getDescription())
@@ -135,7 +138,6 @@ class MetadataServiceIT {
 
     @Test
     void extractReturnsEmptyMetadataWhenPageIsUnreachable() {
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract("http://localhost:0");
 
         assertThat(result.getTitle())
@@ -155,7 +157,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getDescription())
@@ -172,7 +173,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getImageUrl())
@@ -189,7 +189,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getImageUrl())
@@ -206,7 +205,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getFavicon())
@@ -223,7 +221,6 @@ class MetadataServiceIT {
             </html>
         """);
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getSiteName())
@@ -234,7 +231,6 @@ class MetadataServiceIT {
     void extractExtractsDomainFromUrl() {
         stubHtml("<html></html>");
 
-        MetadataService service = new MetadataService(repository);
         Metadata result = service.extract(wireMockUrl());
 
         assertThat(result.getDomain())

@@ -9,6 +9,7 @@ import com.example.bookmark_saver.utility.ResponseFactory;
 
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,14 +33,8 @@ public class TagController {
     /**
      * Service for tag business logic.
      */
+    @Autowired
     private TagService service;
-
-    /**
-     * @param service The tag service.
-     */
-    public TagController(TagService service) {
-        this.service = service;
-    }
 
     /**
      * Returns all tags.

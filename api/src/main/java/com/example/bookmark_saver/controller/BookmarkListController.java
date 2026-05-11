@@ -10,6 +10,7 @@ import com.example.bookmark_saver.validation.OnCreate;
 
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +35,8 @@ public class BookmarkListController {
     /**
      * Service for list business logic.
      */
+    @Autowired
     private BookmarkListService service;
-
-    /**
-     * @param service The list service.
-     */
-    public BookmarkListController(BookmarkListService service) {
-        this.service = service;
-    }
 
     /**
      * Returns all lists.

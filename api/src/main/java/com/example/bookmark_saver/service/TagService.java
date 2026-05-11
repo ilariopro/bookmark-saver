@@ -7,6 +7,7 @@ import com.example.bookmark_saver.repository.TagRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -24,24 +25,14 @@ public class TagService {
     /**
      * Repository for accessing and persisting tags.
      */
+    @Autowired
     private TagRepository tagRepository;
 
     /**
      * JDBC template for executing batch updates.
      */
+    @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    /**
-     * @param tagRepository      The tag repository.
-     * @param jdbcTemplate       The JDBC template for batch operations.
-     */
-    public TagService(
-        TagRepository tagRepository,
-        JdbcTemplate jdbcTemplate
-    ) {
-        this.tagRepository = tagRepository;
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     /**
      * Returns all tags.
@@ -108,7 +99,7 @@ public class TagService {
             .orElse(null);
 
         if (existingTag != null && !existingTag.getId().equals(tagId)) {
-            // 1) Eliminate possible duplicates
+            // 1) Delete possible duplicates
             jdbcTemplate.update(
                 """
                 DELETE FROM bookmark_tags old_relation

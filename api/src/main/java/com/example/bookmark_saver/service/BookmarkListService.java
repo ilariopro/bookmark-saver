@@ -7,6 +7,7 @@ import com.example.bookmark_saver.repository.BookmarkListRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +24,8 @@ public class BookmarkListService {
     /**
      * Repository for accessing and persisting lists.
      */
+    @Autowired
     private BookmarkListRepository listRepository;
-
-    /**
-     * @param listRepository      The list repository.
-     */
-    public BookmarkListService(
-        BookmarkListRepository listRepository
-    ) {
-        this.listRepository = listRepository;
-    }
 
     /**
      * Returns all lists.
@@ -70,9 +63,13 @@ public class BookmarkListService {
      */
     public BookmarkList save(BookmarkListRequest request) {
         BookmarkList list = new BookmarkList();
-        
+
+        String description = request.description() != null && !request.description().isBlank()
+            ? request.description()
+            : null;
+
         list.setName(normalizeName(request.name()));
-        list.setDescription(request.description());
+        list.setDescription(description);
 
         return listRepository.save(list);
     }
@@ -93,8 +90,13 @@ public class BookmarkListService {
     public BookmarkList update(Long listId, BookmarkListRequest request) {
         BookmarkList list = findById(listId);
         
-        String name = request.name() != null ? normalizeName(request.name()) : list.getName();
-        String description = request.description() != null ? request.description() : list.getDescription();
+        String name = request.name() != null && !request.name().isBlank()
+            ? normalizeName(request.name())
+            : list.getName();
+
+        String description = request.description() != null  && !request.description().isBlank()
+            ? request.description()
+            : null;
 
         list.setName(name);
         list.setDescription(description);
