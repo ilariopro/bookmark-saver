@@ -71,9 +71,6 @@
   <!-- Tags -->
   <div class="section-header">
     <h3 class="section-label">Tags</h3>
-    <button mat-icon-button matTooltip="New tag" (click)="openCreateTagDialog()">
-      <mat-icon>add</mat-icon>
-    </button>
   </div>
 
   <!-- Autocomplete tag search -->
@@ -83,23 +80,30 @@
           [ngModel]="tagSearch()"
           (ngModelChange)="tagSearch.set($event)"
           [matAutocomplete]="tagAuto"
-          placeholder="Type to search..." />
-    <mat-autocomplete #tagAuto (optionSelected)="addTag($event)">
+          placeholder="Type and press Enter..."
+          (keydown)="onTagInputKeydown($event)" />
+    
+    <mat-autocomplete #tagAuto (optionSelected)="onTagSelected($event)">
       @for (tag of tagSuggestions(); track tag.id) {
-        <mat-option [value]="tag.name">{{ tag.name }}</mat-option>
+        <mat-option [value]="tag.name">
+          {{ tag.name }}
+        </mat-option>
+      }
+
+      @if (tagSearch().trim() && !isExistingTag(tagSearch().trim().toLowerCase())) {
+        <mat-option [value]="tagSearch().trim()">
+          {{ tagSearch() }}
+        </mat-option>
       }
     </mat-autocomplete>
   </mat-form-field>
 
-  <!-- Selected tags -->
   @if (selectedTags().length > 0) {
     <mat-chip-set class="selected-tags">
       @for (tag of selectedTags(); track tag.id) {
-        <mat-chip (removed)="removeTag(tag.id)">
+        <mat-chip (removed)="removeTag(tag.id)" [removable]="true">
           {{ tag.name }}
-          <button matChipRemove>
-            <mat-icon>cancel</mat-icon>
-          </button>
+          <button matChipRemove><mat-icon>cancel</mat-icon></button>
         </mat-chip>
       }
     </mat-chip-set>

@@ -99,6 +99,17 @@ export class BookmarkFormDialogComponent {
     return available.filter(tag => tag.name.toLowerCase().includes(input));
   });
 
+  public readonly canCreateTag = computed(() => {
+    const input = this.tagSearch().trim().toLowerCase();
+
+    if (!input) return false;
+    
+    const exists = this.state.tags().some(tag => tag.name.toLowerCase() === input);
+    const selected = this.state.tags().find(tag => tag.name.toLowerCase() === input);
+    
+    return !exists || (selected && !this.selectedTagIds().includes(selected.id));
+  });
+
   get lists(): ApiList[] {
     return this.state.apiLists();
   }
@@ -157,8 +168,63 @@ export class BookmarkFormDialogComponent {
 
   // ── Tags ──────────────────────────────────────────────────────
 
+  public isExistingTag(name: string): boolean {
+    return this.tagSuggestions().some(tag => tag.name.toLowerCase() === name)
+  }
+
   public onTagsChange(event: MatChipListboxChange): void {
     this.selectedTagIds.set(event.value ?? []);
+  }
+
+  public onTagInputKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter') return;
+
+    event.preventDefault();
+    
+    const input = this.tagSearch().trim();
+    
+    if (!input) return;
+    
+    const inputLower = input.toLowerCase();
+    const existing = this.state.tags().find(t => t.name.toLowerCase() === inputLower);
+    
+    if (existing) {
+      if (!this.selectedTagIds().includes(existing.id)) {
+        this.selectedTagIds.update(prev => [...prev, existing.id]);
+      }
+    } else {
+      this.api.createTag({ name: input }).subscribe(tag => {
+        this.api.getTags().subscribe(tags => {
+          this.state.tags.set(tags);
+          this.selectedTagIds.update(prev => [...prev, tag.id]);
+        });
+      });
+    }
+
+    this.tagSearch.set('');
+  }
+
+  public onTagSelected(event: MatAutocompleteSelectedEvent): void {
+    const input = event.option.value as string;
+    const tag = this.state.tags().find(tag => tag.name.toLowerCase() === input.toLowerCase());
+    
+    if (!tag) {
+      this.api.createTag({ name: input }).subscribe(tag => {
+        this.api.getTags().subscribe(tags => {
+          this.state.tags.set(tags);
+          this.selectedTagIds.update(prev => [...prev, tag.id]);
+        });
+      });
+
+      return;
+    }
+
+    // if (!this.selectedTagIds().includes(tag.id)) {
+    //   this.selectedTagIds.update(prev => [...prev, tag.id]);
+    // }
+
+    this.selectedTagIds.update(prev => [...prev, tag.id]);
+    this.tagSearch.set('');
   }
 
   public openCreateTagDialog(): void {
@@ -177,16 +243,7 @@ export class BookmarkFormDialogComponent {
     });
   }
 
-  public addTag(event: MatAutocompleteSelectedEvent): void {
-    const tag = this.state.tags().find(tag => tag.name === event.option.value);
-    
-    if (!tag) return;
-    
-    this.selectedTagIds.update(prev => [...prev, tag.id]);
-    this.tagSearch.set('');
-  }
-
-  removeTag(tagId: number): void {
+  public removeTag(tagId: number): void {
     this.selectedTagIds.update(prev => prev.filter(id => id !== tagId));
   }
 
