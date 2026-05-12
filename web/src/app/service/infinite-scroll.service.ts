@@ -5,13 +5,12 @@ export type PageLoader<T> = (page: number) => Promise<PagedResponse<T>>;
 
 @Injectable()
 export class InfiniteScrollService<T> {
-    public readonly total = signal(0);
-    public readonly items = signal<T[]>([]);
-    public readonly error = signal<string | null>(null);
-
+    public readonly error       = signal<string | null>(null);
+    public readonly hasMore     = signal(true);
+    public readonly items       = signal<T[]>([]);
     public readonly loading     = signal(false);
     public readonly loadingMore = signal(false);
-    public readonly hasMore     = signal(true);
+    public readonly total       = signal(0);
     
     private page     = 0;
     private loader?: PageLoader<T>;
@@ -74,7 +73,7 @@ export class InfiniteScrollService<T> {
             this.hasMore.set(result.meta.next);
             this.total.set(result.meta.total);
         } catch {
-            this.error.set('Could not load bookmarks.');
+            this.error.set('Could not load bookmarks');
         } finally {
             mode === 'initial'
                 ? this.loading.set(false)

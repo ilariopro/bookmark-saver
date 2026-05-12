@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, afterNextRender, inject, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -64,7 +64,9 @@ export class AppLayout implements OnInit {
       next: lists => {
         this.state.apiLists.set(lists);
       },
-      error: () => this.sidebarError.set('Error loading lists.'),
+      error: () => {
+        this.sidebarError.set('Error loading lists');
+      },
     });
 
     this.api.getTags().subscribe({
@@ -73,7 +75,7 @@ export class AppLayout implements OnInit {
         this.sidebarLoading.set(false);
       },
       error: () => {
-        this.sidebarError.set('Error loading tags.');
+        this.sidebarError.set('Error loading tags');
         this.sidebarLoading.set(false);
       },
     });

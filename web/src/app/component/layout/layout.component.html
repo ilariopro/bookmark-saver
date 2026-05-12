@@ -22,22 +22,21 @@
             }
         </mat-sidenav>
 
-            <mat-sidenav-content>
+        <mat-sidenav-content>
+            <div class="main-content">
 
-                <div class="main-content">
-
-                    <mat-toolbar class="toolbar">
-                        @if (isMobile()) {
-                            <button mat-icon-button (click)="sidebar.toggle()" aria-label="Toggle menu">
-                                <mat-icon>menu</mat-icon>
-                            </button>
-                        }
-                    </mat-toolbar>
-
-                    <app-bookmarks />
-                </div>
+                <mat-toolbar class="toolbar">
+                    @if (isMobile()) {
+                        <button mat-icon-button (click)="sidebar.toggle()" aria-label="Toggle menu">
+                            <mat-icon>menu</mat-icon>
+                        </button>
+                    }
+                </mat-toolbar>
                 
-            </mat-sidenav-content>
+                <app-bookmarks />
+                
+            </div>
+        </mat-sidenav-content>
 
     </mat-sidenav-container>
 </div>

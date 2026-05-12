@@ -18,8 +18,16 @@ export interface BookmarkDeleteDialogData {
     styleUrl: './bookmark-delete-dialog.component.scss',
 })
 export class BookmarkDeleteDialogComponent {
+    private readonly data      = inject(MAT_DIALOG_DATA) as BookmarkDeleteDialogData;
     private readonly dialogRef = inject(MatDialogRef<BookmarkDeleteDialogComponent>);
-    public readonly data: BookmarkDeleteDialogData = inject(MAT_DIALOG_DATA);
+
+    get title(): string {
+        return this.data.title;
+    }
+
+    get url(): string {
+        return this.data.url;
+    }
 
     public confirm(): void {
         this.dialogRef.close(true);

@@ -16,6 +16,7 @@ export interface ListFormDialogData {
 export interface ListFormDialogResult {
   name: string;
   description: string;
+  position?: number;
 }
 
 @Component({
@@ -33,26 +34,26 @@ export interface ListFormDialogResult {
 })
 export class ListFormDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<ListFormDialogComponent>);
-  public readonly data: ListFormDialogData = inject(MAT_DIALOG_DATA);
+  private readonly data      = inject(MAT_DIALOG_DATA) as ListFormDialogData;
 
   public readonly name        = signal(this.data.list?.name ?? '');
   public readonly description = signal(this.data.list?.description ?? '');
 
-  readonly isUnchanged = computed(() =>
+  public readonly isUnchanged = computed(() =>
     this.isEdit()
       && this.name().trim() === (this.data.list!.name ?? '')
       && this.description().trim() === (this.data.list!.description ?? '')
   );
 
-  readonly canSave = computed(() =>
+  public readonly canSave = computed(() =>
     !!this.name().trim() && !this.isUnchanged()
   );
 
-  onNameChange(value: string): void {
+  public onNameChange(value: string): void {
     this.name.set(value);
   }
 
-  onDescriptionChange(value: string): void {
+  public onDescriptionChange(value: string): void {
     this.description.set(value);
   }
 

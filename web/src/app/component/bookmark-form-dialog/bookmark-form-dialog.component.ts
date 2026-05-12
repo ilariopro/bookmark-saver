@@ -11,13 +11,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { Bookmark } from '../../model/bookmark.model';
+import { Bookmark, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
 import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { ApiList } from '../../model/sidebar.model';
 
 export interface BookmarkFormDialogData {
   bookmark?: Bookmark;
@@ -52,26 +53,24 @@ export interface BookmarkFormDialogResult {
   styleUrl: './bookmark-form-dialog.component.scss',
 })
 export class BookmarkFormDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<BookmarkFormDialogComponent>);
-  private readonly dialog    = inject(MatDialog);
-  private readonly fb        = inject(FormBuilder);
-  private readonly api       = inject(BookmarkApiService);
+  private readonly api         = inject(BookmarkApiService);
+  private readonly data        = inject(MAT_DIALOG_DATA) as BookmarkFormDialogData;
+  private readonly dialogRef   = inject(MatDialogRef<BookmarkFormDialogComponent>);
+  private readonly dialog      = inject(MatDialog);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly state       = inject(FilterStateService);
 
-  readonly data: BookmarkFormDialogData = inject(MAT_DIALOG_DATA);
-  readonly state = inject(FilterStateService);
-
-  // solo in create
-  readonly urlForm = this.fb.group({
+  // used during bookmark creation
+  public readonly urlForm = this.formBuilder.group({
     url: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
   });
 
-  // stato condiviso
-  readonly notes           = signal(this.data.bookmark?.notes ?? '');
-  readonly selectedListIds = signal<number[]>(this.data.bookmark?.lists.map(l => l.id) ?? []);
-  readonly selectedTagIds  = signal<number[]>(this.data.bookmark?.tags.map(t => t.id) ?? []);
-  readonly tagSearch       = signal('');
+  public readonly notes           = signal(this.data.bookmark?.notes ?? '');
+  public readonly selectedListIds = signal<number[]>(this.data.bookmark?.lists.map(l => l.id) ?? []);
+  public readonly selectedTagIds  = signal<number[]>(this.data.bookmark?.tags.map(t => t.id) ?? []);
+  public readonly tagSearch       = signal('');
 
-  readonly isUnchanged = computed(() => {
+  public readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
 
     const originalListIds = new Set(this.data.bookmark!.lists.map(l => l.id));
@@ -86,11 +85,11 @@ export class BookmarkFormDialogComponent {
     return sameNotes && sameLists && sameTags;
   });
 
-  readonly selectedTags = computed(() =>
+  public readonly selectedTags = computed(() =>
     this.state.tags().filter(t => this.selectedTagIds().includes(t.id))
   );
 
-  readonly tagSuggestions = computed(() => {
+  public readonly tagSuggestions = computed(() => {
     const input     = this.tagSearch().trim().toLowerCase();
     const selected  = new Set(this.selectedTagIds());
     const available = this.state.tags().filter(tag => !selected.has(tag.id));
@@ -99,6 +98,18 @@ export class BookmarkFormDialogComponent {
     
     return available.filter(tag => tag.name.toLowerCase().includes(input));
   });
+
+  get lists(): ApiList[] {
+    return this.state.apiLists();
+  }
+
+  get metadata(): Metadata | null {
+    return this.data.bookmark?.metadata ?? null;
+  }
+
+  get url(): string {
+    return this.data.bookmark?.url ?? '';
+  }
 
   get urlError(): string {
     const control = this.urlForm.get('url');
@@ -111,28 +122,31 @@ export class BookmarkFormDialogComponent {
 
   // ── Lists ─────────────────────────────────────────────────────
 
-  isEdit(): boolean {
+  public isEdit(): boolean {
     return !!this.data.bookmark;
   }
 
-  isListSelected(id: number): boolean {
+  public isListSelected(id: number): boolean {
     return this.selectedListIds().includes(id);
   }
 
-  toggleList(id: number, checked: boolean): void {
+  public toggleList(id: number, checked: boolean): void {
     this.selectedListIds.update(prev =>
       checked ? [...prev, id] : prev.filter(i => i !== id)
     );
   }
 
-  openCreateListDialog(): void {
+  public openCreateListDialog(): void {
     const ref = this.dialog.open(ListFormDialogComponent, { data: {}, width: '440px' });
-    
+
     ref.afterClosed().subscribe((result: ListFormDialogResult | undefined) => {
       if (!result) return;
 
-      this.api.createList({ name: result.name, description: result.description })
-        .subscribe(list => {
+      this.api.createList({
+        name:        result.name,
+        description: result.description,
+        position:    this.state.apiLists().length
+      }).subscribe(list => {
           this.api.getLists().subscribe(lists => {
             this.state.apiLists.set(lists);
             this.selectedListIds.update(prev => [...prev, list.id]);
@@ -143,11 +157,11 @@ export class BookmarkFormDialogComponent {
 
   // ── Tags ──────────────────────────────────────────────────────
 
-  onTagsChange(event: MatChipListboxChange): void {
+  public onTagsChange(event: MatChipListboxChange): void {
     this.selectedTagIds.set(event.value ?? []);
   }
 
-  openCreateTagDialog(): void {
+  public openCreateTagDialog(): void {
     const ref = this.dialog.open(TagFormDialogComponent, { data: {}, width: '440px' });
 
     ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
@@ -163,7 +177,7 @@ export class BookmarkFormDialogComponent {
     });
   }
 
-  addTag(event: MatAutocompleteSelectedEvent): void {
+  public addTag(event: MatAutocompleteSelectedEvent): void {
     const tag = this.state.tags().find(tag => tag.name === event.option.value);
     
     if (!tag) return;
@@ -178,7 +192,7 @@ export class BookmarkFormDialogComponent {
 
   // ── Actions ───────────────────────────────────────────────────
 
-  save(): void {
+  public save(): void {
     if (this.isEdit() && this.isUnchanged()) return;
     if (!this.isEdit() && this.urlForm.invalid) return;
 
@@ -190,7 +204,7 @@ export class BookmarkFormDialogComponent {
     } satisfies BookmarkFormDialogResult);
   }
 
-  cancel(): void {
+  public cancel(): void {
     this.dialogRef.close();
   }
 }
