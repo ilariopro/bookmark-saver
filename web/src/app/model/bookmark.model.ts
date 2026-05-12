@@ -5,6 +5,7 @@ export interface Bookmark {
     id: number;
     url: string;
     favorite: boolean;
+    archived: boolean;
     notes: string | null;
     lists: List[];
     tags: Tag[];
@@ -28,7 +29,8 @@ export interface Metadata {
 
 export interface BookmarkQueryParams {
     favorite: boolean;
-    archived: boolean;
+    archived: boolean | null;
+    untagged: boolean;
     listId: number | null;
     tagIds: number[];
 }
@@ -42,6 +44,7 @@ export interface BookmarkCreatePayload {
 
 export interface BookmarkUpdatePayload {
     favorite?: boolean;
+    archived?: boolean;
     notes?: string;
     listIds?: number[];
     tagIds?: number[];

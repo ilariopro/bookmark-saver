@@ -1,9 +1,10 @@
 import {
   Component, inject, effect, viewChild,
   ElementRef, AfterViewInit, OnDestroy,
-  Injector
+  Injector,
+  computed,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,6 +20,7 @@ import { firstValueFrom } from 'rxjs';
 import { MetadataPollingService } from '../../service/metadata-polling.servie';
 import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
 import { NotificationService } from '../../service/notification.service';
+import { MatSidenavContent } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-bookmarks',
@@ -35,22 +37,34 @@ import { NotificationService } from '../../service/notification.service';
   styleUrl: './bookmarks.component.scss',
 })
 export class AppBookmarks implements AfterViewInit, OnDestroy {
-  private readonly api        = inject(BookmarkApiService);
-  private readonly dialog     = inject(MatDialog);
-  private readonly injector   = inject(Injector);
-  private readonly notify     = inject(NotificationService);
-  public  readonly responsive = inject(ResponsiveStateService);
-  public  readonly scroll     = inject(InfiniteScrollService<Bookmark>);
-  public  readonly state      = inject(FilterStateService);
-  private readonly metadata   = inject(MetadataPollingService);
-
+  private readonly api            = inject(BookmarkApiService);
+  private readonly dialog         = inject(MatDialog);
+  private readonly injector       = inject(Injector);
+  private readonly metadata       = inject(MetadataPollingService);
+  private readonly notify         = inject(NotificationService);
+  public  readonly responsive     = inject(ResponsiveStateService);
+  public  readonly scroll         = inject(InfiniteScrollService<Bookmark>);
+  public  readonly state          = inject(FilterStateService);
+  
+  public  readonly showBackToTop = computed(() => this.scroll.total() >= 24);
+  
   private readonly sentinel = viewChild<ElementRef>('sentinel');
+  private readonly topRef   = viewChild<ElementRef>('top');
 
   constructor() {
     this.scroll.setLoader(page => {
-      const { favorite, archived, listId, tagIds } = this.extractQueryParams();
+      const params = this.extractQueryParams();
 
-      return firstValueFrom(this.api.getBookmarks(favorite, archived, listId, tagIds, page));
+      const bookmarks = this.api.getBookmarks(
+        params.favorite,
+        params.archived,
+        params.untagged,
+        params.listId,
+        params.tagIds,
+        page
+      );
+
+      return firstValueFrom(bookmarks);
     });
 
     effect(
@@ -106,8 +120,8 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
       this.api.createBookmark({
         url:     result.url!,
         notes:   result.notes,
-        listIds: result.listIds.map(id => ({ id })) as any,
-        tagIds:  result.tagIds.map(id  => ({ id })) as any,
+        listIds: result.listIds,
+        tagIds:  result.tagIds
       }).subscribe(bookmark => {
         this.scroll.reset();
         this.notify.success('Bookmark created');
@@ -123,21 +137,44 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
     });
   }
 
+  public scrollToTop(): void {
+    this.topRef()?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+  }
+
   private extractQueryParams(): BookmarkQueryParams {
     const list = this.state.selectedList();
 
+    let archived: boolean | null = null; 
+    
+    if (list?.type === 'default' && list.id === 'archived') {
+      archived = true;
+    }
+
+    if (list?.type === 'default' && list.id === 'bookmarks') {
+      archived = false;
+    }
+
     return {
-      favorite: list?.type === 'default' && list?.id === 'favorites',
-      archived: list?.type === 'default' && list?.id === 'archived',
+      favorite: list?.type === 'default' && list.id === 'favorites',
+      archived,
+      untagged: list?.type === 'default' && list.id === 'untagged',
       listId:   list?.type === 'api' ? list.id : null,
       tagIds:   this.state.selectedTagIdsArray(),
     };
   }
 
   private refresh(): void {
-    const { favorite, archived, listId, tagIds } = this.extractQueryParams();
+    const params = this.extractQueryParams();
 
-    firstValueFrom(this.api.getBookmarks(favorite, archived, listId, tagIds, 0))
+    const bookmarks = this.api.getBookmarks(
+        params.favorite,
+        params.archived,
+        params.untagged,
+        params.listId,
+        params.tagIds
+      );
+
+    firstValueFrom(bookmarks)
       .then(response => {
         this.scroll.items.set(response.data);
         this.scroll.total.set(response.meta.total);

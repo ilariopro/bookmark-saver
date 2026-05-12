@@ -1,16 +1,7 @@
-<div class="bookmarks-container" [class.is-mobile]="responsive.isMobile()">
+<div #top class="bookmarks-container"
+  [class.is-mobile]="responsive.isMobile()">
 
   <div class="bookmarks-content">
-
-    @if (scroll.loading()) {
-      <div class="state-container">
-        <mat-spinner diameter="40" />
-      </div>
-    } @else if (scroll.error()) {
-      <div class="state-container">
-        <p class="state-message error">{{ scroll.error() }}</p>
-      </div>
-    }
 
      <!-- Header -->
     <div class="bookmarks-header">
@@ -33,8 +24,16 @@
         </button>
       }
     </div>
-    
-    @if (!hasBookmarks()) {
+
+    @if (scroll.loading()) {
+      <div class="state-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else if (scroll.error()) {
+      <div class="state-container">
+        <p class="state-message error">{{ scroll.error() }}</p>
+      </div>
+    } @else if (!hasBookmarks()) {
       <div class="state-container">
         <p class="state-message">No bookmarks found</p>
       </div>
@@ -57,13 +56,14 @@
       }
 
       @if (!scroll.hasMore() && hasBookmarks()) {
-        <div class="end-of-list">
-          <p class="state-message">All bookmarks loaded</p> 
-          
-          <!-- <button mat-button (click)="scrollToTop()">
-            <mat-icon>arrow_upward</mat-icon>
-            Back to top
-          </button> -->
+         <div class="end-of-list">
+            <p class="state-message">All bookmarks loaded</p> 
+            @if (showBackToTop()) {
+              <button mat-button (click)="scrollToTop()">
+                <mat-icon>arrow_upward</mat-icon>
+                Back to top
+              </button>
+            }
         </div>
       }
     }

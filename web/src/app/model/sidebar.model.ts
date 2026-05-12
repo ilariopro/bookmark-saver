@@ -1,6 +1,6 @@
 import { List } from "./list.model";
 
-export type DefaultListId = 'all' | 'favorites' | 'archived';
+export type DefaultListId = 'bookmarks' | 'favorites' | 'archived' | 'untagged';
 
 export interface DefaultList {
     id:   DefaultListId;
@@ -11,9 +11,10 @@ export interface DefaultList {
 }
 
 export const DEFAULT_LISTS: DefaultList[] = [
-    { id: 'all',       name: 'All Bookmarks', icon: 'bookmarks', type: 'default' },
-    { id: 'favorites', name: 'Favorites',     icon: 'star'     , type: 'default' },
-    { id: 'archived',  name: 'Archived',      icon: 'archive'  , type: 'default' },
+    { id: 'bookmarks', name: 'Bookmarks', icon: 'bookmarks', type: 'default' },
+    { id: 'favorites', name: 'Favorites', icon: 'star'     , type: 'default' },
+    { id: 'archived',  name: 'Archived',  icon: 'archive'  , type: 'default' },
+    { id: 'untagged',  name: 'Untagged',  icon: 'label_off', type: 'default' },
 ];
 
 export interface ApiList extends List {

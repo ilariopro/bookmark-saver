@@ -89,7 +89,7 @@
 }
 
 .scroll-sentinel {
-  height: 1px;       // invisibile ma rilevabile dall'observer
+  height: 1px;       // only visible to the observer
   margin-top: 24px;
 }
 
@@ -101,8 +101,14 @@
 
 .end-of-list {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   padding: 24px 0 8px;
+  text-align: center;
+
+  button {
+    margin: auto;
+    margin-top: 24px;
+  }
 }
 
 .add-fab {

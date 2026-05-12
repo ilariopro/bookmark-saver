@@ -37,6 +37,7 @@ export class FilterStateService {
 
     if (path.startsWith('/favorites')) return DEFAULT_LISTS[1];
     if (path.startsWith('/archived'))  return DEFAULT_LISTS[2];
+    if (path.startsWith('/untagged'))  return DEFAULT_LISTS[3];
 
     if (path.startsWith('/lists/')) {
       const id = Number(path.split('/lists/')[1]);
@@ -48,7 +49,10 @@ export class FilterStateService {
 
   readonly selectedTagIds = computed<Set<number>>(() => {
     const raw = this.queryParams().get('tags');
-    return raw ? new Set(raw.split(',').map(Number)) : new Set<number>();
+
+    return raw
+      ? new Set(raw.split(',').map(Number))
+      : new Set<number>();
   });
 
   readonly selectedTagIdsArray = computed(() =>
@@ -62,10 +66,12 @@ export class FilterStateService {
   // ── Navigazione ───────────────────────────────────────────────
   selectDefaultList(id: DefaultListId): void {
     const paths: Record<DefaultListId, string> = {
-      all:       '/bookmarks',
+      bookmarks: '/bookmarks',
       favorites: '/favorites',
       archived:  '/archived',
+      untagged:  '/untagged',
     };
+
     this.router.navigate([paths[id]]);
   }
 

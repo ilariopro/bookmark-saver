@@ -1,4 +1,3 @@
-// src/app/services/bookmark.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -20,7 +19,8 @@ export class BookmarkApiService {
 
   public getBookmarks(
     favorite: boolean,
-    archived: boolean,
+    archived: boolean | null,
+    untagged: boolean,
     listId: number | null = null,
     tagIds: number[] = [],
     page = 0,
@@ -30,12 +30,13 @@ export class BookmarkApiService {
     let params = new HttpParams()
       .set('page', page)
       .set('size', size)
-      .set('sort', sort);
+      .set('sort', sort)
 
-    if (favorite)        params = params.set('favorite', true);
-    if (archived)        params = params.set('archived', true);
-    if (listId !== null) params = params.set('listIds', listId);
-    if (tagIds.length)   params = params.set('tagIds', tagIds.join(','));
+    if (favorite)          params = params.set('favorite', true);
+    if (archived !== null) params = params.set('archived', archived);
+    if (untagged)          params = params.set('untagged', true);
+    if (listId !== null)   params = params.set('listIds', listId);
+    if (tagIds.length)     params = params.set('tagIds', tagIds.join(','));
 
     return this.http.get<PagedResponse<Bookmark>>(`${this.baseUrl}/bookmarks`, { params });
   }
@@ -118,7 +119,7 @@ export class BookmarkApiService {
     return {
       ...list,
       type: 'api',
-      icon: 'label'
+      icon: 'folder'
     };
   }
 }

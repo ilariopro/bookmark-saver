@@ -186,7 +186,6 @@
 
     &.is-expanded {
         align-items: flex-start;
-        color: rgba(0, 0, 0, 0.6);
     }
 
     .notes-icon {
@@ -200,6 +199,7 @@
         flex: 1;
         font-size: 12px;
         line-height: 1.5;
+        white-space: pre-wrap;
     }
 
     .notes-chevron {
@@ -235,7 +235,6 @@
 
 .bookmark-tags {
   margin-top: auto;
-  padding-top: 8px;
 }
 
 // Actions

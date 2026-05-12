@@ -1,8 +1,8 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -14,6 +14,7 @@ import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { BookmarkDeleteDialogComponent } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
 import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
 import { NotificationService } from '../../service/notification.service';
+import { FilterStateService } from '../../service/filter-state.service';
 
 @Component({
   selector: 'app-bookmark-card',
@@ -32,14 +33,19 @@ import { NotificationService } from '../../service/notification.service';
   styleUrl: './bookmark-card.component.scss',
 })
 export class BookmarkCardComponent implements OnInit{
-  public readonly bookmark = input.required<Bookmark>();
-
-  public readonly isFavorite    = signal(false);
-  public readonly notesExpanded = signal(false);
-
   private readonly api    = inject(BookmarkApiService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
+  private readonly state  = inject(FilterStateService);
+  
+  public readonly isFavorite    = signal(false);
+  public readonly notesExpanded = signal(false);
+
+  public readonly selectedTagIds = computed(() =>
+    this.state.selectedTagIdsArray()
+  );
+  
+  public readonly bookmark = input.required<Bookmark>();
 
   public readonly updated = output<void>();
   public readonly deleted = output<void>();
@@ -94,8 +100,24 @@ export class BookmarkCardComponent implements OnInit{
       });
   }
 
+  public toggleArchive(): void {
+    const archived = !this.bookmark().archived;
+
+    this.api.updateBookmark(this.bookmark().id, { archived }).subscribe({
+      next: () => {
+        this.notify.success(archived ? 'Bookmark archived' : 'Bookmark unarchived');
+        this.updated.emit();
+      },
+      error: () => this.notify.error('Could not update bookmark.'),
+    });
+  }
+
   public toggleNotes(): void {
     this.notesExpanded.set(!this.notesExpanded());
+  }
+
+  public onTagsChange(event: MatChipListboxChange): void {
+    this.state.setSelectedTags(event.value ?? []);
   }
 
   public openEditDialog(): void {
@@ -109,8 +131,8 @@ export class BookmarkCardComponent implements OnInit{
 
       this.api.updateBookmark(this.bookmark().id, {
         notes:   result.notes,
-        listIds: result.listIds.map(id => id) as number[],
-        tagIds:  result.tagIds.map(id  => id) as number[],
+        listIds: result.listIds,
+        tagIds:  result.tagIds,
       }).subscribe(() => {
         this.updated.emit();
         this.notify.success('Bookmark updated');
