@@ -7,23 +7,16 @@
         <input
             matInput
             placeholder="Enter a name..."
-            [matAutocomplete]="auto"
             [ngModel]="name()"
             (ngModelChange)="onNameChange($event)"
             (keydown.enter)="save()"/>
-        
-            <mat-autocomplete #auto="matAutocomplete">
-                @for (tag of suggestions(); track tag.id) {
-                    <mat-option [value]="tag.name">{{ tag.name }}</mat-option>
-                }
-            </mat-autocomplete>
     </mat-form-field>
 
     @if (isMatch()) {
         <div class="merge-warning">
             <mat-icon>warning</mat-icon>
             <span>
-                <strong>"{{ name().trim() }}"</strong> already exists.
+                <strong>"{{ name().trim() }}"</strong> already exists. Choose another name.
                 @if (isEdit()) {
                     All bookmarks will be merged into it. This cannot be undone.
                 }

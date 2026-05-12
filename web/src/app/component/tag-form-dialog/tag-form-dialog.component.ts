@@ -6,7 +6,6 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 
 import { FilterStateService } from '../../service/filter-state.service';
@@ -26,7 +25,6 @@ export interface TagFormDialogResult {
   imports: [
     CommonModule,
     FormsModule,
-    MatAutocompleteModule,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -37,41 +35,33 @@ export interface TagFormDialogResult {
   styleUrl: './tag-form-dialog.component.scss',
 })
 export class TagFormDialogComponent {
+  private readonly data      = inject(MAT_DIALOG_DATA) as TagFormDialogData;
   private readonly dialogRef = inject(MatDialogRef<TagFormDialogComponent>);
-  readonly data: TagFormDialogData = inject(MAT_DIALOG_DATA);
-  readonly state = inject(FilterStateService);
+  private readonly state     = inject(FilterStateService);
 
-  readonly name = signal(this.data.tag?.name ?? '');
+  public readonly name = signal(this.data.tag?.name ?? '');
 
-  readonly otherTags = computed(() =>
+  public readonly otherTags = computed(() =>
     this.state.tags().filter(tag => tag.id !== this.data.tag?.id)
   );
 
-  readonly suggestions = computed(() => {
-    const input = this.name().trim().toLowerCase();
-
-    if (!input || this.isMatch()) return [];
-
-    return this.otherTags().filter(tag => tag.name.toLowerCase().includes(input));
-  });
-
-  readonly isMatch = computed(() =>
+  public readonly isMatch = computed(() =>
     this.otherTags().some(tag => tag.name.toLowerCase() === this.name().trim().toLowerCase())
   );
 
-  readonly isUnchanged = computed(() =>
+  public readonly isUnchanged = computed(() =>
     this.isEdit() && this.name().trim().toLowerCase() === this.data.tag!.name.toLowerCase()
   );
 
-  readonly isInvalid = computed(() =>
+  public readonly isInvalid = computed(() =>
     !this.name().trim() || this.isUnchanged()
   );
 
-  isEdit(): boolean {
+  public isEdit(): boolean {
     return !!this.data.tag;
   }
 
-  canSave(): boolean {
+  public canSave(): boolean {
     if (this.isInvalid()) {
       return false;
     }
@@ -83,17 +73,17 @@ export class TagFormDialogComponent {
     return true;
   }
 
-  onNameChange(value: string): void {
+  public onNameChange(value: string): void {
     this.name.set(value);
   }
 
-  save(): void {
+  public save(): void {
     if (this.isInvalid()) return;
 
     this.dialogRef.close({ name: this.name().trim() } satisfies TagFormDialogResult);
   }
 
-  cancel(): void {
+  public cancel(): void {
     this.dialogRef.close();
   }
 }
