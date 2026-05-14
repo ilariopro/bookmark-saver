@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 export interface BookmarkDeleteDialogData {
-  title: string;
-  url: string;
+    url: string;
+    description: string;
 }
 
 @Component({
@@ -21,12 +22,12 @@ export class BookmarkDeleteDialogComponent {
     private readonly data      = inject(MAT_DIALOG_DATA) as BookmarkDeleteDialogData;
     private readonly dialogRef = inject(MatDialogRef<BookmarkDeleteDialogComponent>);
 
-    get title(): string {
-        return this.data.title;
-    }
-
     get url(): string {
         return this.data.url;
+    }
+
+    get description(): string {
+        return this.data.description;
     }
 
     public confirm(): void {

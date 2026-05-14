@@ -1,14 +1,9 @@
 <h2 mat-dialog-title>Delete Bookmark</h2>
 
-@if (title) {
-    <p class="bookmark-title">{{ title }}</p>
-}
 <p class="bookmark-url">{{ url }}</p>
 
 <mat-dialog-content class="dialog-content">
-    <p class="confirm-message">
-        Are you sure you want to delete this bookmark?
-    </p>
+    <p class="confirm-message">{{ description }}</p>
 </mat-dialog-content>
 
 <mat-dialog-actions class="action-buttons" align="end">
