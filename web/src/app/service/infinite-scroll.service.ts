@@ -1,4 +1,5 @@
 import { Injectable, signal, ElementRef } from '@angular/core';
+
 import { PagedResponse } from '../model/shared.model';
 
 export type PageLoader<T> = (page: number) => Promise<PagedResponse<T>>;
@@ -55,7 +56,9 @@ export class InfiniteScrollService<T> {
     }
 
     private async loadPage(page: number, mode: 'initial' | 'more'): Promise<void> {
-        if (!this.loader) return;
+        if (!this.loader) {
+            throw new Error("A loader must be set before using the service.");
+        };
 
         mode === 'initial'
             ? this.loading.set(true)
