@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 export interface CommonDeleteDialogData {
     title: string;
@@ -16,7 +17,7 @@ export interface CommonDeleteDialogData {
         MatDialogModule
     ],
     templateUrl: './common-delete-dialog.component.html',
-    styleUrl: './common-delete-dialog.component.scss',
+    styleUrl:    './common-delete-dialog.component.scss',
 })
 export class CommonDeleteDialogComponent {
     private readonly dialogRef = inject(MatDialogRef<CommonDeleteDialogComponent>);

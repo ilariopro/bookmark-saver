@@ -1,13 +1,13 @@
 import { Component, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { FilterStateService } from '../../service/filter-state.service';
@@ -34,31 +34,31 @@ import { ResponsiveStateService } from '../../service/responsive-state.service';
     MatTooltipModule,
   ],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss',
+  styleUrl:    './sidebar.component.scss',
 })
 export class AppSidebar {
-  public readonly responsive = inject(ResponsiveStateService);
-  public readonly state      = inject(FilterStateService);
   public readonly api        = inject(BookmarkApiService);
   public readonly dialog     = inject(MatDialog);
+  public readonly responsive = inject(ResponsiveStateService);
+  public readonly state      = inject(FilterStateService);
 
   public readonly closeRequested = output<void>();
 
-  onSelectDefaultList(id: DefaultListId): void {
+  public onSelectDefaultList(id: DefaultListId): void {
     this.state.selectDefaultList(id);
   }
 
-  onSelectApiList(id: number): void {
+  public onSelectApiList(id: number): void {
     this.state.selectApiList(id);
   }
 
-  onTagsChange(event: MatChipListboxChange): void {
+  public onTagsChange(event: MatChipListboxChange): void {
     this.state.setSelectedTags(event.value ?? []);
   }
 
   // ── List actions ──────────────────────────────────────────────
 
-  openCreateListDialog(): void {
+  public openCreateListDialog(): void {
     const ref = this.dialog.open(ListFormDialogComponent, {
       data: {},
       width: '440px',
@@ -69,14 +69,15 @@ export class AppSidebar {
 
       this.api
         .createList({
-          name: result.name,
-          description: result.description
+          name:        result.name,
+          description: result.description,
+          position:    this.state.apiLists().length
         })
         .subscribe(list => this.state.apiLists.update(prev => [...prev, list]));
     });
   }
 
-  openEditListDialog(list: ApiList): void {
+  public openEditListDialog(list: ApiList): void {
     const ref = this.dialog.open(ListFormDialogComponent, {
       data: { list },
       width: '440px',
@@ -93,7 +94,7 @@ export class AppSidebar {
     });
   }
 
-  openDeleteListDialog(list: ApiList): void {
+  public openDeleteListDialog(list: ApiList): void {
     const ref = this.dialog.open(CommonDeleteDialogComponent, {
       data: {
         title: 'Delete List',
@@ -108,17 +109,13 @@ export class AppSidebar {
 
       this.api.deleteList(list.id).subscribe(() => {
         this.state.apiLists.update(prev => prev.filter(l => l.id !== list.id));
-
-        // if (this.state.selectedListKey() === list.id) {
-        //   this.state.selectList('all');
-        // }
       });
     });
   }
 
   // ── Tag actions ───────────────────────────────────────────────
 
-  openCreateTagDialog(): void {
+  public openCreateTagDialog(): void {
     const ref = this.dialog.open(TagFormDialogComponent, {
       data: {},
       width: '440px',
@@ -133,7 +130,7 @@ export class AppSidebar {
     });
   }
 
-  openEditTagDialog(tag: Tag): void {
+  public openEditTagDialog(tag: Tag): void {
     const ref = this.dialog.open(TagFormDialogComponent, {
       data: { tag },
       width: '440px',
@@ -148,7 +145,7 @@ export class AppSidebar {
     });
   }
 
-  openDeleteTagDialog(tag: Tag): void {
+  public openDeleteTagDialog(tag: Tag): void {
     const ref = this.dialog.open(CommonDeleteDialogComponent, {
       data: {
         title: 'Delete Tag',

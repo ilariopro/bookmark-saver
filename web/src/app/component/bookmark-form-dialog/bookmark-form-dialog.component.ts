@@ -2,10 +2,10 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -25,7 +25,7 @@ export interface BookmarkFormDialogData {
 }
 
 export interface BookmarkFormDialogResult {
-  url?: string;        // create
+  url?: string;     // create
   notes: string;
   listIds: number[];
   tagIds: number[];
@@ -37,7 +37,6 @@ export interface BookmarkFormDialogResult {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -48,6 +47,7 @@ export interface BookmarkFormDialogResult {
     MatIconModule,
     MatInputModule,
     MatTooltipModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './bookmark-form-dialog.component.html',
   styleUrl: './bookmark-form-dialog.component.scss',
@@ -206,7 +206,7 @@ export class BookmarkFormDialogComponent {
 
   public onTagSelected(event: MatAutocompleteSelectedEvent): void {
     const input = event.option.value as string;
-    const tag = this.state.tags().find(tag => tag.name.toLowerCase() === input.toLowerCase());
+    const tag   = this.state.tags().find(tag => tag.name.toLowerCase() === input.toLowerCase());
     
     if (!tag) {
       this.api.createTag({ name: input }).subscribe(tag => {
@@ -218,10 +218,6 @@ export class BookmarkFormDialogComponent {
 
       return;
     }
-
-    // if (!this.selectedTagIds().includes(tag.id)) {
-    //   this.selectedTagIds.update(prev => [...prev, tag.id]);
-    // }
 
     this.selectedTagIds.update(prev => [...prev, tag.id]);
     this.tagSearch.set('');

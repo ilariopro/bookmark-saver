@@ -1,15 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { interval, Subscription, firstValueFrom } from 'rxjs';
-import { BookmarkApiService } from './bookmark-api.service';
+
 import { Bookmark } from '../model/bookmark.model';
+import { BookmarkApiService } from './bookmark-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class MetadataPollingService {
-  private readonly api = inject(BookmarkApiService);
   private readonly POLL_INTERVAL_MS = 3000;
   private readonly MAX_ATTEMPTS = 10;
 
-  pollUntilResolved(
+  private readonly api = inject(BookmarkApiService);
+
+  public pollUntilResolved(
     bookmarkId: number,
     onResolved: (bookmark: Bookmark) => void
   ): void {

@@ -2,11 +2,11 @@ import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 import { FilterStateService } from '../../service/filter-state.service';
 import { Tag } from '../../model/tag.model';
@@ -32,7 +32,7 @@ export interface TagFormDialogResult {
     MatInputModule,
   ],
   templateUrl: './tag-form-dialog.component.html',
-  styleUrl: './tag-form-dialog.component.scss',
+  styleUrl:    './tag-form-dialog.component.scss',
 })
 export class TagFormDialogComponent {
   private readonly data      = inject(MAT_DIALOG_DATA) as TagFormDialogData;
