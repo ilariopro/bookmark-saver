@@ -22,8 +22,7 @@
             }
         </mat-sidenav>
 
-        <mat-sidenav-content>
-            <div class="main-content">
+        <mat-sidenav-content class="main-content">
 
                 <mat-toolbar class="toolbar">
                     @if (isMobile()) {
@@ -31,11 +30,31 @@
                             <mat-icon>menu</mat-icon>
                         </button>
                     }
+
+                    <span class="spacer"></span>
+
+                    <button mat-icon-button aria-label="Search">
+                        <mat-icon>search</mat-icon>
+                    </button>
+
+                    <button mat-icon-button
+                            [matMenuTriggerFor]="appMenu"
+                            aria-label="More options">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+
+                    <mat-menu #appMenu>
+                        <button mat-menu-item>
+                            Settings
+                        </button>
+                        <button mat-menu-item>
+                            Logout
+                        </button>
+                    </mat-menu>
                 </mat-toolbar>
                 
                 <app-bookmarks />
                 
-            </div>
         </mat-sidenav-content>
 
     </mat-sidenav-container>

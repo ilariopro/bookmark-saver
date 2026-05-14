@@ -9,6 +9,8 @@
   background-color: white;
   border-bottom: 1px solid #ddd;
   transition: transform 250ms ease;
+
+  .spacer { flex: 1; }
 }
 
 .sidebar-container {

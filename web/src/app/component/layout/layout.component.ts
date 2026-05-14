@@ -1,11 +1,12 @@
-import { Component, OnInit, afterNextRender, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AppSidebar } from '../sidebar/sidebar.component';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
@@ -22,12 +23,13 @@ import { ResponsiveStateService } from '../../service/responsive-state.service';
     CommonModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
     MatProgressBarModule,
     MatSidenavModule,
     MatToolbarModule,
 ],
   templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss',
+  styleUrl:    './layout.component.scss',
 })
 export class AppLayout implements OnInit {
   private readonly api        = inject(BookmarkApiService);
