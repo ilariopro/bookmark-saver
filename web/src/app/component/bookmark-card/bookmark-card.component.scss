@@ -35,9 +35,32 @@
   }
 
   &.is-favorite mat-icon {
-    color: #ffbf00; // giallo/ambra — classico per i favorite
+    color: #ffbf00;
     transform: scale(1.2);
   }
+}
+
+// Selection
+
+.select-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+}
+
+.is-selectable {
+    cursor: pointer;
+
+    &.is-selected {
+        outline: 2px solid var(--mat-sys-primary);
+        outline-offset: 2px;
+        opacity: 0.8;
+    }
 }
 
 // Image
@@ -90,6 +113,7 @@
 }
 
 // Header
+
 .card-header {
     position: relative;
     padding-right: 40px; // spazio per l'icona di edit
@@ -170,6 +194,8 @@
     margin: 0;
 }
 
+// Notes
+
 .bookmark-notes {
     display: flex;
     align-items: center;
@@ -178,14 +204,15 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background 150ms ease;
-    color: rgba(0, 0, 0, 0.45);
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.04);
-    }
+    color: rgba(0, 0, 0, 0.5);
 
     &.is-expanded {
         align-items: flex-start;
+        background-color: rgba(0, 0, 0, 0.02);;
+    }
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.04);
     }
 
     .notes-icon {
@@ -238,13 +265,12 @@
 }
 
 // Actions
+
 .card-actions {
     display: flex;
     align-items: center;
 
-    .spacer {
-        flex: 1;
-    }
+    .spacer { flex: 1; }
 
     .created-at {
         font-size: 11px;

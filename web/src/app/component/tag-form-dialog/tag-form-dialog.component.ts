@@ -62,15 +62,9 @@ export class TagFormDialogComponent {
   }
 
   public canSave(): boolean {
-    if (this.isInvalid()) {
-      return false;
-    }
-
-    if (!this.isEdit() && this.isMatch()) {
-      return false;
-    }
-
-    return true;
+    return this.isInvalid() || this.isMatch()
+      ? false
+      : true;
   }
 
   public onNameChange(value: string): void {

@@ -1,14 +1,26 @@
-<mat-card class="bookmark-card" [class.is-pending]="isPending">
+<mat-card class="bookmark-card"
+          [class.is-pending]="isPending"
+          [class.is-selectable]="selectable()"
+          [class.is-selected]="selected()"
+          (click)="toggleSelect($event)">
 
     <div class="card-image-container">
+        @if (selectable()) {
+            <div class="select-overlay">
+                <mat-checkbox [checked]="selected()" color="primary" />
+            </div>
+        }
+
         <!-- Favorite button -->
-        <button mat-icon-button
-                class="favorite-btn"
-                [class.is-favorite]="isFavorite()"
-                (click)="toggleFavorite()"
-                [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'">
-            <mat-icon>{{ isFavorite() ? 'star' : 'star_outline' }}</mat-icon>
-        </button>
+        @if (!selectable()) {
+            <button mat-icon-button
+                    class="favorite-btn"
+                    [class.is-favorite]="isFavorite()"
+                    (click)="toggleFavorite()"
+                    [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'">
+                <mat-icon>{{ isFavorite() ? 'star' : 'star_outline' }}</mat-icon>
+            </button>
+        }
         
         <!-- Image -->
         @if (bookmark().metadata?.imageUrl) {
@@ -39,11 +51,13 @@
         <mat-card-title class="card-title">{{ displayTitle }}</mat-card-title>
         <mat-card-subtitle class="card-subtitle">{{ displayDomain }}</mat-card-subtitle>
 
-          <div class="card-actions-header">
-            <button mat-icon-button [matMenuTriggerFor]="cardMenu" class="menu-button">
-                <mat-icon>more_vert</mat-icon>
-            </button>
-        </div>
+        @if (!selectable()) {
+            <div class="card-actions-header">
+                <button mat-icon-button [matMenuTriggerFor]="cardMenu" class="menu-button">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </div>
+        }
 
     </mat-card-header>
 
@@ -79,7 +93,9 @@
 
         <!-- Notes -->
         @if (bookmark().notes) {
-            <div class="bookmark-notes" [class.is-expanded]="notesExpanded()" (click)="toggleNotes()">
+            <div class="bookmark-notes"
+                [class.is-expanded]="notesExpanded()"
+                (click)="$event.stopPropagation(); toggleNotes()">
                 <mat-icon class="notes-icon">notes</mat-icon>
                 <span class="notes-text">
                     {{ notesExpanded() ? bookmark().notes : 'Notes' }}

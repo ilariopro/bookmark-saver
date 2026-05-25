@@ -1,17 +1,18 @@
 import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatCardModule } from '@angular/material/card';
-import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Bookmark } from '../../model/bookmark.model';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { BookmarkDeleteDialogComponent } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
+import { BookmarkDeleteDialogComponent, BookmarkDeleteDialogData } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
 import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
 import { NotificationService } from '../../service/notification.service';
 import { FilterStateService } from '../../service/filter-state.service';
@@ -23,6 +24,7 @@ import { FilterStateService } from '../../service/filter-state.service';
     CommonModule,
     MatButtonModule,
     MatCardModule,
+    MatCheckbox,
     MatChipsModule,
     MatDialogModule,
     MatIconModule,
@@ -40,6 +42,10 @@ export class BookmarkCardComponent implements OnInit{
   
   public readonly isFavorite    = signal(false);
   public readonly notesExpanded = signal(false);
+  
+  public readonly selectable     = input(false);
+  public readonly selected       = input(false);
+  public readonly selectedChange = output<boolean>();
 
   public readonly selectedTagIds = computed(() =>
     this.state.selectedTagIdsArray()
@@ -116,6 +122,14 @@ export class BookmarkCardComponent implements OnInit{
     this.notesExpanded.set(!this.notesExpanded());
   }
 
+  public toggleSelect(event: MouseEvent): void {
+    if (!this.selectable()) return;
+
+    event.stopPropagation();
+
+    this.selectedChange.emit(!this.selected());
+  }
+
   public onTagsChange(event: MatChipListboxChange): void {
     this.state.setSelectedTags(event.value ?? []);
   }
@@ -131,7 +145,6 @@ export class BookmarkCardComponent implements OnInit{
 
       this.api.updateBookmark(this.bookmark().id, {
         notes:   result.notes,
-        listIds: result.listIds,
         tagIds:  result.tagIds,
       }).subscribe(() => {
         this.updated.emit();
@@ -143,9 +156,9 @@ export class BookmarkCardComponent implements OnInit{
   public openDeleteDialog(): void {
     const ref = this.dialog.open(BookmarkDeleteDialogComponent, {
       data: {
-        title: this.bookmark().metadata?.title,
-        url: this.bookmark().url,
-      },
+        url:         this.bookmark().url,
+        description: 'Are you sure you want to delete this bookmark?',
+      } satisfies BookmarkDeleteDialogData,
       width: '440px',
     });
 
