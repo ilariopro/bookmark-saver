@@ -7,7 +7,7 @@ export const routes: Routes = [
   { path: 'favorites', component: AppLayout },
   { path: 'archived',  component: AppLayout },
   { path: 'untagged',  component: AppLayout },
-  { path: 'lists/:id', component: AppLayout },
+  { path: 'tags/:id',  component: AppLayout },
   { path: '',          redirectTo: 'bookmarks', pathMatch: 'full' },
   { path: '**',        redirectTo: 'bookmarks' },
 ];

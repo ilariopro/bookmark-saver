@@ -62,15 +62,6 @@ export class AppLayout implements OnInit {
     this.sidebarLoading.set(true);
     this.sidebarError.set(null);
 
-    this.api.getLists().subscribe({
-      next: lists => {
-        this.state.apiLists.set(lists);
-      },
-      error: () => {
-        this.sidebarError.set('Error loading lists');
-      },
-    });
-
     this.api.getTags().subscribe({
       next: tags => {
         this.state.tags.set(tags);

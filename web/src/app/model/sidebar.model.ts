@@ -1,11 +1,8 @@
-import { List } from "./list.model";
-
 export type DefaultListId = 'bookmarks' | 'favorites' | 'archived' | 'untagged';
 
 export interface DefaultList {
     id:   DefaultListId;
     name: string;
-    description?: string;
     icon: string;
     type: 'default';
 }
@@ -17,7 +14,10 @@ export const DEFAULT_LISTS: DefaultList[] = [
     { id: 'untagged',  name: 'Untagged',  icon: 'label_off', type: 'default' },
 ];
 
-export interface ApiList extends List {
-    type: 'api';
-    icon: string;
+export interface TagList {
+    id:   number;
+    name: string;
+    color: string | null;
+    icon: 'label';
+    type: 'tag';
 }
