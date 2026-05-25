@@ -3,12 +3,16 @@ import {
   ElementRef, AfterViewInit, OnDestroy,
   Injector,
   computed,
+  signal,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { firstValueFrom } from 'rxjs';
+
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavContent } from '@angular/material/sidenav';
 
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { FilterStateService } from '../../service/filter-state.service';
@@ -16,11 +20,10 @@ import { ResponsiveStateService } from '../../service/responsive-state.service';
 import { InfiniteScrollService } from '../../service/infinite-scroll.service';
 import { BookmarkCardComponent } from '../bookmark-card/bookmark-card.component';
 import { Bookmark, BookmarkQueryParams } from '../../model/bookmark.model';
-import { firstValueFrom } from 'rxjs';
 import { MetadataPollingService } from '../../service/metadata-polling.servie';
 import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
 import { NotificationService } from '../../service/notification.service';
-import { MatSidenavContent } from '@angular/material/sidenav';
+import { BulkActionBarComponent } from '../bulk-action-bar/bulk-action-bar.component';
 
 @Component({
   selector: 'app-bookmarks',
@@ -32,24 +35,29 @@ import { MatSidenavContent } from '@angular/material/sidenav';
     MatIconModule,
     MatProgressSpinnerModule,
     BookmarkCardComponent,
+    BulkActionBarComponent
   ],
   templateUrl: './bookmarks.component.html',
-  styleUrl: './bookmarks.component.scss',
+  styleUrl:    './bookmarks.component.scss',
 })
 export class AppBookmarks implements AfterViewInit, OnDestroy {
   private readonly api            = inject(BookmarkApiService);
   private readonly dialog         = inject(MatDialog);
+  private readonly document       = inject(DOCUMENT);
   private readonly injector       = inject(Injector);
   private readonly metadata       = inject(MetadataPollingService);
   private readonly notify         = inject(NotificationService);
   public  readonly responsive     = inject(ResponsiveStateService);
   public  readonly scroll         = inject(InfiniteScrollService<Bookmark>);
+  private readonly sidenavContent = inject(MatSidenavContent, { optional: true });
   public  readonly state          = inject(FilterStateService);
-  
-  public  readonly showBackToTop = computed(() => this.scroll.total() >= 24);
-  
+
   private readonly sentinel = viewChild<ElementRef>('sentinel');
-  private readonly topRef   = viewChild<ElementRef>('top');
+
+  public readonly editMode    = signal(false);
+  public readonly selectedIds = signal<Set<number>>(new Set());
+  
+  public readonly selectedIdsArray = computed(() => Array.from(this.selectedIds()));
 
   constructor() {
     this.scroll.setLoader(page => {
@@ -59,8 +67,7 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
         params.favorite,
         params.archived,
         params.untagged,
-        params.listId,
-        params.tagIds,
+        params.tagId,
         page
       );
 
@@ -74,6 +81,7 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
         if (!list) return;
 
         this.state.selectedTagIdsArray();
+        this.selectedIds.set(new Set());
         this.reload();
       },
       { allowSignalWrites: true }
@@ -120,7 +128,6 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
       this.api.createBookmark({
         url:     result.url!,
         notes:   result.notes,
-        listIds: result.listIds,
         tagIds:  result.tagIds
       }).subscribe(bookmark => {
         this.scroll.reset();
@@ -137,8 +144,37 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
     });
   }
 
-  public scrollToTop(): void {
-    this.topRef()?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+  public toggleEditMode(): void {
+    this.editMode.update(editMode => !editMode);
+    this.selectedIds.set(new Set());
+  }
+
+  public toggleCardSelection(id: number, selected: boolean): void {
+    this.selectedIds.update(prev => {
+      const selection = new Set(prev);
+
+      if (selected) {
+        selection.add(id);
+      } else {
+        selection.delete(id);
+      }
+
+      return selection;
+    });
+  }
+
+  public onBulkDone(): void {
+    this.editMode.set(false);
+    this.selectedIds.set(new Set());
+    this.reload();
+  }
+
+  public scrollToTop(): void {    
+    if (this.responsive.isMobile()) {
+      this.document.defaultView?.scrollTo(0, 0);
+    } else {
+      this.sidenavContent?.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }
 
   private extractQueryParams(): BookmarkQueryParams {
@@ -146,20 +182,14 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
 
     let archived: boolean | null = null; 
     
-    if (list?.type === 'default' && list.id === 'archived') {
-      archived = true;
-    }
-
-    if (list?.type === 'default' && list.id === 'bookmarks') {
-      archived = false;
-    }
+    if (list?.type === 'default' && list.id === 'archived')  archived = true;
+    if (list?.type === 'default' && list.id === 'bookmarks') archived = false;
 
     return {
       favorite: list?.type === 'default' && list.id === 'favorites',
       archived,
       untagged: list?.type === 'default' && list.id === 'untagged',
-      listId:   list?.type === 'api' ? list.id : null,
-      tagIds:   this.state.selectedTagIdsArray(),
+      tagId:    list?.type === 'tag' ? list.id : null,
     };
   }
 
@@ -170,8 +200,7 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
         params.favorite,
         params.archived,
         params.untagged,
-        params.listId,
-        params.tagIds
+        params.tagId
       );
 
     firstValueFrom(bookmarks)

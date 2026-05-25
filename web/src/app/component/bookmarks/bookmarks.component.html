@@ -1,6 +1,4 @@
-<div #top class="bookmarks-container"
-  [class.is-mobile]="responsive.isMobile()">
-
+<div class="bookmarks-container" [class.is-mobile]="responsive.isMobile()">
   <div class="bookmarks-content">
 
      <!-- Header -->
@@ -10,12 +8,17 @@
         @if (hasBookmarks()) {
           <span class="bookmark-count">{{ scroll.total() }} bookmarks</span>
         }
-        @if (state.selectedList()?.type === 'api' && state.selectedList()?.description) {
-          <p class="list-description">{{ state.selectedList()!.description }}</p>
-        }
       </div>
       
       <span class="spacer"></span>
+
+      <!-- Edit button -->
+      @if (hasBookmarks()) {
+        <button mat-stroked-button (click)="toggleEditMode()">
+          <mat-icon>{{ editMode() ? 'close' : 'edit' }}</mat-icon>
+          {{ editMode() ? 'Close' : 'Edit' }}
+        </button>
+      }
 
       @if (!responsive.isMobile()) {
         <button mat-flat-button color="primary" (click)="openAddDialog()">
@@ -38,10 +41,20 @@
         <p class="state-message">No bookmarks found</p>
       </div>
     } @else {
+      <!-- Bulk actions bar -->
+      @if (editMode()) {
+        <app-bulk-actions-bar
+          [selectedIds]="selectedIdsArray()"
+          (done)="onBulkDone()" />
+      }
+
       <div class="bookmarks-grid">
         @for (bookmark of scroll.items(); track bookmark.id) {
           <app-bookmark-card
             [bookmark]="bookmark"
+            [selectable]="editMode()"
+            [selected]="selectedIds().has(bookmark.id)"
+            (selectedChange)="toggleCardSelection(bookmark.id, $event)"
             (updated)="reload()"
             (deleted)="reload()" />
         }
@@ -56,19 +69,17 @@
       }
 
       @if (!scroll.hasMore() && hasBookmarks()) {
-         <div class="end-of-list">
-            <p class="state-message">All bookmarks loaded</p> 
-            @if (showBackToTop()) {
-              <button mat-button (click)="scrollToTop()">
-                <mat-icon>arrow_upward</mat-icon>
-                Back to top
-              </button>
-            }
+        <div class="end-of-list">
+          <button mat-stroked-button (click)="scrollToTop()">
+            <mat-icon>arrow_upward</mat-icon>
+            Back to top
+          </button>
         </div>
       }
     }
 
   </div>
+</div>
 
 @if (responsive.isMobile()) {
   <button mat-fab color="primary" class="add-fab" (click)="openAddDialog()">

@@ -17,11 +17,10 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 24px;
 
-  .spacer {
-    flex: 1;
-  }
+  .spacer { flex: 1; }
+
+  button { min-width: auto; }
 }
 
 .title-container {
@@ -42,26 +41,11 @@
   font-weight: 600;
 }
 
-.list-description {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.45);
-  line-height: 1.4;
-}
-
 .bookmark-count {
   font-size: 13px;
   color: rgba(0, 0, 0, 0.4);
   white-space: nowrap;
   order: 1; // dopo h1, prima di description
-}
-
-.list-description {
-  margin: 6px 0;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.45);
-  line-height: 1.4;
-  order: 2;
 }
 
 // Loading / error / empty
@@ -86,10 +70,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
+  margin-top: 24px;
 }
 
 .scroll-sentinel {
-  height: 1px;       // only visible to the observer
+  height: 1px;      // only visible to the observer
   margin-top: 24px;
 }
 
@@ -102,13 +87,10 @@
 .end-of-list {
   display: flex;
   flex-direction: column;
-  padding: 24px 0 8px;
+  margin: 16px;
   text-align: center;
 
-  button {
-    margin: auto;
-    margin-top: 24px;
-  }
+  button { margin: auto; }
 }
 
 .add-fab {

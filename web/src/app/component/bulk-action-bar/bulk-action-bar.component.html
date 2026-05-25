@@ -1,0 +1,109 @@
+<div class="bulk-bar">
+    <span class="selection-count">{{ count }} selected</span>
+
+    <span class="spacer"></span>
+
+    <!-- Desktop actions -->
+    @if (!isMobile) {
+        <button mat-icon-button
+                matTooltip="Add to favorites"
+                [disabled]="!hasSelection"
+                (click)="bulkFavorite(true)">
+            <mat-icon>star</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Remove from favorites"
+                [disabled]="!hasSelection"
+                (click)="bulkFavorite(false)">
+            <mat-icon>star_border</mat-icon>
+        </button>
+
+        <mat-divider vertical />
+
+        <button mat-icon-button
+                matTooltip="Archive"
+                [disabled]="!hasSelection"
+                (click)="bulkArchive(true)">
+            <mat-icon>archive</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Unarchive"
+                [disabled]="!hasSelection"
+                (click)="bulkArchive(false)">
+            <mat-icon>unarchive</mat-icon>
+        </button>
+
+        <mat-divider vertical />
+
+        <button mat-icon-button
+                matTooltip="Add tags"
+                [disabled]="!hasSelection"
+                (click)="openTagsDialog()">
+            <mat-icon>label</mat-icon>
+        </button>
+
+        <mat-divider vertical />
+
+        <button mat-icon-button
+                matTooltip="Delete"
+                [disabled]="!hasSelection"
+                (click)="openDeleteDialog()">
+            <mat-icon>delete</mat-icon>
+        </button>
+    }
+
+    <!-- Mobile actions dropdown -->
+    @if (isMobile) {
+        <!-- Temporary workaround -->
+        <!-- <div [matMenuTriggerFor]="actionsMenu">
+            <button mat-button [disabled]="!hasSelection">
+                Actions
+                <mat-icon iconSuffix>arrow_drop_down</mat-icon>
+            </button>
+        </div> -->
+        <button mat-button
+                [matMenuTriggerFor]="actionsMenu"
+                [disabled]="!hasSelection">
+            Actions
+            <mat-icon iconSuffix>arrow_drop_down</mat-icon>
+        </button>
+
+        <mat-menu #actionsMenu>
+            <button mat-menu-item (click)="bulkFavorite(true)">
+                <mat-icon>star</mat-icon>
+                Add to favorites
+            </button>
+            <button mat-menu-item (click)="bulkFavorite(false)">
+                <mat-icon>star_border</mat-icon>
+                Remove from favorites
+            </button>
+            
+            <mat-divider />
+            
+            <button mat-menu-item (click)="bulkArchive(true)">
+                <mat-icon>archive</mat-icon>
+                Archive
+            </button>
+            <button mat-menu-item (click)="bulkArchive(false)">
+                <mat-icon>unarchive</mat-icon>
+                Unarchive
+            </button>
+            
+            <mat-divider />
+            
+            <button mat-menu-item (click)="openTagsDialog()">
+                <mat-icon>label</mat-icon>
+                Add tags
+            </button>
+            
+            <mat-divider />
+            
+            <button mat-menu-item (click)="openDeleteDialog()">
+                <mat-icon>delete</mat-icon>
+                Delete
+            </button>
+        </mat-menu>
+    }
+</div>
