@@ -21,12 +21,12 @@ import { InfiniteScrollService } from '../../service/infinite-scroll.service';
 import { BookmarkCardComponent } from '../bookmark-card/bookmark-card.component';
 import { Bookmark, BookmarkQueryParams } from '../../model/bookmark.model';
 import { MetadataPollingService } from '../../service/metadata-polling.servie';
-import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
+import { BookmarkEditDialogComponent, BookmarkEditDialogResult } from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
 import { NotificationService } from '../../service/notification.service';
 import { BulkActionBarComponent } from '../bulk-action-bar/bulk-action-bar.component';
 
 @Component({
-  selector: 'app-bookmarks',
+  selector: 'bookmark-list',
   standalone: true,
   providers: [InfiniteScrollService],
   imports: [
@@ -37,10 +37,10 @@ import { BulkActionBarComponent } from '../bulk-action-bar/bulk-action-bar.compo
     BookmarkCardComponent,
     BulkActionBarComponent
   ],
-  templateUrl: './bookmarks.component.html',
-  styleUrl:    './bookmarks.component.scss',
+  templateUrl: './bookmark-list.component.html',
+  styleUrl:    './bookmark-list.component.scss',
 })
-export class AppBookmarks implements AfterViewInit, OnDestroy {
+export class BookmarkList implements AfterViewInit, OnDestroy {
   private readonly api            = inject(BookmarkApiService);
   private readonly dialog         = inject(MatDialog);
   private readonly document       = inject(DOCUMENT);
@@ -120,9 +120,9 @@ export class AppBookmarks implements AfterViewInit, OnDestroy {
   }
 
   public openAddDialog(): void {
-    const ref = this.dialog.open(BookmarkFormDialogComponent, { data: {}, width: '440px' });
+    const ref = this.dialog.open(BookmarkEditDialogComponent, { data: {}, width: '440px' });
 
-    ref.afterClosed().subscribe((result: BookmarkFormDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: BookmarkEditDialogResult | undefined) => {
       if (!result) return;
 
       this.api.createBookmark({

@@ -9,7 +9,7 @@ export interface TagDeleteDialogData {
 }
 
 @Component({
-    selector: 'app-tag-delete-dialog',
+    selector: 'tag-delete-dialog',
     standalone: true,
     imports: [
         MatButtonModule,

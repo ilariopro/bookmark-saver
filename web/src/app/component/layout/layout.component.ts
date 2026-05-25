@@ -11,15 +11,15 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppSidebar } from '../sidebar/sidebar.component';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { FilterStateService } from '../../service/filter-state.service';
-import { AppBookmarks } from "../bookmarks/bookmarks.component";
+import { BookmarkList } from "../bookmark-list/bookmark-list.component";
 import { ResponsiveStateService } from '../../service/responsive-state.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
   imports: [
-    AppBookmarks,
     AppSidebar,
+    BookmarkList,
     CommonModule,
     MatButtonModule,
     MatIconModule,

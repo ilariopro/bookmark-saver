@@ -43,14 +43,14 @@
     } @else {
       <!-- Bulk actions bar -->
       @if (editMode()) {
-        <app-bulk-actions-bar
+        <bulk-actions-bar
           [selectedIds]="selectedIdsArray()"
           (done)="onBulkDone()" />
       }
 
       <div class="bookmarks-grid">
         @for (bookmark of scroll.items(); track bookmark.id) {
-          <app-bookmark-card
+          <bookmark-card
             [bookmark]="bookmark"
             [selectable]="editMode()"
             [selected]="selectedIds().has(bookmark.id)"

@@ -9,7 +9,7 @@ export interface BookmarkDeleteDialogData {
 }
 
 @Component({
-    selector: 'app-bookmark-delete-dialog',
+    selector: 'bookmark-delete-dialog',
     standalone: true,
     imports: [
         MatButtonModule,

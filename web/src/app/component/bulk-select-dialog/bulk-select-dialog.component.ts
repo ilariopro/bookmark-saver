@@ -13,7 +13,7 @@ export interface BulkSelectDialogResult {
 }
 
 @Component({
-    selector: 'app-bulk-select-dialog',
+    selector: 'bulk-select-dialog',
     standalone: true,
     imports: [
         CommonModule,

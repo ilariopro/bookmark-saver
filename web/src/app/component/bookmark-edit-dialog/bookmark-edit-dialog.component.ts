@@ -14,21 +14,21 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Bookmark, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
+import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
 import { buildTagTree, Tag, TagNode } from '../../model/tag.model';
 
-export interface BookmarkFormDialogData {
+export interface BookmarkEditDialogData {
   bookmark?: Bookmark;
 }
 
-export interface BookmarkFormDialogResult {
+export interface BookmarkEditDialogResult {
   url?:   string;     // create
   notes:  string;
   tagIds: number[];
 }
 
 @Component({
-  selector: 'app-bookmark-form-dialog',
+  selector: 'bookmark-edit-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -43,13 +43,13 @@ export interface BookmarkFormDialogResult {
     MatTooltipModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './bookmark-form-dialog.component.html',
-  styleUrl: './bookmark-form-dialog.component.scss',
+  templateUrl: './bookmark-edit-dialog.component.html',
+  styleUrl:    './bookmark-edit-dialog.component.scss',
 })
-export class BookmarkFormDialogComponent {
+export class BookmarkEditDialogComponent {
   private readonly api         = inject(BookmarkApiService);
-  private readonly data        = inject(MAT_DIALOG_DATA) as BookmarkFormDialogData;
-  private readonly dialogRef   = inject(MatDialogRef<BookmarkFormDialogComponent>);
+  private readonly data        = inject(MAT_DIALOG_DATA) as BookmarkEditDialogData;
+  private readonly dialogRef   = inject(MatDialogRef<BookmarkEditDialogComponent>);
   private readonly dialog      = inject(MatDialog);
   private readonly formBuilder = inject(FormBuilder);
   private readonly state       = inject(FilterStateService);
@@ -120,9 +120,9 @@ export class BookmarkFormDialogComponent {
   }
 
   public openCreateTagDialog(): void {
-    const ref = this.dialog.open(TagFormDialogComponent, { data: {}, width: '440px' });
+    const ref = this.dialog.open(TagEditDialogComponent, { data: {}, width: '440px' });
 
-    ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
       if (!result) return;
       
       this.api.createTag({ name: result.name }).subscribe(tag => {
@@ -154,7 +154,7 @@ export class BookmarkFormDialogComponent {
       url:     this.isEdit() ? undefined : this.urlForm.value.url!,
       notes:   this.notes().trim(),
       tagIds:  this.selectedTagIds(),
-    } satisfies BookmarkFormDialogResult);
+    } satisfies BookmarkEditDialogResult);
   }
 
   public cancel(): void {

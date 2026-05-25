@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { Tag } from '../../model/tag.model';
-import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
+import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
 import { TagDeleteDialogComponent, TagDeleteDialogData } from '../tag-delete-dialog/tag-delete-dialog.component';
 import { DefaultListId } from '../../model/sidebar.model';
 import { ResponsiveStateService } from '../../service/responsive-state.service';
@@ -57,12 +57,12 @@ export class AppSidebar {
   // ── Tag actions ───────────────────────────────────────────────
 
   public openCreateTagDialog(): void {
-    const ref = this.dialog.open(TagFormDialogComponent, {
+    const ref = this.dialog.open(TagEditDialogComponent, {
       data: {},
       width: '440px',
     });
 
-    ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
       if (!result) return;
 
       this.api.createTag({ name: result.name }).subscribe(() =>
@@ -72,12 +72,12 @@ export class AppSidebar {
   }
 
   public openEditTagDialog(tag: Tag): void {
-    const ref = this.dialog.open(TagFormDialogComponent, {
+    const ref = this.dialog.open(TagEditDialogComponent, {
       data: { tag },
       width: '440px',
     });
 
-    ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
       if (!result) return;
 
       this.api.updateTag(tag.id, { name: result.name }).subscribe(() =>

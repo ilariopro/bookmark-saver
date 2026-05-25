@@ -11,16 +11,16 @@ import { MatInputModule } from '@angular/material/input';
 import { FilterStateService } from '../../service/filter-state.service';
 import { Tag } from '../../model/tag.model';
 
-export interface TagFormDialogData {
+export interface TagEditDialogData {
   tag?: Tag;
 }
 
-export interface TagFormDialogResult {
+export interface TagEditDialogResult {
   name: string;
 }
 
 @Component({
-  selector: 'app-tag-form-dialog',
+  selector: 'tag-edit-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -31,12 +31,12 @@ export interface TagFormDialogResult {
     MatIconModule,
     MatInputModule,
   ],
-  templateUrl: './tag-form-dialog.component.html',
-  styleUrl:    './tag-form-dialog.component.scss',
+  templateUrl: './tag-edit-dialog.component.html',
+  styleUrl:    './tag-edit-dialog.component.scss',
 })
-export class TagFormDialogComponent {
-  private readonly data      = inject(MAT_DIALOG_DATA) as TagFormDialogData;
-  private readonly dialogRef = inject(MatDialogRef<TagFormDialogComponent>);
+export class TagEditDialogComponent {
+  private readonly data      = inject(MAT_DIALOG_DATA) as TagEditDialogData;
+  private readonly dialogRef = inject(MatDialogRef<TagEditDialogComponent>);
   private readonly state     = inject(FilterStateService);
 
   public readonly name = signal(this.data.tag?.name ?? '');
@@ -74,7 +74,7 @@ export class TagFormDialogComponent {
   public save(): void {
     if (this.isInvalid()) return;
 
-    this.dialogRef.close({ name: this.name().trim() } satisfies TagFormDialogResult);
+    this.dialogRef.close({ name: this.name().trim() } satisfies TagEditDialogResult);
   }
 
   public cancel(): void {

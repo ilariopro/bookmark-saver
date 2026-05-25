@@ -13,12 +13,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Bookmark } from '../../model/bookmark.model';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { BookmarkDeleteDialogComponent, BookmarkDeleteDialogData } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
-import { BookmarkFormDialogComponent, BookmarkFormDialogResult } from '../bookmark-form-dialog/bookmark-form-dialog.component';
+import { BookmarkEditDialogComponent, BookmarkEditDialogResult } from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
 import { NotificationService } from '../../service/notification.service';
 import { FilterStateService } from '../../service/filter-state.service';
 
 @Component({
-  selector: 'app-bookmark-card',
+  selector: 'bookmark-card',
   standalone: true,
   imports: [
     CommonModule,
@@ -135,12 +135,12 @@ export class BookmarkCardComponent implements OnInit{
   }
 
   public openEditDialog(): void {
-    const ref = this.dialog.open(BookmarkFormDialogComponent, {
+    const ref = this.dialog.open(BookmarkEditDialogComponent, {
       data: { bookmark: this.bookmark() },
       width: '440px',
     });
 
-    ref.afterClosed().subscribe((result: BookmarkFormDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: BookmarkEditDialogResult | undefined) => {
       if (!result) return;
 
       this.api.updateBookmark(this.bookmark().id, {

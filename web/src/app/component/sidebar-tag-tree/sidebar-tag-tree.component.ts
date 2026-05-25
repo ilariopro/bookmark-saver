@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Tag, TagNode } from '../../model/tag.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
+import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
 import { TagDeleteDialogComponent, TagDeleteDialogData } from '../tag-delete-dialog/tag-delete-dialog.component';
 
 interface FlatTagNode {
@@ -22,7 +22,7 @@ fullPath:   string;
 }
 
 @Component({
-  selector: 'app-sidebar-tag-tree',
+  selector: 'sidebar-tag-tree',
   standalone: true,
   imports: [
     CommonModule,
@@ -78,12 +78,12 @@ export class SidebarTagTreeComponent {
     }
 
     public openEditDialog(node: FlatTagNode): void {
-        const ref = this.dialog.open(TagFormDialogComponent, {
+        const ref = this.dialog.open(TagEditDialogComponent, {
             data: { tag: node.tag },
             width: '440px',
         });
 
-        ref.afterClosed().subscribe((result: TagFormDialogResult | undefined) => {
+        ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
             if (!result) return;
 
             this.api.updateTag(node.tag.id, { name: result.name }).subscribe(() =>

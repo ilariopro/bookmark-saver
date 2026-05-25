@@ -15,7 +15,7 @@ import { ResponsiveStateService } from '../../service/responsive-state.service';
 import { BookmarkDeleteDialogComponent, BookmarkDeleteDialogData } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
 
 @Component({
-    selector: 'app-bulk-actions-bar',
+    selector: 'bulk-actions-bar',
     standalone: true,
     imports: [
         CommonModule,
