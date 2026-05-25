@@ -65,7 +65,7 @@ public class TagController {
         @PathVariable Long tagId
     ) {
         return ResponseEntity.ok(
-            ResponseFactory.one(service.findById(tagId), TagResponse::from)
+            ResponseFactory.item(service.findById(tagId), TagResponse::from)
         );
     }
 
@@ -82,7 +82,7 @@ public class TagController {
     ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(ResponseFactory.one(service.save(request), TagResponse::from));
+            .body(ResponseFactory.item(service.save(request), TagResponse::from));
     }
 
     /**
@@ -99,7 +99,7 @@ public class TagController {
         @Valid @RequestBody TagRequest request
     ) {
         return ResponseEntity.ok(
-            ResponseFactory.one(service.update(tagId, request), TagResponse::from)
+            ResponseFactory.item(service.update(tagId, request), TagResponse::from)
         );
     }
 

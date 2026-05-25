@@ -27,7 +27,7 @@ class ResponseFactoryTest {
 
     @Test
     void oneMapsSingleElement() {
-        ApiResponse<String> response = ResponseFactory.one(1, mapper());
+        ApiResponse<String> response = ResponseFactory.item(1, mapper());
 
         assertThat(response.data()).isEqualTo("v1");
     }

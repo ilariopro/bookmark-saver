@@ -89,7 +89,7 @@ public class BookmarkController {
         @PathVariable Long bookmarkId
     ) {
         return ResponseEntity.ok(
-            ResponseFactory.one(service.findById(bookmarkId), BookmarkResponse::from)
+            ResponseFactory.item(service.findById(bookmarkId), BookmarkResponse::from)
         );
     }
 
@@ -106,7 +106,7 @@ public class BookmarkController {
     ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(ResponseFactory.one(service.save(request), BookmarkResponse::from));
+            .body(ResponseFactory.item(service.save(request), BookmarkResponse::from));
     }
 
     /**
@@ -123,7 +123,7 @@ public class BookmarkController {
         @Validated(OnUpdate.class) @RequestBody BookmarkRequest request
     ) {
         return ResponseEntity.ok(
-            ResponseFactory.one(service.update(bookmarkId, request), BookmarkResponse::from)
+            ResponseFactory.item(service.update(bookmarkId, request), BookmarkResponse::from)
         );
     }
 

@@ -54,7 +54,7 @@ class TagServiceTest {
     // findAll
     // ---------------------------------------------------------------
 
-    @Test
+    @Test // FIXME update this method to reflect new features
     void findAllReturnsAllTags() {
         List<Tag> tags = List.of(TagFixture.withDefaults());
 

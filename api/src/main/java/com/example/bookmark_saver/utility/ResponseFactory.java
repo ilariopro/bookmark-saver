@@ -28,7 +28,7 @@ public final class ResponseFactory {
      * 
      * @return The API response.
      */
-    public static <T, R> ApiResponse<R> one(T data, Function<T, R> mapper) {
+    public static <T, R> ApiResponse<R> item(T data, Function<T, R> mapper) {
         return ApiResponse.of(
             mapper.apply(data)
         );
