@@ -1,10 +1,8 @@
 package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Bookmark;
-import com.example.bookmark_saver.domain.BookmarkList;
 import com.example.bookmark_saver.domain.Tag;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
-import com.example.bookmark_saver.repository.BookmarkListRepository;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 
@@ -21,7 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /**
- * Service for managing bookmarks and their associations with lists and tags.
+ * Service for managing bookmarks and their associations with tags.
  *
  * Provides CRUD operations on {@link Bookmark} entities, dynamic filtering,
  * and triggers asynchronous metadata enrichment on save and URL update.
@@ -33,12 +31,6 @@ public class BookmarkService {
      */
     @Autowired
     private BookmarkRepository bookmarkRepository;
-
-    /**
-     * Repository for accessing and persisting lists.
-     */
-    @Autowired
-    private BookmarkListRepository listRepository;
 
     /**
      * Repository for accessing and persisting tags.
@@ -58,7 +50,6 @@ public class BookmarkService {
      * @param favorite If non-null, filters by favorite status.
      * @param archived If non-null, filters by archived status.
      * @param untagged If non-null, filters by untagged bookmarks.
-     * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable Pagination options.
      * 
@@ -68,7 +59,6 @@ public class BookmarkService {
         Boolean favorite,
         Boolean archived,
         Boolean untagged,
-        List<Long> listIds,
         List<Long> tagIds,
         Pageable pageable
     ) {
@@ -102,19 +92,6 @@ public class BookmarkService {
             spec = spec.and((root, query, criteria) ->
                 criteria.isEmpty(root.get("tags"))
             );
-        }
-
-        if (listIds != null && !listIds.isEmpty()) {
-            for (Long listId : listIds) {
-                spec = spec.and((root, query, criteria) -> {
-                    query.distinct(true);
-
-                    return criteria.equal(
-                        root.join("lists").get("id"),
-                        listId
-                    );
-                });
-            }
         }
 
         if (tagIds != null && !tagIds.isEmpty()) {
@@ -176,7 +153,6 @@ public class BookmarkService {
         bookmark.setNotes(notes);
         bookmark.setFavorite(favorite);
         bookmark.setArchived(archived);
-        bookmark.setLists(fetchLists(request.listIds()));
         bookmark.setTags(fetchTags(request.tagIds()));
         
         Bookmark saved = bookmarkRepository.save(bookmark);
@@ -214,10 +190,6 @@ public class BookmarkService {
             ? request.archived()
             : bookmark.isArchived();
 
-        Set<BookmarkList> lists = request.listIds() != null
-            ? fetchLists(request.listIds())
-            : bookmark.getLists();
-
         Set<Tag> tags = request.tagIds() != null
             ? fetchTags(request.tagIds())
             : bookmark.getTags();
@@ -226,7 +198,6 @@ public class BookmarkService {
         bookmark.setNotes(notes);
         bookmark.setFavorite(favorite);
         bookmark.setArchived(archived);
-        bookmark.setLists(lists);
         bookmark.setTags(tags);
 
         return bookmarkRepository.save(bookmark);
@@ -243,25 +214,6 @@ public class BookmarkService {
         Bookmark bookmark = findById(bookmarkId);
 
         bookmarkRepository.delete(bookmark);
-    }
-
-    /**
-     * Fetches and validates a set of {@link BookmarkList} entities by their IDs.
-     */
-    private Set<BookmarkList> fetchLists(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return new HashSet<>();
-        }
-
-        List<BookmarkList> lists = listRepository.findAllById(ids);
-
-        if (lists.size() != ids.size()) {
-            throw new EntityNotFoundException(
-                "One or more lists not found. Expected all listIds to exist: " + ids
-            );
-        }
-
-        return new HashSet<>(lists);
     }
 
     /**

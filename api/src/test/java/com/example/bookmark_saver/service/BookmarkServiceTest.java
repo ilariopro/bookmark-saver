@@ -2,7 +2,6 @@ package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Bookmark;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
-import com.example.bookmark_saver.repository.BookmarkListRepository;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 import com.example.bookmark_saver.support.BookmarkFixture;
@@ -34,12 +33,6 @@ class BookmarkServiceTest {
      */
     @Mock
     private BookmarkRepository bookmarkRepository;
-
-    /**
-     * List repository mock.
-     */
-    @Mock
-    private BookmarkListRepository listRepository;
 
     /**
      * Tag repository mock.
@@ -84,7 +77,6 @@ class BookmarkServiceTest {
             null,
             null,
             null,
-            List.of(),
             Pageable.unpaged()
         );
 
@@ -102,7 +94,6 @@ class BookmarkServiceTest {
             null,
             null,
             null,
-            List.of(),
             Pageable.unpaged()
         );
 
@@ -146,7 +137,6 @@ class BookmarkServiceTest {
             "notes",
             false,
             false,
-            List.of(),
             List.of()
         );
 
@@ -160,32 +150,12 @@ class BookmarkServiceTest {
     }
 
     @Test
-    void saveThrowsWhenListIdDoesNotExist() {
-        BookmarkRequest request = new BookmarkRequest(
-            "https://example.com",
-            "notes",
-            false,
-            false,
-            List.of(99L),
-            List.of()
-        );
-
-        when(listRepository.findAllById(List.of(99L)))
-            .thenReturn(List.of());
-
-        assertThatThrownBy(() -> service.save(request))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("99");
-    }
-
-    @Test
     void saveThrowsWhenTagIdDoesNotExist() {
         BookmarkRequest request = new BookmarkRequest(
             "https://example.com",
             "notes",
             false,
             false,
-            List.of(),
             List.of(99L)
         );
 
@@ -210,7 +180,6 @@ class BookmarkServiceTest {
             "new notes",
             true,
             true,
-            List.of(),
             List.of()
         );
 
@@ -234,7 +203,6 @@ class BookmarkServiceTest {
             "",
             false,
             false,
-            List.of(),
             List.of()
         );
 

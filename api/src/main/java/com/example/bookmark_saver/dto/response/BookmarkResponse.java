@@ -17,7 +17,6 @@ public record BookmarkResponse(
     String notes,
     Boolean favorite,
     Boolean archived,
-    Set<BookmarkListResponse> lists,
     Set<TagResponse> tags,
     Metadata metadata,
     MetadataStatus metadataStatus,
@@ -25,11 +24,6 @@ public record BookmarkResponse(
     Instant updatedAt
 ) {
     public static BookmarkResponse from(Bookmark bookmark) {
-        Set<BookmarkListResponse> lists = bookmark.getLists()
-            .stream()
-            .map(BookmarkListResponse::from)
-            .collect(Collectors.toSet());
-
         Set<TagResponse> tags = bookmark.getTags()
             .stream()
             .map(TagResponse::from)
@@ -41,7 +35,6 @@ public record BookmarkResponse(
             bookmark.getNotes(),
             bookmark.isFavorite(),
             bookmark.isArchived(),
-            lists,
             tags,
             bookmark.getMetadata(),
             bookmark.getMetadataStatus(),

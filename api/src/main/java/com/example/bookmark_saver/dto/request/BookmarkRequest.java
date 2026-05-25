@@ -21,7 +21,5 @@ public record BookmarkRequest(
     
     Boolean archived,
 
-    List<Long> listIds,
-
     List<Long> tagIds
 ) {}

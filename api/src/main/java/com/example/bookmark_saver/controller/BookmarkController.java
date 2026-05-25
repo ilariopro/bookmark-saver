@@ -49,7 +49,6 @@ public class BookmarkController {
      * @param favorite If non-null, filters by favorite status.
      * @param archived If non-null, filters by archived status.
      * @param untagged If non-null, filters by untagged bookmarks.
-     * @param listIds  If non-blank, filters by list ids.
      * @param tagIds   If non-blank, filters by tag ids.
      * @param pageable Pagination options.
      * 
@@ -60,18 +59,15 @@ public class BookmarkController {
         @RequestParam(required = false) Boolean favorite,
         @RequestParam(required = false) Boolean archived,
         @RequestParam(required = false) Boolean untagged,
-        @RequestParam(required = false) String listIds,
         @RequestParam(required = false) String tagIds,
         Pageable pageable
     ) {
-        List<Long> parsedListIds = parseCommaSeparatedIds(listIds);
         List<Long> parsedTagIds  = parseCommaSeparatedIds(tagIds);
 
         Page<Bookmark> bookmarks = service.findAll(
             favorite,
             archived,
             untagged,
-            parsedListIds,
             parsedTagIds,
             pageable
         );

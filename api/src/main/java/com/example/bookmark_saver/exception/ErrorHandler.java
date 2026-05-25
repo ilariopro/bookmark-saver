@@ -2,6 +2,8 @@ package com.example.bookmark_saver.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -34,7 +36,11 @@ public class ErrorHandler {
                 Exception exception,
                 HttpServletRequest request
         ) {
-                return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, exception, request);
+                return createProblemDetail(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        exception,
+                        request
+                );
         }
 
         /**
@@ -53,7 +59,11 @@ public class ErrorHandler {
                 Exception exception,
                 HttpServletRequest request
         ) {
-                return createProblemDetail(HttpStatus.NOT_FOUND, exception, request);
+                return createProblemDetail(
+                        HttpStatus.NOT_FOUND,
+                        exception,
+                        request
+                );
         }
 
         /**
@@ -69,7 +79,23 @@ public class ErrorHandler {
                 IllegalArgumentException exception,
                 HttpServletRequest request
         ) {
-                return createProblemDetail(HttpStatus.CONFLICT, exception, request);
+                return createProblemDetail(
+                        HttpStatus.CONFLICT,
+                        exception,
+                        request
+                );
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ProblemDetail handleConstraintViolation(
+                DataIntegrityViolationException exception,
+                HttpServletRequest request
+        ) {
+                return createProblemDetail(
+                        HttpStatus.CONFLICT,
+                        exception,
+                        request
+                );
         }
 
         /**
@@ -85,7 +111,11 @@ public class ErrorHandler {
                 HttpRequestMethodNotSupportedException exception,
                 HttpServletRequest request
         ) {
-                return createProblemDetail(HttpStatus.METHOD_NOT_ALLOWED, exception, request);
+                return createProblemDetail(
+                        HttpStatus.METHOD_NOT_ALLOWED,
+                        exception,
+                        request
+                );
         }
 
         /**
@@ -102,7 +132,11 @@ public class ErrorHandler {
                 MethodArgumentNotValidException exception,
                 HttpServletRequest request
         ) {
-                ProblemDetail problem = createProblemDetail(HttpStatus.BAD_REQUEST, exception, request);
+                ProblemDetail problem = createProblemDetail(
+                        HttpStatus.BAD_REQUEST,
+                        exception,
+                        request
+                );
 
                 String detail = exception.getBindingResult()
                         .getFieldErrors()
@@ -123,7 +157,10 @@ public class ErrorHandler {
                 Exception exception,
                 HttpServletRequest request
         ) {
-                ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, exception.getMessage());
+                ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                        status,
+                        exception.getMessage()
+                );
 
                 problem.setTitle(status.getReasonPhrase());
                 problem.setProperty("error", exception.getClass().getSimpleName());

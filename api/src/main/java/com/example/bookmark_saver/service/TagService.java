@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,12 +28,6 @@ public class TagService {
     private TagRepository tagRepository;
 
     /**
-     * JDBC template for executing batch updates.
-     */
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    /**
      * Returns all tags.
      * 
      * @param sort Sort options.
@@ -42,7 +35,7 @@ public class TagService {
      * @return The complete list of {@link Tag}.
      */
     public List<Tag> findAll(Sort sort) {
-        return tagRepository.findAll(sort);
+        return tagRepository.findByParentIsNull(sort);
     }
 
     /**
@@ -67,71 +60,56 @@ public class TagService {
      * @param request The tag creation request.
      * 
      * @return The saved tag.
+     * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
+     * @throws EntityNotFoundException If no parent tag is found with the given ID.
      */
     public Tag save(TagRequest request) {
+        checkNameConflicts(
+            request.parentId(),
+            request.name()
+        );
+
         Tag tag = new Tag();
         
         tag.setName(normalizeName(request.name()));
+        tag.setColor(request.color());
+
+        if (request.parentId() != null) {
+            Tag parent = findById(request.parentId());
+
+            tag.setParent(parent);
+        }
 
         return tagRepository.save(tag);
     }
 
     /**
      * Updates an existing tag.
-     * 
-     * If a tag with the same name already exists, the associated bookmarks
-     * are merged with it and the current tag is deleted.
      *
      * @param tagId   The ID of the tag to update.
      * @param request The update request containing the new name.
      * 
-     * @return The updated or merged tag.
+     * @return The updated tag.
+     * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
      * @throws EntityNotFoundException If no tag is found with the given ID.
      */
     @Transactional
     public Tag update(Long tagId, TagRequest request) {
+        checkNameConflicts(
+            request.parentId(),
+            request.name()
+        );
+
         Tag tag = findById(tagId);
 
-        String normalizedName = normalizeName(request.name());
+        tag.setName(normalizeName(request.name()));
+        tag.setColor(request.color());
 
-        Tag existingTag = tagRepository
-            .findByName(normalizedName)
-            .orElse(null);
+        if (request.parentId() != null) {
+            Tag parent = findById(request.parentId());
 
-        if (existingTag != null && !existingTag.getId().equals(tagId)) {
-            // 1) Delete possible duplicates
-            jdbcTemplate.update(
-                """
-                DELETE FROM bookmark_tags old_relation
-                WHERE old_relation.tag_id = ?
-                AND EXISTS (
-                    SELECT 1
-                    FROM bookmark_tags new_relation
-                    WHERE new_relation.bookmark_id = old_relation.bookmark_id
-                    AND new_relation.tag_id = ?
-                )
-                """,
-                existingTag.getId(),
-                tagId
-            );
-
-            // 2) Move the remaining relationships
-            jdbcTemplate.update(
-                """
-                UPDATE bookmark_tags
-                SET tag_id = ?
-                WHERE tag_id = ?
-                """,
-                tagId,
-                existingTag.getId()
-            );
-
-            tagRepository.deleteById(existingTag.getId());
-
-            return tag;
+            tag.setParent(parent);
         }
-
-        tag.setName(normalizedName);
 
         return tagRepository.save(tag);
     }
@@ -157,5 +135,23 @@ public class TagService {
             .trim()
             .replaceAll("\\s+", " ")
             .toLowerCase();
+    }
+
+    /**
+     * Makes sure there are no name conflicts, for the given parent.
+     * 
+     * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
+     */
+    private void checkNameConflicts(Long parentId, String name) {
+        boolean exists = tagRepository.existsByParentIdAndName(
+            parentId,
+            name
+        );
+
+        if (exists) {
+            throw new IllegalArgumentException(
+                "Tag already exists with name " + name
+            );
+        }
     }
 }

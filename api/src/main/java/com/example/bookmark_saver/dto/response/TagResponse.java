@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 public record TagResponse(
     Long id,
     String name,
+    String color,
+    Long parentId,
     Set<Long> bookmarkIds,
     Instant createdAt,
     Instant updatedAt
@@ -22,9 +24,13 @@ public record TagResponse(
             .map(bookmark -> bookmark.getId())
             .collect(Collectors.toSet());
 
+        Tag parent = tag.getParent();
+
         return new TagResponse(
             tag.getId(),
             tag.getName(),
+            tag.getColor(),
+            parent != null ? parent.getId() : null,
             bookmarkIds,
             tag.getCreatedAt(),
             tag.getUpdatedAt()

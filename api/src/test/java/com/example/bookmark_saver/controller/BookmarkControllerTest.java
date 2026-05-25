@@ -54,7 +54,7 @@ class BookmarkControllerTest {
         Bookmark bookmark = BookmarkFixture.withDefaults();
         Page<Bookmark> page = new PageImpl<>(List.of(bookmark));
 
-        when(service.findAll(any(), any(), any(), any(), any(), any()))
+        when(service.findAll(any(), any(), any(), any(), any()))
             .thenReturn(page);
 
         mockMvc
@@ -66,7 +66,7 @@ class BookmarkControllerTest {
 
     @Test
     void listWithFavoriteFilterPassesParamToService() throws Exception {
-        when(service.findAll(eq(true), any(), any(), any(), any(), any()))
+        when(service.findAll(eq(true), any(), any(), any(), any()))
             .thenReturn(Page.empty());
 
         mockMvc
@@ -74,25 +74,12 @@ class BookmarkControllerTest {
             .param("favorite", "true"))
             .andExpect(status().isOk());
 
-        verify(service).findAll(eq(true), any(), any(), any(), any(), any());
-    }
-
-    @Test
-    void listWithListIdsParsesAndPassesIds() throws Exception {
-        when(service.findAll(any(), any(), any(), eq(List.of(1L, 2L)), any(), any()))
-            .thenReturn(Page.empty());
-
-        mockMvc
-            .perform(get("/api/bookmarks")
-            .param("listIds", "1,2"))
-            .andExpect(status().isOk());
-
-        verify(service).findAll(any(), any(), any(), eq(List.of(1L, 2L)), any(), any());
+        verify(service).findAll(eq(true), any(), any(), any(), any());
     }
 
     @Test
     void listWithTagIdsParsesAndPassesIds() throws Exception {
-        when(service.findAll(any(), any(), any(), any(), eq(List.of(1L, 2L)), any()))
+        when(service.findAll(any(), any(), any(), eq(List.of(1L, 2L)), any()))
             .thenReturn(Page.empty());
 
         mockMvc
@@ -100,7 +87,7 @@ class BookmarkControllerTest {
             .param("tagIds", "1,2"))
             .andExpect(status().isOk());
 
-        verify(service).findAll(any(), any(), any(), any(), eq(List.of(1L, 2L)), any());
+        verify(service).findAll(any(), any(), any(), eq(List.of(1L, 2L)), any());
     }
 
     // ---------------------------------------------------------------
@@ -131,7 +118,6 @@ class BookmarkControllerTest {
             "notes",
             false,
             false,
-            List.of(),
             List.of()
         );
 
@@ -174,7 +160,6 @@ class BookmarkControllerTest {
             "notes",
             true,
             false,
-            List.of(),
             List.of()
         );
 

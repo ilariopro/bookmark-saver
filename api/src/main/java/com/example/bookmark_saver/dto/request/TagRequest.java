@@ -6,5 +6,10 @@ import jakarta.validation.constraints.NotBlank;
  * Request payload for creating or updating a tag.
  */
 public record TagRequest(
-    @NotBlank String name
+    @NotBlank
+    String name,
+
+    String color,
+
+    Long parentId
 ) {}

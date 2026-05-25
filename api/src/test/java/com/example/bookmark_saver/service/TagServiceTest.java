@@ -100,7 +100,7 @@ class TagServiceTest {
         when(tagRepository.save(any()))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Tag result = service.save(new TagRequest("  Java  "));
+        Tag result = service.save(new TagRequest("  Java  ", null, null));
 
         assertThat(result.getName()).isEqualTo("java");
     }
@@ -123,48 +123,12 @@ class TagServiceTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        Tag result = service.update(1L, new TagRequest("spring"));
+        Tag result = service.update(1L, new TagRequest("spring", null, null));
 
         assertThat(result.getName()).isEqualTo("spring");
     }
 
-    @Test
-    void updateMergesTagsWhenNameAlreadyExists() {
-        Tag tagToUpdate = TagFixture.create(1L, "java");
-        Tag conflictingTag = TagFixture.create(2L, "spring");
-
-        when(tagRepository.findById(1L))
-            .thenReturn(Optional.of(tagToUpdate));
-
-        when(tagRepository.findByName("spring"))
-            .thenReturn(Optional.of(conflictingTag));
-
-        service.update(1L, new TagRequest("spring"));
-
-        // The conflicting tag must be deleted and relationships must be moved
-        verify(jdbcTemplate, times(2)).update(anyString(), any(Object[].class));
-        verify(tagRepository).deleteById(2L);
-    }
-
-    @Test
-    void updateDoesNotMergeWhenNameBelongsToSameTag() {
-        Tag tag = TagFixture.withDefaults();
-
-        when(tagRepository.findById(1L))
-            .thenReturn(Optional.of(tag));
-
-        when(tagRepository.findByName("java"))
-            .thenReturn(Optional.of(tag));
-
-        when(tagRepository.save(any()))
-            .thenAnswer(invocation -> invocation.getArgument(0));
-
-
-        Tag result = service.update(1L, new TagRequest("java"));
-
-        assertThat(result.getName()).isEqualTo("java");
-        verify(tagRepository, never()).deleteById(any());
-    }
+    // TODO add conflict tests
 
     // ---------------------------------------------------------------
     // delete
