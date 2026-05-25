@@ -37,76 +37,29 @@
               placeholder="Add a note about this bookmark..."></textarea>
   </mat-form-field>
 
-  <!-- Lists -->
+  <!-- Tags -->
   <div class="section-header">
-    <h3 class="section-label">Lists</h3>
-    <button mat-icon-button matTooltip="New list" (click)="openCreateListDialog()">
+    <h3 class="section-label">Tags</h3>
+    <button mat-icon-button matTooltip="New Tag" (click)="openCreateTagDialog()">
       <mat-icon>add</mat-icon>
     </button>
   </div>
 
-  @if (lists.length === 0) {
-    <p class="empty-hint">No lists available.</p>
+  @if (tags.length === 0) {
+    <p class="empty-hint">No tags available.</p>
   } @else {
-    <mat-expansion-panel class="lists-panel">
-      <mat-expansion-panel-header>
-        <mat-panel-description>
-          {{ selectedListIds().length > 0 ? selectedListIds().length + ' selected' : 'None selected' }}
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-
+    <div class="tag-list">
       <div class="checkbox-group">
-        @for (list of lists; track list.id) {
+        @for (item of flatTagList(); track item.tag.id) {
           <mat-checkbox
             color="primary"
-            [checked]="isListSelected(list.id)"
-            (change)="toggleList(list.id, $event.checked)">
-            {{ list.name }}
+            [checked]="selectedTagIds().includes(item.tag.id)"
+            (change)="toggleTag(item.tag.id, $event.checked)">
+            {{ item.fullPath }}
           </mat-checkbox>
         }
       </div>
-    </mat-expansion-panel>
-  }
-
-  <!-- Tags -->
-  <div class="section-header">
-    <h3 class="section-label">Tags</h3>
-  </div>
-
-  <!-- Autocomplete tag search -->
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Search tags</mat-label>
-    <input matInput
-          [ngModel]="tagSearch()"
-          (ngModelChange)="tagSearch.set($event)"
-          [matAutocomplete]="tagAuto"
-          placeholder="Type and press Enter..."
-          (keydown)="onTagInputKeydown($event)" />
-    
-    <mat-autocomplete #tagAuto (optionSelected)="onTagSelected($event)">
-      @for (tag of tagSuggestions(); track tag.id) {
-        <mat-option [value]="tag.name">
-          {{ tag.name }}
-        </mat-option>
-      }
-
-      @if (tagSearch().trim() && !isExistingTag(tagSearch().trim().toLowerCase())) {
-        <mat-option [value]="tagSearch().trim()">
-          {{ tagSearch() }}
-        </mat-option>
-      }
-    </mat-autocomplete>
-  </mat-form-field>
-
-  @if (selectedTags().length > 0) {
-    <mat-chip-set class="selected-tags">
-      @for (tag of selectedTags(); track tag.id) {
-        <mat-chip (removed)="removeTag(tag.id)" [removable]="true">
-          {{ tag.name }}
-          <button matChipRemove><mat-icon>cancel</mat-icon></button>
-        </mat-chip>
-      }
-    </mat-chip-set>
+    </div>
   }
 
 </mat-dialog-content>

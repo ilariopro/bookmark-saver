@@ -3,25 +3,24 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
-export interface CommonDeleteDialogData {
+export interface TagDeleteDialogData {
     title: string;
-    name: string;
-    type: 'list' | 'tag';
+    name:  string;
 }
 
 @Component({
-    selector: 'app-common-delete-dialog',
+    selector: 'app-tag-delete-dialog',
     standalone: true,
     imports: [
         MatButtonModule,
         MatDialogModule
     ],
-    templateUrl: './common-delete-dialog.component.html',
-    styleUrl:    './common-delete-dialog.component.scss',
+    templateUrl: './tag-delete-dialog.component.html',
+    styleUrl:    './tag-delete-dialog.component.scss',
 })
-export class CommonDeleteDialogComponent {
-    private readonly dialogRef = inject(MatDialogRef<CommonDeleteDialogComponent>);
-    public readonly data: CommonDeleteDialogData = inject(MAT_DIALOG_DATA);
+export class TagDeleteDialogComponent {
+    private readonly dialogRef = inject(MatDialogRef<TagDeleteDialogComponent>);
+    public  readonly data      = inject(MAT_DIALOG_DATA) as TagDeleteDialogData;
 
     public confirm(): void {
         this.dialogRef.close(true);

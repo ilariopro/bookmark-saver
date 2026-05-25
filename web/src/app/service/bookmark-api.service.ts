@@ -4,11 +4,9 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../app.environment';
-import { List, ListPayload } from '../model/list.model';
-import { Bookmark, BookmarkCreatePayload, BookmarkUpdatePayload } from '../model/bookmark.model';
+import { Bookmark, BookmarkCreatePayload, BookmarkUpdatePayload, BulkUpdatePayload } from '../model/bookmark.model';
 import { Response, PagedResponse } from '../model/shared.model';
 import { Tag, TagPayload } from '../model/tag.model';
-import { ApiList } from '../model/sidebar.model';
 
 @Injectable({providedIn: 'root' })
 export class BookmarkApiService {
@@ -21,8 +19,7 @@ export class BookmarkApiService {
     favorite: boolean,
     archived: boolean | null,
     untagged: boolean,
-    listId: number | null = null,
-    tagIds: number[] = [],
+    tagId:    number | null,
     page = 0,
     size = 24,
     sort = 'createdAt,desc'
@@ -35,13 +32,12 @@ export class BookmarkApiService {
     if (favorite)          params = params.set('favorite', true);
     if (archived !== null) params = params.set('archived', archived);
     if (untagged)          params = params.set('untagged', true);
-    if (listId !== null)   params = params.set('listIds', listId);
-    if (tagIds.length)     params = params.set('tagIds', tagIds.join(','));
+    if (tagId !== null)    params = params.set('tagIds',   tagId);
 
     return this.http.get<PagedResponse<Bookmark>>(`${this.baseUrl}/bookmarks`, { params });
   }
 
-  getBookmark(bookmarkId: number): Observable<Bookmark> {
+  public getBookmark(bookmarkId: number): Observable<Bookmark> {
     return this.http
       .get<Response<Bookmark>>(`${this.baseUrl}/bookmarks/${bookmarkId}`)
       .pipe(map(response => response.data));
@@ -63,30 +59,14 @@ export class BookmarkApiService {
       .pipe(map(response => response.data));
   }
 
-  // ── Lists ─────────────────────────────────────────────────────
-
-  public getLists(): Observable<ApiList[]> {
-    const params = new HttpParams().set('sort', 'createdAt,asc');
-
-    return this.http
-      .get<Response<List[]>>(`${this.baseUrl}/lists`, { params })
-      .pipe(map(response => response.data.map(list => this.toApiList(list))));
+  public bulkUpdate(payload: BulkUpdatePayload): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/bookmarks/bulk`, payload);
   }
 
-  public createList(payload: ListPayload): Observable<ApiList> {
-    return this.http
-      .post<Response<List>>(`${this.baseUrl}/lists`, payload)
-      .pipe(map(response => this.toApiList(response.data)));
-  }
-
-  public updateList(listId: number, payload: ListPayload): Observable<ApiList> {
-    return this.http
-      .patch<Response<List>>(`${this.baseUrl}/lists/${listId}`, payload)
-      .pipe(map(response => this.toApiList(response.data)));
-  }
-
-  public deleteList(listId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/lists/${listId}`);
+  public bulkDelete(bookmarkIds: number[]): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/bookmarks/bulk`, {
+      body: { ids: bookmarkIds }
+    });
   }
 
   // ── Tags ──────────────────────────────────────────────────────
@@ -99,27 +79,19 @@ export class BookmarkApiService {
       .pipe(map(response => response.data));
   }
 
-  public createTag(payload: TagPayload): Observable<List> {
+  public createTag(payload: TagPayload): Observable<Tag> {
     return this.http
-      .post<Response<List>>(`${this.baseUrl}/tags`, payload)
+      .post<Response<Tag>>(`${this.baseUrl}/tags`, payload)
       .pipe(map(response => response.data));
   }
 
-  public updateTag(tagId: number, payload: TagPayload): Observable<List> {
+  public updateTag(tagId: number, payload: TagPayload): Observable<Tag> {
     return this.http
-      .patch<Response<List>>(`${this.baseUrl}/tags/${tagId}`, payload)
+      .patch<Response<Tag>>(`${this.baseUrl}/tags/${tagId}`, payload)
       .pipe(map(response => response.data));
   }
 
   public deleteTag(tagId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/tags/${tagId}`);
-  }
-
-  private toApiList(list: List): ApiList {
-    return {
-      ...list,
-      type: 'api',
-      icon: 'folder'
-    };
   }
 }

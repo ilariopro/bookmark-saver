@@ -4,10 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 
-import { ApiList, DEFAULT_LISTS, DefaultList, DefaultListId } from '../model/sidebar.model';
-import { Tag } from '../model/tag.model';
+import { DEFAULT_LISTS, DefaultList, DefaultListId, TagList } from '../model/sidebar.model';
+import { buildTagTree, Tag, TagNode } from '../model/tag.model';
 
-export type SelectedList = DefaultList | ApiList;
+export type SelectedList = DefaultList | TagList;
 
 @Injectable({ providedIn: 'root' })
 export class FilterStateService {
@@ -15,14 +15,15 @@ export class FilterStateService {
   private readonly route  = inject(ActivatedRoute);
 
   // ── Remote data ───────────────────────────────────────────────
-  readonly apiLists = signal<ApiList[]>([]);
   readonly tags     = signal<Tag[]>([]);
+
+  readonly tagTree  = computed<TagNode[]>(() => buildTagTree(this.tags()));
 
   // ── Route e query params come signal ──────────────────────────
   private readonly currentPath = toSignal(
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(event => (event as NavigationEnd).urlAfterRedirects.split('?')[0]),
+      filter(e => e instanceof NavigationEnd),
+      map(() => this.router.url.split('?')[0]),
     ),
     { initialValue: this.router.url.split('?')[0] }
   );
@@ -39,9 +40,19 @@ export class FilterStateService {
     if (path.startsWith('/archived'))  return DEFAULT_LISTS[2];
     if (path.startsWith('/untagged'))  return DEFAULT_LISTS[3];
 
-    if (path.startsWith('/lists/')) {
-      const id = Number(path.split('/lists/')[1]);
-      return this.apiLists().find(l => l.id === id);
+    if (path.startsWith('/tags/')) {
+      const id  = Number(path.split('/tags/')[1]);
+      const tag = this.tags().find(t => t.id === id);
+      
+      if (tag) {
+        return {
+          id:    tag.id,
+          name:  tag.name,
+          color: tag.color ?? null,
+          icon:  'label',
+          type:  'tag',
+        }; 
+      }
     }
 
     return DEFAULT_LISTS[0];
@@ -75,8 +86,8 @@ export class FilterStateService {
     this.router.navigate([paths[id]]);
   }
 
-  selectApiList(id: number): void {
-    this.router.navigate(['/lists', id]);
+  selectTag(id: number): void {
+    this.router.navigate(['tags', id]);
   }
 
   setSelectedTags(tagIds: number[]): void {

@@ -1,4 +1,3 @@
-import { List } from "./list.model";
 import { Tag } from "./tag.model";
 
 export interface Bookmark {
@@ -7,7 +6,6 @@ export interface Bookmark {
     favorite: boolean;
     archived: boolean;
     notes: string | null;
-    lists: List[];
     tags: Tag[];
     metadata: Metadata | null;
     metadataStatus: 'PENDING' | 'SUCCESS' | 'FAILED'
@@ -31,14 +29,12 @@ export interface BookmarkQueryParams {
     favorite: boolean;
     archived: boolean | null;
     untagged: boolean;
-    listId: number | null;
-    tagIds: number[];
+    tagId:    number | null;
 }
 
 export interface BookmarkCreatePayload {
     url: string;
     notes?: string;
-    listIds: number[];
     tagIds: number[];
 }
 
@@ -46,6 +42,12 @@ export interface BookmarkUpdatePayload {
     favorite?: boolean;
     archived?: boolean;
     notes?: string;
-    listIds?: number[];
     tagIds?: number[];
+}
+
+export interface BulkUpdatePayload {
+  ids:      number[];
+  favorite?: boolean;
+  archived?: boolean;
+  tagIds?:   number[];
 }

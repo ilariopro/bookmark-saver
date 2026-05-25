@@ -14,20 +14,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Bookmark, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { ListFormDialogComponent, ListFormDialogResult } from '../list-form-dialog/list-form-dialog.component';
 import { TagFormDialogComponent, TagFormDialogResult } from '../tag-form-dialog/tag-form-dialog.component';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { ApiList } from '../../model/sidebar.model';
+import { buildTagTree, Tag, TagNode } from '../../model/tag.model';
 
 export interface BookmarkFormDialogData {
   bookmark?: Bookmark;
 }
 
 export interface BookmarkFormDialogResult {
-  url?: string;     // create
-  notes: string;
-  listIds: number[];
+  url?:   string;     // create
+  notes:  string;
   tagIds: number[];
 }
 
@@ -37,12 +33,10 @@ export interface BookmarkFormDialogResult {
   imports: [
     CommonModule,
     FormsModule,
-    MatAutocompleteModule,
     MatButtonModule,
     MatCheckboxModule,
     MatChipsModule,
     MatDialogModule,
-    MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -66,52 +60,36 @@ export class BookmarkFormDialogComponent {
   });
 
   public readonly notes           = signal(this.data.bookmark?.notes ?? '');
-  public readonly selectedListIds = signal<number[]>(this.data.bookmark?.lists.map(l => l.id) ?? []);
   public readonly selectedTagIds  = signal<number[]>(this.data.bookmark?.tags.map(t => t.id) ?? []);
-  public readonly tagSearch       = signal('');
 
   public readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
 
-    const originalListIds = new Set(this.data.bookmark!.lists.map(l => l.id));
     const originalTagIds  = new Set(this.data.bookmark!.tags.map(t => t.id));
 
     const sameNotes = this.notes().trim() === (this.data.bookmark!.notes ?? '');
-    const sameLists = this.selectedListIds().length === originalListIds.size &&
-                      this.selectedListIds().every(id => originalListIds.has(id));
     const sameTags  = this.selectedTagIds().length === originalTagIds.size &&
                       this.selectedTagIds().every(id => originalTagIds.has(id));
 
-    return sameNotes && sameLists && sameTags;
+    return sameNotes && sameTags;
   });
 
   public readonly selectedTags = computed(() =>
     this.state.tags().filter(t => this.selectedTagIds().includes(t.id))
   );
 
-  public readonly tagSuggestions = computed(() => {
-    const input     = this.tagSearch().trim().toLowerCase();
-    const selected  = new Set(this.selectedTagIds());
-    const available = this.state.tags().filter(tag => !selected.has(tag.id));
-
-    if (!input) return available;
-    
-    return available.filter(tag => tag.name.toLowerCase().includes(input));
+  public readonly flatTagList = computed(() => {
+    const flatten = (nodes: TagNode[]): { tag: Tag; fullPath: string }[] =>
+      nodes.flatMap(node => [
+        { tag: node.tag, fullPath: node.fullPath },
+        ...flatten(node.children),
+      ]);
+      
+    return flatten(buildTagTree(this.state.tags()));
   });
 
-  public readonly canCreateTag = computed(() => {
-    const input = this.tagSearch().trim().toLowerCase();
-
-    if (!input) return false;
-    
-    const exists = this.state.tags().some(tag => tag.name.toLowerCase() === input);
-    const selected = this.state.tags().find(tag => tag.name.toLowerCase() === input);
-    
-    return !exists || (selected && !this.selectedTagIds().includes(selected.id));
-  });
-
-  get lists(): ApiList[] {
-    return this.state.apiLists();
+  get tags(): TagNode[] {
+    return this.state.tagTree();
   }
 
   get metadata(): Metadata | null {
@@ -131,96 +109,14 @@ export class BookmarkFormDialogComponent {
     return '';
   }
 
-  // ── Lists ─────────────────────────────────────────────────────
-
   public isEdit(): boolean {
     return !!this.data.bookmark;
   }
 
-  public isListSelected(id: number): boolean {
-    return this.selectedListIds().includes(id);
-  }
-
-  public toggleList(id: number, checked: boolean): void {
-    this.selectedListIds.update(prev =>
-      checked ? [...prev, id] : prev.filter(i => i !== id)
-    );
-  }
-
-  public openCreateListDialog(): void {
-    const ref = this.dialog.open(ListFormDialogComponent, { data: {}, width: '440px' });
-
-    ref.afterClosed().subscribe((result: ListFormDialogResult | undefined) => {
-      if (!result) return;
-
-      this.api.createList({
-        name:        result.name,
-        description: result.description,
-        position:    this.state.apiLists().length
-      }).subscribe(list => {
-          this.api.getLists().subscribe(lists => {
-            this.state.apiLists.set(lists);
-            this.selectedListIds.update(prev => [...prev, list.id]);
-          });
-        });
-    });
-  }
-
   // ── Tags ──────────────────────────────────────────────────────
-
-  public isExistingTag(name: string): boolean {
-    return this.tagSuggestions().some(tag => tag.name.toLowerCase() === name)
-  }
 
   public onTagsChange(event: MatChipListboxChange): void {
     this.selectedTagIds.set(event.value ?? []);
-  }
-
-  public onTagInputKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'Enter') return;
-
-    event.preventDefault();
-    
-    const input = this.tagSearch().trim();
-    
-    if (!input) return;
-    
-    const inputLower = input.toLowerCase();
-    const existing = this.state.tags().find(t => t.name.toLowerCase() === inputLower);
-    
-    if (existing) {
-      if (!this.selectedTagIds().includes(existing.id)) {
-        this.selectedTagIds.update(prev => [...prev, existing.id]);
-      }
-    } else {
-      this.api.createTag({ name: input }).subscribe(tag => {
-        this.api.getTags().subscribe(tags => {
-          this.state.tags.set(tags);
-          this.selectedTagIds.update(prev => [...prev, tag.id]);
-        });
-      });
-    }
-
-    this.tagSearch.set('');
-  }
-
-  public onTagSelected(event: MatAutocompleteSelectedEvent): void {
-    const input = event.option.value as string;
-    const tag   = this.state.tags().find(tag => tag.name.toLowerCase() === input.toLowerCase());
-    
-    if (!tag) {
-      this.api.createTag({ name: input }).subscribe(tag => {
-        this.api.getTags().subscribe(tags => {
-          this.state.tags.set(tags);
-          this.selectedTagIds.update(prev => [...prev, tag.id]);
-        });
-      });
-
-      return;
-    }
-
-    this.selectedTagIds.update(prev => [...prev, tag.id]);
-    this.tagSearch.set('');
   }
 
   public openCreateTagDialog(): void {
@@ -233,7 +129,6 @@ export class BookmarkFormDialogComponent {
         this.api.getTags().subscribe(tags => {
           this.state.tags.set(tags);
           this.selectedTagIds.update(prev => [...prev, tag.id]);
-          this.tagSearch.set('');
         });
       });
     });
@@ -241,6 +136,12 @@ export class BookmarkFormDialogComponent {
 
   public removeTag(tagId: number): void {
     this.selectedTagIds.update(prev => prev.filter(id => id !== tagId));
+  }
+
+  public toggleTag(id: number, checked: boolean): void {
+    this.selectedTagIds.update(prev =>
+      checked ? [...prev, id] : prev.filter(i => i !== id)
+    );
   }
 
   // ── Actions ───────────────────────────────────────────────────
@@ -252,7 +153,6 @@ export class BookmarkFormDialogComponent {
     this.dialogRef.close({
       url:     this.isEdit() ? undefined : this.urlForm.value.url!,
       notes:   this.notes().trim(),
-      listIds: this.selectedListIds(),
       tagIds:  this.selectedTagIds(),
     } satisfies BookmarkFormDialogResult);
   }
