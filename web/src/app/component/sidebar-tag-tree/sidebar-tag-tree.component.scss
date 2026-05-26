@@ -69,7 +69,8 @@ mat-tree {
     color: rgba(0, 0, 0, 0.45);
     margin-right: 8px;
 
-    &.selected { color: var(--mat-sys-primary); }
+    // &.selected { color: red; }
+    &.selected { color: var(--mat-sys-primary-fixed); }
 }
 
 .tag-name {

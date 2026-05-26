@@ -41,7 +41,7 @@
                     [class.selected]="isSelected(node)"
                     (click)="navigate(node)"
                     (keydown.enter)="navigate(node)"
-                    (keydown.space)="$event.preventDefault(); navigate(node)">
+                    (keydown.space)="navigate(node)">
 
         <button mat-icon-button class="toggle-btn"
                 matTreeNodeToggle

@@ -15,7 +15,7 @@ import { Bookmark, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
-import { buildTagTree, Tag, TagNode } from '../../model/tag.model';
+import { buildTagTree, flattenTagTree, TagNode } from '../../model/tag-tree.model';
 
 export interface BookmarkEditDialogData {
   bookmark?: Bookmark;
@@ -78,15 +78,7 @@ export class BookmarkEditDialogComponent {
     this.state.tags().filter(t => this.selectedTagIds().includes(t.id))
   );
 
-  public readonly flatTagList = computed(() => {
-    const flatten = (nodes: TagNode[]): { tag: Tag; fullPath: string }[] =>
-      nodes.flatMap(node => [
-        { tag: node.tag, fullPath: node.fullPath },
-        ...flatten(node.children),
-      ]);
-      
-    return flatten(buildTagTree(this.state.tags()));
-  });
+  public readonly flatTagList = computed(() => flattenTagTree(buildTagTree(this.state.tags())));
 
   get tags(): TagNode[] {
     return this.state.tagTree();

@@ -5,7 +5,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 
 import { DEFAULT_LISTS, DefaultList, DefaultListId, TagList } from '../model/sidebar.model';
-import { buildTagTree, Tag, TagNode } from '../model/tag.model';
+import { Tag } from '../model/tag.model';
+import { buildTagTree, TagNode } from '../model/tag-tree.model';
 
 export type SelectedList = DefaultList | TagList;
 

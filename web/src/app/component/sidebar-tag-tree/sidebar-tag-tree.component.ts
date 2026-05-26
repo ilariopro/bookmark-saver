@@ -8,17 +8,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 
-import { Tag, TagNode } from '../../model/tag.model';
+import { Tag } from '../../model/tag.model';
+import { TagNode } from '../../model/tag-tree.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
 import { TagDeleteDialogComponent, TagDeleteDialogData } from '../tag-delete-dialog/tag-delete-dialog.component';
 
 interface FlatTagNode {
-  tag:        Tag;
-  level:      number;
-  expandable: boolean;
-fullPath:   string;
+    tag:        Tag;
+    level:      number;
+    expandable: boolean;
+    fullPath:   string;
 }
 
 @Component({
