@@ -6,12 +6,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { FilterStateService } from '../../service/filter-state.service';
-import { buildTagTree, Tag, TagNode } from '../../model/tag.model';
+import { buildTagTree, flattenTagTree } from '../../model/tag-tree.model';
 
 type TagDisplayState = 'indeterminate' | 'checked' | 'unchecked';
 
 export interface BulkTagDialogData {
-  initialTagIds: number[]; // tag ids presenti in almeno uno dei bookmark selezionati
+  initialTagIds: number[];
 }
 
 export interface BulkTagDialogResult {
@@ -41,66 +41,63 @@ export class BulkTagDialogComponent {
     // stato per ogni tag come array di record per triggare correttamente il re-render
     public readonly tagStates = signal<Record<number, TagDisplayState>>(
         Object.fromEntries(
-            this.state.tags().map(t => [
-                t.id,
-                this.initialSet.has(t.id) ? 'indeterminate' : 'unchecked'
+            this.state.tags().map(tag => [
+                tag.id,
+                this.initialSet.has(tag.id) ? 'indeterminate' : 'unchecked'
             ])
         )
     );
 
-    // FIXME duplicate method
-    public readonly flatTagList = computed(() => {
-        const flatten = (nodes: TagNode[]): { tag: Tag; fullPath: string }[] =>
-          nodes.flatMap(node => [
-            { tag: node.tag, fullPath: node.fullPath },
-            ...flatten(node.children),
-          ]);
-          
-        return flatten(buildTagTree(this.state.tags()));
-    });
+    public readonly flatTagList = computed(() => flattenTagTree(buildTagTree(this.state.tags())));
 
     public readonly hasChanges = computed(() =>
-        this.state.tags().some(t => {
-            const state = this.getState(t.id);
+        this.state.tags().some(tag => {
+            const state = this.getState(tag.id);
 
-            return this.initialSet.has(t.id)
+            return this.initialSet.has(tag.id)
                 ? state === 'unchecked'   // era present, ora rimosso
                 : state === 'checked';    // era absent, ora aggiunto
         })
     );
 
-    getState(id: number): TagDisplayState {
+    public getState(id: number): TagDisplayState {
         return this.tagStates()[id] ?? 'unchecked';
     }
 
-    isIndeterminate(id: number): boolean { return this.getState(id) === 'indeterminate'; }
-    isChecked(id: number): boolean       { return this.getState(id) === 'checked'; }
-
-
-    onChange(id: number): void {
-        const current = this.getState(id);
-        const next: TagDisplayState =
-            current === 'indeterminate' ? 'checked' :
-            current === 'checked'       ? 'unchecked' : 'checked';
-
-        this.tagStates.update(prev => ({ ...prev, [id]: next }));
+    public isIndeterminate(id: number): boolean {
+        return this.getState(id) === 'indeterminate';
     }
 
-    save(): void {
+    public isChecked(id: number): boolean {
+        return this.getState(id) === 'checked';
+    }
+
+    public onChange(id: number): void {
+        const current = this.getState(id);
+
+        if (current === 'checked') {
+            this.tagStates.update(prev => ({ ...prev, [id]: 'unchecked' }));
+            return;
+        }
+
+        this.tagStates.update(prev => ({ ...prev, [id]: 'checked' }));
+    }
+
+    public save(): void {
         const addTagIds:    number[] = [];
         const removeTagIds: number[] = [];
 
         this.state.tags().forEach(t => {
             const state = this.getState(t.id);
 
-            if (!this.initialSet.has(t.id) && state === 'checked')  addTagIds.push(t.id);
+            if (!this.initialSet.has(t.id) && state === 'checked')   addTagIds.push(t.id);
             if (this.initialSet.has(t.id)  && state === 'unchecked') removeTagIds.push(t.id);
         });
 
         this.dialogRef.close({ addTagIds, removeTagIds });
     }
 
-    cancel(): void {
+    public cancel(): void {
         this.dialogRef.close();
     }
 }

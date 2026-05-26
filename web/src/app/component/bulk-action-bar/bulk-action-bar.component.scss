@@ -3,17 +3,6 @@
     align-items: center;
     gap: 4px;
     margin: 6px 0 24px;
-    animation: slide-down 150ms ease;
-}
-
-@keyframes slide-down {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slide-up {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-8px); }
 }
 
 .selection-count {
