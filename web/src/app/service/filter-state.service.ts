@@ -15,9 +15,9 @@ export class FilterStateService {
   private readonly route  = inject(ActivatedRoute);
 
   // ── Remote data ───────────────────────────────────────────────
-  readonly tags     = signal<Tag[]>([]);
+  public readonly tags = signal<Tag[]>([]);
 
-  readonly tagTree  = computed<TagNode[]>(() => buildTagTree(this.tags()));
+  public readonly tagTree  = computed<TagNode[]>(() => buildTagTree(this.tags()));
 
   // ── Route e query params come signal ──────────────────────────
   private readonly currentPath = toSignal(
@@ -33,7 +33,7 @@ export class FilterStateService {
   });
 
   // ── Selezione corrente ────────────────────────────────────────
-  readonly selectedList = computed<SelectedList | undefined>(() => {
+  public readonly selectedList = computed<SelectedList | undefined>(() => {
     const path = this.currentPath();
 
     if (path.startsWith('/favorites')) return DEFAULT_LISTS[1];
@@ -58,7 +58,7 @@ export class FilterStateService {
     return DEFAULT_LISTS[0];
   });
 
-  readonly selectedTagIds = computed<Set<number>>(() => {
+  public readonly selectedTagIds = computed<Set<number>>(() => {
     const raw = this.queryParams().get('tags');
 
     return raw
@@ -66,16 +66,16 @@ export class FilterStateService {
       : new Set<number>();
   });
 
-  readonly selectedTagIdsArray = computed(() =>
+  public readonly selectedTagIdsArray = computed(() =>
     Array.from(this.selectedTagIds())
   );
 
-  defaultLists(): DefaultList[] {
+  public defaultLists(): DefaultList[] {
     return DEFAULT_LISTS;
   }
 
   // ── Navigazione ───────────────────────────────────────────────
-  selectDefaultList(id: DefaultListId): void {
+  public selectDefaultList(id: DefaultListId): void {
     const paths: Record<DefaultListId, string> = {
       bookmarks: '/bookmarks',
       favorites: '/favorites',
@@ -86,11 +86,11 @@ export class FilterStateService {
     this.router.navigate([paths[id]]);
   }
 
-  selectTag(id: number): void {
+  public selectTag(id: number): void {
     this.router.navigate(['tags', id]);
   }
 
-  setSelectedTags(tagIds: number[]): void {
+  public setSelectedTags(tagIds: number[]): void {
     this.router.navigate([], {
       queryParams:         { tags: tagIds.length ? tagIds.join(',') : null },
       queryParamsHandling: 'merge',
