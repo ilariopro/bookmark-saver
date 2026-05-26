@@ -44,9 +44,12 @@
 
 .select-overlay {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 2px;
+    width: 44px;
+    height: 44px;
+    top: 4px;
+    right: 4px;
+    line-height: 42px;
+    text-align: center;
     z-index: 1;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(4px);

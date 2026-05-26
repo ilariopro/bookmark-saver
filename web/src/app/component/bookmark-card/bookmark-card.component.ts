@@ -43,6 +43,7 @@ export class BookmarkCardComponent implements OnInit{
   public readonly isFavorite    = signal(false);
   public readonly notesExpanded = signal(false);
   
+  public readonly bookmark       = input.required<Bookmark>();
   public readonly selectable     = input(false);
   public readonly selected       = input(false);
   public readonly selectedChange = output<boolean>();
@@ -51,8 +52,6 @@ export class BookmarkCardComponent implements OnInit{
     this.state.selectedTagIdsArray()
   );
   
-  public readonly bookmark = input.required<Bookmark>();
-
   public readonly updated = output<void>();
   public readonly deleted = output<void>();
 
