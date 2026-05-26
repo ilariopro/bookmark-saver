@@ -10,9 +10,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { NotificationService } from '../../service/notification.service';
-import { BulkSelectDialogComponent, BulkSelectDialogResult } from '../bulk-select-dialog/bulk-select-dialog.component';
 import { ResponsiveStateService } from '../../service/responsive-state.service';
 import { BookmarkDeleteDialogComponent, BookmarkDeleteDialogData } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
+import { BulkTagDialogComponent, BulkTagDialogData, BulkTagDialogResult } from '../bulk-tag-dialog/bulk-tag-dialog.component';
 
 @Component({
     selector: 'bulk-actions-bar',
@@ -34,8 +34,10 @@ export class BulkActionBarComponent {
     private readonly notify     = inject(NotificationService);
     private readonly responsive = inject(ResponsiveStateService);
 
-    public readonly selectedIds = input.required<number[]>();
-    public readonly done        = output<void>();
+    public readonly initialTagIds = input<number[]>([]);
+    public readonly isOpen        = input<boolean>(false);
+    public readonly selectedIds   = input.required<number[]>();
+    public readonly done          = output<void>();
 
     get count(): number {
         return this.selectedIds().length;
@@ -70,19 +72,21 @@ export class BulkActionBarComponent {
     }
 
     public openTagsDialog(): void {
-        const ref = this.dialog.open(BulkSelectDialogComponent, {
-            data: { mode: 'tags' },
+        const ref = this.dialog.open(BulkTagDialogComponent, {
+            data: { initialTagIds: this.initialTagIds() } satisfies BulkTagDialogData,
             width: '440px',
         });
 
-        ref.afterClosed().subscribe((result: BulkSelectDialogResult | undefined) => {
-            if (!result?.tagIds?.length) return;
+        ref.afterClosed().subscribe((result: BulkTagDialogResult | undefined) => {
+            if (!result) return;
+            if (!result.addTagIds.length && !result.removeTagIds.length) return;
 
-            this.api.bulkUpdate({ ids: this.selectedIds(), tagIds: result.tagIds }).subscribe({
-                next: () => {
-                    this.notify.success(`${this.count} bookmarks tagged`);
-                    this.done.emit();
-                },
+            this.api.bulkUpdate({
+                ids:          this.selectedIds(),
+                addTagIds:    result.addTagIds.length    ? result.addTagIds    : undefined,
+                removeTagIds: result.removeTagIds.length ? result.removeTagIds : undefined,
+            }).subscribe({
+                next:  () => { this.notify.success('Tags updated'); this.done.emit(); },
                 error: () => this.notify.error('Bulk update failed.'),
             });
         });

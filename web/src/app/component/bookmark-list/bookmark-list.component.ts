@@ -59,6 +59,15 @@ export class BookmarkList implements AfterViewInit, OnDestroy {
   
   public readonly selectedIdsArray = computed(() => Array.from(this.selectedIds()));
 
+  readonly bulkInitialTagIds = computed(() => {
+    const selected: Bookmark[] = this.scroll.items().filter(b => this.selectedIds().has(b.id));
+    const union = new Set<number>();
+
+    selected.forEach(b => b.tags.forEach(t => union.add(t.id)));
+    
+    return Array.from(union);
+  });
+
   constructor() {
     this.scroll.setLoader(page => {
       const params = this.extractQueryParams();
@@ -164,6 +173,8 @@ export class BookmarkList implements AfterViewInit, OnDestroy {
   }
 
   public onBulkDone(): void {
+    console.log('onBulkDone DEBUG');
+
     this.editMode.set(false);
     this.selectedIds.set(new Set());
     this.reload();

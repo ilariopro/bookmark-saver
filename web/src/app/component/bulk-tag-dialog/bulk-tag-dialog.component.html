@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Edit Tags</h2>
+
+<mat-dialog-content class="dialog-content">
+
+    @if (state.tags().length === 0) {
+        <p class="empty-hint">No tags available.</p>
+    } @else {
+        <div class="tag-list">
+            <div class="checkbox-group">
+                @for (item of flatTagList(); track item.tag.id) {
+                    <mat-checkbox
+                        color="primary"
+                        [indeterminate]="isIndeterminate(item.tag.id)"
+                        [checked]="isChecked(item.tag.id)"
+                        (change)="onChange(item.tag.id)">
+                        {{ item.fullPath }}
+                    </mat-checkbox>
+                }
+            </div>
+        </div>
+    }
+
+</mat-dialog-content>
+
+<mat-dialog-actions class="action-buttons" align="end">
+    <button mat-button (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary"
+            [disabled]="!hasChanges()"
+            (click)="save()">
+        Save
+    </button>
+</mat-dialog-actions>

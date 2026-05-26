@@ -4,19 +4,28 @@
     gap: 12px;
     box-sizing: border-box;
     padding-top: 16px !important;
-    min-width: 280px;
+}
+
+.tag-list {
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    padding: 12px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .checkbox-group {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 200px;
-    overflow-y: auto;
 }
 
 .empty-hint {
     font-size: 13px;
     color: rgba(0, 0, 0, 0.35);
     margin: 0;
+}
+
+.action-buttons {
+    padding: 0 24px 24px;
 }

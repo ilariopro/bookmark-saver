@@ -46,8 +46,15 @@ export interface BookmarkUpdatePayload {
 }
 
 export interface BulkUpdatePayload {
-  ids:      number[];
-  favorite?: boolean;
-  archived?: boolean;
-  tagIds?:   number[];
+  ids:            number[];
+  favorite?:      boolean;
+  archived?:      boolean;
+  addListIds?:    number[];
+  removeListIds?: number[];
+  addTagIds?:     number[];
+  removeTagIds?:  number[];
+}
+
+export interface BulkDeletePayload {
+  ids: number[];
 }

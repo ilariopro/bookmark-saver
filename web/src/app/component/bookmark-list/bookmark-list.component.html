@@ -1,4 +1,7 @@
-<div class="bookmarks-container" [class.is-mobile]="responsive.isMobile()">
+<div class="bookmarks-container"
+  [class.is-mobile]="responsive.isMobile()"
+  (keydown.esc)="editMode() && onBulkDone()">
+
   <div class="bookmarks-content">
 
      <!-- Header -->
@@ -44,6 +47,7 @@
       <!-- Bulk actions bar -->
       @if (editMode()) {
         <bulk-actions-bar
+          [initialTagIds]="bulkInitialTagIds()"
           [selectedIds]="selectedIdsArray()"
           (done)="onBulkDone()" />
       }
