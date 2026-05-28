@@ -173,8 +173,6 @@ export class BookmarkList implements AfterViewInit, OnDestroy {
   }
 
   public onBulkDone(): void {
-    console.log('onBulkDone DEBUG');
-
     this.editMode.set(false);
     this.selectedIds.set(new Set());
     this.reload();
