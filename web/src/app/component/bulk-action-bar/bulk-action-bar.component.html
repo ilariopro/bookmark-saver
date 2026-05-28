@@ -56,13 +56,6 @@
 
     <!-- Mobile actions dropdown -->
     @if (isMobile) {
-        <!-- Temporary workaround -->
-        <!-- <div [matMenuTriggerFor]="actionsMenu">
-            <button mat-button [disabled]="!hasSelection">
-                Actions
-                <mat-icon iconSuffix>arrow_drop_down</mat-icon>
-            </button>
-        </div> -->
         <button mat-button
                 [matMenuTriggerFor]="actionsMenu"
                 [disabled]="!hasSelection">

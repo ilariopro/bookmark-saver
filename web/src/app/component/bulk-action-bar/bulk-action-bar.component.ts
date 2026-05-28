@@ -1,4 +1,4 @@
-import { Component, inject, input, output, viewChild } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -79,14 +79,16 @@ export class BulkActionBarComponent {
 
         ref.afterClosed().subscribe((result: BulkTagDialogResult | undefined) => {
             if (!result) return;
-            if (!result.addTagIds.length && !result.removeTagIds.length) return;
 
             this.api.bulkUpdate({
                 ids:          this.selectedIds(),
                 addTagIds:    result.addTagIds.length    ? result.addTagIds    : undefined,
                 removeTagIds: result.removeTagIds.length ? result.removeTagIds : undefined,
             }).subscribe({
-                next:  () => { this.notify.success('Tags updated'); this.done.emit(); },
+                next:  () => {
+                    this.notify.success('Tags updated');
+                    this.done.emit();
+                },
                 error: () => this.notify.error('Bulk update failed.'),
             });
         });
