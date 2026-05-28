@@ -3,6 +3,8 @@ package com.example.bookmark_saver.controller;
 import com.example.bookmark_saver.domain.Bookmark;
 import com.example.bookmark_saver.dto.common.ApiListResponse;
 import com.example.bookmark_saver.dto.common.ApiResponse;
+import com.example.bookmark_saver.dto.request.BookmarkBulkDeleteRequest;
+import com.example.bookmark_saver.dto.request.BookmarkBulkUpdateRequest;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
 import com.example.bookmark_saver.dto.response.BookmarkResponse;
 import com.example.bookmark_saver.service.BookmarkService;
@@ -10,6 +12,8 @@ import com.example.bookmark_saver.utility.CommaSeparatedParser;
 import com.example.bookmark_saver.utility.ResponseFactory;
 import com.example.bookmark_saver.validation.OnCreate;
 import com.example.bookmark_saver.validation.OnUpdate;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -128,6 +132,22 @@ public class BookmarkController {
     }
 
     /**
+     * Updates a list of bookmarks.
+     * 
+     * @param request The update request.
+     * 
+     * @return HTTP 204 No Content.
+     */
+    @PatchMapping("/bulk")
+    public ResponseEntity<Void> bulkUpdate(
+        @Valid @RequestBody BookmarkBulkUpdateRequest request
+    ) {
+        service.bulkUpdate(request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Deletes a bookmark by its ID.
      *
      * @param bookmarkId The ID of the bookmark to delete.
@@ -140,6 +160,22 @@ public class BookmarkController {
     ) {
         service.delete(bookmarkId);
  
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Delets a list of bookmarks.
+     * 
+     * @param request The delete request.
+     * 
+     * @return HTTP 204 No Content.
+     */
+    @DeleteMapping("/bulk")
+    public ResponseEntity<Void> bulkDelete(
+        @Valid @RequestBody BookmarkBulkDeleteRequest request
+    ) {
+        service.bulkDelete(request.ids());
+
         return ResponseEntity.noContent().build();
     }
 

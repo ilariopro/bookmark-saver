@@ -2,11 +2,13 @@ package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Bookmark;
 import com.example.bookmark_saver.domain.Tag;
+import com.example.bookmark_saver.dto.request.BookmarkBulkUpdateRequest;
 import com.example.bookmark_saver.dto.request.BookmarkRequest;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -164,7 +166,6 @@ public class BookmarkService {
 
     /**
      * Updates an existing bookmark.
-     * Triggers metadata enrichment only if the URL has changed.
      *
      * @param bookmarkId The ID of the bookmark to update.
      * @param request    The update request.
@@ -204,7 +205,30 @@ public class BookmarkService {
     }
 
     /**
-     * Deletes a bookmark by its ID.
+     * Updates a list of existing bookmarks.
+     * 
+     * @param request The update request.
+     */
+    @Transactional
+    public void bulkUpdate(BookmarkBulkUpdateRequest request) {
+        List<Bookmark> bookmarks = bookmarkRepository.findAllById(request.ids());
+
+        Set<Tag> tagsToAdd     = fetchTags(request.addTagIds());
+        Set<Tag> tagsToRemove  = fetchTags(request.removeTagIds());
+
+        for (Bookmark bookmark : bookmarks) {
+            if (request.favorite() != null) bookmark.setFavorite(request.favorite());
+            if (request.archived() != null) bookmark.setArchived(request.archived());
+
+            bookmark.getTags().addAll(tagsToAdd);
+            bookmark.getTags().removeAll(tagsToRemove);
+        }
+
+        bookmarkRepository.saveAll(bookmarks);
+    }
+
+    /**
+     * Deletes a bookmark.
      *
      * @param bookmarkId The ID of the bookmark to delete.
      * 
@@ -214,6 +238,16 @@ public class BookmarkService {
         Bookmark bookmark = findById(bookmarkId);
 
         bookmarkRepository.delete(bookmark);
+    }
+
+    /**
+     * Deletes a list of bookmarks.
+     * 
+     * @param bookmarkIds The list of bookmark ID to delete.
+     */
+    @Transactional
+    public void bulkDelete(List<Long> bookmarkIds) {
+        bookmarkRepository.deleteAllById(bookmarkIds);
     }
 
     /**

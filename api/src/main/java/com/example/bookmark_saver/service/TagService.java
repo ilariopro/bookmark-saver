@@ -5,7 +5,6 @@ import com.example.bookmark_saver.dto.request.TagRequest;
 import com.example.bookmark_saver.repository.TagRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -93,7 +92,6 @@ public class TagService {
      * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
      * @throws EntityNotFoundException If no tag is found with the given ID.
      */
-    @Transactional
     public Tag update(Long tagId, TagRequest request) {
         checkNameConflicts(
             request.parentId(),
