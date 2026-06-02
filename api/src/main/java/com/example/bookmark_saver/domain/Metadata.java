@@ -29,15 +29,15 @@ public class Metadata {
         String domain,
         String contentType
     ) {
-        this.title = title;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.favicon = favicon;
-        this.siteName = siteName;
+        this.title        = title;
+        this.description  = description;
+        this.imageUrl     = imageUrl;
+        this.favicon      = favicon;
+        this.siteName     = siteName;
         this.canonicalUrl = canonicalUrl;
-        this.domain = domain;
-        this.contentType = contentType;
-        this.extractedAt = Instant.now().toString();
+        this.domain       = domain;
+        this.contentType  = contentType;
+        this.extractedAt  = Instant.now().toString();
     }
 
     public String getTitle() {

@@ -36,8 +36,8 @@ public class Bookmark {
     @JsonManagedReference
     @ManyToMany
     @JoinTable(
-        name = "bookmark_tags",
-        joinColumns = @JoinColumn(name = "bookmark_id"),
+        name               = "bookmark_tags",
+        joinColumns        = @JoinColumn(name = "bookmark_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
