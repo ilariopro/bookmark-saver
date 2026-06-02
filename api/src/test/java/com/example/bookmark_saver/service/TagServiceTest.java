@@ -100,7 +100,7 @@ class TagServiceTest {
         when(tagRepository.save(any()))
             .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Tag result = service.save(new TagRequest("  Java  ", null, null));
+        Tag result = service.save(new TagRequest("  Java  ", null, null, null));
 
         assertThat(result.getName()).isEqualTo("java");
     }
@@ -123,7 +123,7 @@ class TagServiceTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        Tag result = service.update(1L, new TagRequest("spring", null, null));
+        Tag result = service.update(1L, new TagRequest("spring", null, null, null));
 
         assertThat(result.getName()).isEqualTo("spring");
     }
