@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
     name = "tags",
     uniqueConstraints = {
         @UniqueConstraint(
-            name = "uq_tags_parent_name",
+            name        = "uq_tags_parent_name",
             columnNames = {"parent_id", "name"}
         )
     }
@@ -33,8 +33,6 @@ public class Tag {
     @Column(nullable = false)
     private String name;
 
-    private String color;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Tag parent;
@@ -46,6 +44,10 @@ public class Tag {
     @JsonBackReference
     @ManyToMany(mappedBy = "tags")
     private Set<Bookmark> bookmarks = new HashSet<>();
+
+    private String backgroundColor;
+
+    private String textColor;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -64,10 +66,6 @@ public class Tag {
         return this.name;
     }
 
-    public String getColor() {
-        return this.color;
-    }
-
     public Tag getParent() {
         return this.parent;
     }
@@ -78,6 +76,14 @@ public class Tag {
 
     public Set<Bookmark> getBookmarks() {
         return this.bookmarks;
+    }
+
+    public String getBackgroundColor() {
+        return this.backgroundColor;
+    }
+
+    public String getTextColor() {
+        return this.textColor;
     }
 
     public Instant getCreatedAt() {
@@ -92,11 +98,15 @@ public class Tag {
         this.name = name;
     }
 
-    public void setColor(String color) {
-        this.color = color;
-    }
-
     public void setParent(Tag parent) {
         this.parent = parent;
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public void setTextColor(String textColor) {
+        this.textColor = textColor;
     }
 }

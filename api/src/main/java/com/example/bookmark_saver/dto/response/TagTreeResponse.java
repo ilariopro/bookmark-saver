@@ -10,14 +10,16 @@ import com.example.bookmark_saver.domain.Tag;
 public record TagTreeResponse(
     Long id,
     String name,
-    String color,
+    String backgroundColor,
+    String textColor,
     List<TagTreeResponse> children
 ) {
     public static TagTreeResponse from(Tag tag) {
         return new TagTreeResponse(
             tag.getId(),
             tag.getName(),
-            tag.getColor(),
+            tag.getBackgroundColor(),
+            tag.getTextColor(),
             tag.getChildren()
                 .stream()
                 .map(TagTreeResponse::from)

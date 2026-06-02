@@ -12,9 +12,10 @@ import java.util.stream.Collectors;
 public record TagResponse(
     Long id,
     String name,
-    String color,
     Long parentId,
     Set<Long> bookmarkIds,
+    String backgroundColor,
+    String textColor,
     Instant createdAt,
     Instant updatedAt
 ) {
@@ -29,9 +30,10 @@ public record TagResponse(
         return new TagResponse(
             tag.getId(),
             tag.getName(),
-            tag.getColor(),
             parent != null ? parent.getId() : null,
             bookmarkIds,
+            tag.getBackgroundColor(),
+            tag.getTextColor(),
             tag.getCreatedAt(),
             tag.getUpdatedAt()
         );

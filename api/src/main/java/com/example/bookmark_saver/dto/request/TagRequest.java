@@ -9,7 +9,9 @@ public record TagRequest(
     @NotBlank
     String name,
 
-    String color,
+    Long parentId,
+    
+    String backgroundColor,
 
-    Long parentId
+    String textColor
 ) {}

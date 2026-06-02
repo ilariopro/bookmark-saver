@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TagRepository extends JpaRepository<Tag, Long> {
     /**
-     * Finds a tag by its name.
+     * // TODO remove this method and update tests
      *
      * @param name The name to search for.
      * 
@@ -24,13 +24,14 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     Optional<Tag> findByName(String name);
 
     /**
+     * Checks if a tag already exists.
      * 
      * @param parentId
      * @param name
      * 
      * @return
      */
-    boolean existsByParentIdAndName(Long parentId, String name);
+    boolean existsByParentIdAndNameIgnoreCase(Long parentId, String name);
 
     /**
      * Finds all parent tags.

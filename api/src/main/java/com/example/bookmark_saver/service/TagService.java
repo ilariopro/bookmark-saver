@@ -70,8 +70,9 @@ public class TagService {
 
         Tag tag = new Tag();
         
-        tag.setName(normalizeName(request.name()));
-        tag.setColor(request.color());
+        tag.setName(request.name());
+        tag.setBackgroundColor(request.backgroundColor());
+        tag.setTextColor(request.textColor());
 
         if (request.parentId() != null) {
             Tag parent = findById(request.parentId());
@@ -100,8 +101,21 @@ public class TagService {
 
         Tag tag = findById(tagId);
 
-        tag.setName(normalizeName(request.name()));
-        tag.setColor(request.color());
+        String name = request.name() != null
+            ? request.name()
+            : tag.getName();
+
+        String backgroundColor = request.backgroundColor() != null
+            ? request.backgroundColor()
+            : tag.getBackgroundColor();
+
+        String textColor = request.textColor() != null
+            ? request.textColor()
+            : tag.getTextColor();
+
+        tag.setName(name);
+        tag.setBackgroundColor(backgroundColor);
+        tag.setTextColor(textColor);
 
         if (request.parentId() != null) {
             Tag parent = findById(request.parentId());
@@ -126,22 +140,12 @@ public class TagService {
     }
 
     /**
-     * Normalizes a tag name.
-     */
-    private String normalizeName(String name) {
-        return name
-            .trim()
-            .replaceAll("\\s+", " ")
-            .toLowerCase();
-    }
-
-    /**
      * Makes sure there are no name conflicts, for the given parent.
      * 
      * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
      */
     private void checkNameConflicts(Long parentId, String name) {
-        boolean exists = tagRepository.existsByParentIdAndName(
+        boolean exists = tagRepository.existsByParentIdAndNameIgnoreCase(
             parentId,
             name
         );
