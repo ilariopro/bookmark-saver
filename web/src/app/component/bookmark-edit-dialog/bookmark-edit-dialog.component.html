@@ -1,74 +1,72 @@
 <h2 mat-dialog-title>{{ isEdit() ? 'Edit Bookmark' : 'New Bookmark' }}</h2>
 
-<mat-dialog-content class="dialog-content">
-
-  @if (isEdit()) {
-    <div class="full-width">
-      @if (metadata?.title) {
-        <p class="bookmark-title">{{ metadata!.title }}</p>
-      }
-      <p class="bookmark-url">{{ url }}</p>
-    </div>
-  } @else {
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>URL</mat-label>
-      <input matInput
-             type="url"
-             placeholder="https://..."
-             [formControl]="$any(urlForm.get('url'))"
-             (keydown.enter)="save()" />
-      @if (urlError) {
-        <mat-error>{{ urlError }}</mat-error>
-      }
-    </mat-form-field>
-  }
-
-  <!-- Notes -->
-  <div class="section-header">
-    <h3 class="section-label">Notes</h3>
-  </div>
-
-  <mat-form-field appearance="outline" class="full-width notes-field">
-    <mat-label>Personal notes</mat-label>
-    <textarea matInput
-              [ngModel]="notes()"
-              (ngModelChange)="notes.set($event)"
-              rows="3"
-              placeholder="Add a note about this bookmark..."></textarea>
-  </mat-form-field>
-
-  <!-- Tags -->
-  <div class="section-header">
-    <h3 class="section-label">Tags</h3>
-    <button mat-icon-button matTooltip="New Tag" (click)="openCreateTagDialog()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </div>
-
-  @if (tags.length === 0) {
-    <p class="empty-hint">No tags available.</p>
-  } @else {
-    <div class="tag-list">
-      <div class="checkbox-group">
-        @for (item of flatTagList(); track item.tag.id) {
-          <mat-checkbox
-            color="primary"
-            [checked]="selectedTagIds().includes(item.tag.id)"
-            (change)="toggleTag(item.tag.id, $event.checked)">
-            {{ item.fullPath }}
-          </mat-checkbox>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="dialog-content">
+    @if (isEdit()) {
+      <div class="full-width">
+        @if (metadata?.title) {
+          <p class="bookmark-title">{{ metadata!.title }}</p>
         }
+        <p class="bookmark-url">{{ url }}</p>
       </div>
+    } @else {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>URL</mat-label>
+        <input matInput
+              formControlName="url"
+               type="url"
+               placeholder="https://..."/>
+        @if (urlError) {
+          <mat-error>{{ urlError }}</mat-error>
+        }
+      </mat-form-field>
+    }
+  
+    <!-- Notes -->
+    <div class="section-header">
+      <h3 class="section-label">Notes</h3>
     </div>
-  }
-
-</mat-dialog-content>
-
-<mat-dialog-actions class="action-buttons" align="end">
-  <button mat-button (click)="cancel()">Cancel</button>
-  <button mat-flat-button color="primary"
-          [disabled]="isEdit() ? isUnchanged() : urlForm.invalid"
-          (click)="save()">
-    Save
-  </button>
-</mat-dialog-actions>
+  
+    <mat-form-field appearance="outline" class="full-width notes-field">
+      <mat-label>Personal notes</mat-label>
+      <textarea
+        matInput
+        formControlName="notes"
+        rows="3"
+        placeholder="Add a note about this bookmark..."></textarea>
+    </mat-form-field>
+  
+    <!-- Tags -->
+    <div class="section-header">
+      <h3 class="section-label">Tags</h3>
+      <button mat-icon-button type="button" matTooltip="New Tag" (click)="openCreateTagDialog()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  
+    @if (flatTagList().length === 0) {
+      <p class="empty-hint">No tags available.</p>
+    } @else {
+      <div class="tag-list">
+        <div class="checkbox-group">
+          @for (item of flatTagList(); track item.tag.id) {
+            <mat-checkbox
+              color="primary"
+              [checked]="tagIds.includes(item.tag.id)"
+              (change)="toggleTag(item.tag.id, $event.checked)">
+              <div class="tag-label">
+                <mat-icon [style.color]="item.tag.backgroundColor">label</mat-icon>
+                {{ item.fullPath }}
+              </div>
+            </mat-checkbox>
+          }
+        </div>
+      </div>
+    }
+  </mat-dialog-content>
+  
+  <mat-dialog-actions class="action-buttons" align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button type="submit" color="primary">Save</button>
+  </mat-dialog-actions>
+</form>

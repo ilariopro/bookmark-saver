@@ -2,11 +2,11 @@ import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { MatTreeModule, MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTreeModule, MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 
 import { Tag } from '../../model/tag.model';
 import { TagNode } from '../../model/tag-tree.model';
@@ -60,18 +60,16 @@ export class SidebarTagTreeComponent {
     readonly dataSource = new MatTreeFlatDataSource(this.treeControl, this.flattener);
 
     constructor() {
-        effect(() => {
-            this.dataSource.data = this.state.tagTree();
-        });
+        effect(() => this.dataSource.data = this.state.tagTree());
     }
 
     public hasChildren = (_: number, node: FlatTagNode): boolean => node.expandable;
 
     public isSelected(node: FlatTagNode): boolean {
-        const sel = this.state.selectedList();
+        const selection = this.state.selectedList();
 
-        return sel?.type === 'tag'
-            && sel.id === node.tag.id;
+        return selection?.type === 'tag'
+            && selection.id === node.tag.id;
     }
 
     public navigate(node: FlatTagNode): void {
@@ -87,7 +85,12 @@ export class SidebarTagTreeComponent {
         ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
             if (!result) return;
 
-            this.api.updateTag(node.tag.id, { name: result.name }).subscribe(() =>
+            this.api.updateTag(node.tag.id, {
+                name:            result.name,
+                parentId:        result.parentId,
+                backgroundColor: result.backgroundColor,
+                textColor:       result.textColor,
+            }).subscribe(() =>
                 this.api.getTags().subscribe(tags => this.state.tags.set(tags))
             );
         });
@@ -106,5 +109,5 @@ export class SidebarTagTreeComponent {
                 this.api.getTags().subscribe(tags => this.state.tags.set(tags))
             );
         });
-  }
+    }
 }

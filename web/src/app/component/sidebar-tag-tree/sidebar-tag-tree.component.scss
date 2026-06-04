@@ -66,11 +66,7 @@ mat-tree {
     font-size: 20px;
     width: 20px;
     height: 20px;
-    color: rgba(0, 0, 0, 0.45);
     margin-right: 8px;
-
-    // &.selected { color: red; }
-    &.selected { color: var(--mat-sys-primary-fixed); }
 }
 
 .tag-name {
@@ -106,5 +102,13 @@ mat-tree {
         width: 18px;
         height: 18px;
         line-height: 18px;
+    }
+}
+
+.selected {
+    .tag-icon,
+    .tag-name {
+        color: var(--mat-sys-primary);
+        font-weight: 500;
     }
 }

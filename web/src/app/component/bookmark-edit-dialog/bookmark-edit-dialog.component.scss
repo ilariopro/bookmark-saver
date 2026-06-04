@@ -74,6 +74,18 @@
   overflow-y: auto;
 }
 
+.tag-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .empty-hint {
   font-size: 13px;
   color: rgba(0, 0, 0, 0.35);

@@ -12,7 +12,12 @@
 
         <span class="toggle-placeholder"></span>
 
-        <mat-icon class="tag-icon" [class.selected]="isSelected(node)">label</mat-icon>
+        <mat-icon
+            class="tag-icon"
+            [class.selected]="isSelected(node)"
+            [style.color]="node.tag.backgroundColor">
+            label
+        </mat-icon>
         <span class="tag-name">{{ node.tag.name }}</span>
         
         <button mat-icon-button class="tag-menu-btn"
@@ -49,7 +54,12 @@
             <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
         </button>
 
-        <mat-icon class="tag-icon" [class.selected]="isSelected(node)">label</mat-icon>
+        <mat-icon
+            class="tag-icon"
+            [class.selected]="isSelected(node)"
+            [style.color]="node.tag.backgroundColor">
+            label
+        </mat-icon>
         <span class="tag-name">{{ node.tag.name }}</span>
 
         <button mat-icon-button class="tag-menu-btn"

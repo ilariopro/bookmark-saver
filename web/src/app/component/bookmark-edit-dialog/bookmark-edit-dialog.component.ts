@@ -15,7 +15,7 @@ import { Bookmark, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
-import { buildTagTree, flattenTagTree, TagNode } from '../../model/tag-tree.model';
+import { buildTagTree, flattenTagTree } from '../../model/tag-tree.model';
 
 export interface BookmarkEditDialogData {
   bookmark?: Bookmark;
@@ -54,38 +54,54 @@ export class BookmarkEditDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly state       = inject(FilterStateService);
 
-  // used during bookmark creation
-  public readonly urlForm = this.formBuilder.group({
-    url: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
+  public readonly form = this.formBuilder.group({
+    url: [
+      this.data.bookmark?.url ?? '', [
+        Validators.required,
+        Validators.pattern(/^https?:\/\/.+/)
+      ]
+    ],
+    notes: [
+      this.data.bookmark?.notes ?? ''
+    ],
+    tagIds: [
+      this.data.bookmark?.tags.map(tag => tag.id) ?? []
+    ]
   });
 
-  public readonly notes           = signal(this.data.bookmark?.notes ?? '');
-  public readonly selectedTagIds  = signal<number[]>(this.data.bookmark?.tags.map(t => t.id) ?? []);
+  public readonly selectedTagIds = signal<number[]>(
+    this.data.bookmark?.tags.map(tag => tag.id) ?? []
+  );
 
   public readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
 
-    const originalTagIds  = new Set(this.data.bookmark!.tags.map(t => t.id));
+    const bookmark      = this.data.bookmark!;
+    const initialTagIds = bookmark.tags.map(tag => tag.id).sort();
 
-    const sameNotes = this.notes().trim() === (this.data.bookmark!.notes ?? '');
-    const sameTags  = this.selectedTagIds().length === originalTagIds.size &&
-                      this.selectedTagIds().every(id => originalTagIds.has(id));
+    const { url, notes, tagIds } = this.form.getRawValue();
 
-    return sameNotes && sameTags;
+    const sameUrl   = url === bookmark.url;
+    const sameNotes = notes?.trim() === (bookmark.notes ?? '');
+
+    const sameLength = tagIds?.length === initialTagIds.length;
+    const sameTags   = tagIds?.every(id => initialTagIds.includes(id));
+
+    return sameUrl && sameNotes && sameLength && sameTags;
   });
 
   public readonly selectedTags = computed(() =>
-    this.state.tags().filter(t => this.selectedTagIds().includes(t.id))
+    this.state.tags().filter(t => this.tagIds.includes(t.id))
   );
 
   public readonly flatTagList = computed(() => flattenTagTree(buildTagTree(this.state.tags())));
 
-  get tags(): TagNode[] {
-    return this.state.tagTree();
-  }
-
   get metadata(): Metadata | null {
     return this.data.bookmark?.metadata ?? null;
+  }
+
+  get tagIds(): number[] {
+    return (this.form.get('tagIds')?.value as number[]) ?? [];
   }
 
   get url(): string {
@@ -93,7 +109,7 @@ export class BookmarkEditDialogComponent {
   }
 
   get urlError(): string {
-    const control = this.urlForm.get('url');
+    const control = this.form.get('url');
 
     if (control?.hasError('required')) return 'URL is required';
     if (control?.hasError('pattern'))  return 'Must be a valid URL (http or https)';
@@ -117,7 +133,12 @@ export class BookmarkEditDialogComponent {
     ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
       if (!result) return;
       
-      this.api.createTag({ name: result.name }).subscribe(tag => {
+      this.api.createTag({
+        name:            result.name,
+        parentId:        result.parentId,
+        backgroundColor: result.backgroundColor,
+        textColor:       result.textColor,
+      }).subscribe(tag => {
         this.api.getTags().subscribe(tags => {
           this.state.tags.set(tags);
           this.selectedTagIds.update(prev => [...prev, tag.id]);
@@ -131,21 +152,27 @@ export class BookmarkEditDialogComponent {
   }
 
   public toggleTag(id: number, checked: boolean): void {
-    this.selectedTagIds.update(prev =>
-      checked ? [...prev, id] : prev.filter(i => i !== id)
-    );
+    const current = this.tagIds;
+
+    const updated = checked
+      ? [...current, id]
+      : current.filter(i => i !== id);
+
+    this.form.get('tagIds')?.setValue(updated); 
   }
 
   // ── Actions ───────────────────────────────────────────────────
 
   public save(): void {
-    if (this.isEdit() && this.isUnchanged()) return;
-    if (!this.isEdit() && this.urlForm.invalid) return;
+    if (!this.isEdit() && this.form.invalid)  { this.form.markAllAsTouched(); return; }
+    if (this.isEdit()  && this.isUnchanged()) { this.dialogRef.close(); return; }
+
+    const { url, notes, tagIds } = this.form.getRawValue();
 
     this.dialogRef.close({
-      url:     this.isEdit() ? undefined : this.urlForm.value.url!,
-      notes:   this.notes().trim(),
-      tagIds:  this.selectedTagIds(),
+      url:     this.isEdit() ? undefined : url!,
+      notes:   notes?.trim() ?? '',
+      tagIds:  tagIds ?? [],
     } satisfies BookmarkEditDialogResult);
   }
 
