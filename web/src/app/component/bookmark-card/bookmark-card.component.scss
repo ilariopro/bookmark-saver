@@ -9,9 +9,7 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     }
 
-    &.is-pending {
-        opacity: 0.7;
-    }
+    &.is-pending { opacity: 0.7; }
 }
 
 // Favorite
@@ -30,9 +28,7 @@
     transition: color 50ms ease, transform 50ms ease;
   }
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.30);
-  }
+  &:hover { background: rgba(0, 0, 0, 0.30); }
 
   &.is-favorite mat-icon {
     color: #ffbf00;
@@ -214,9 +210,7 @@
         background-color: rgba(0, 0, 0, 0.02);;
     }
 
-    &:hover {
-        background: rgba(0, 0, 0, 0.04);
-    }
+    &:hover { background: rgba(0, 0, 0, 0.04); }
 
     .notes-icon {
         font-size: 16px;
@@ -254,18 +248,11 @@
         height: 16px;
     }
 
-    &.pending {
-        color: rgba(0, 0, 0, 0.4);
-    }
-
-    &.failed  {
-        color: #e53935;
-    }
+    &.pending {  color: rgba(0, 0, 0, 0.4); }
+    &.failed  { color: #e53935; }
 }
 
-.bookmark-tags {
-  margin-top: auto;
-}
+.bookmark-tags { margin-top: auto; }
 
 // Actions
 

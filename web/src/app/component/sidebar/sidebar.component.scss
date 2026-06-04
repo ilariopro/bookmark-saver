@@ -46,9 +46,7 @@
 }
 
 // ── Lists ─────────────────────────────────────────────────────
-::ng-deep mat-selection-list mat-list-option .mdc-list-item__content {
-  padding: 0;
-}
+::ng-deep mat-selection-list mat-list-option .mdc-list-item__content { padding: 0; }
 
 .list-item-row {
   display: flex;
@@ -64,10 +62,6 @@
   height: 20px;
   color: rgba(0, 0, 0, 0.45);
   margin-right: 8px;
-
-  &.selected {
-    color: var(--mat-sys-primary);
-  }
 }
 
 .list-item-label {
@@ -102,9 +96,7 @@
   }
 }
 
-.mdc-list-item {
-  padding: 0 26px;
-}
+.mdc-list-item { padding: 0 26px; }
 
 // ── Tags ──────────────────────────────────────────────────────
 .sidebar-tag-list {
@@ -138,5 +130,13 @@
   .app-name {
     font-size: 1.2rem;
     padding: 8px 0;
+  }
+}
+
+.selected {
+  .list-item-icon,
+  .list-item-label {
+    color: var(--mat-sys-primary);
+    font-weight: 500;
   }
 }

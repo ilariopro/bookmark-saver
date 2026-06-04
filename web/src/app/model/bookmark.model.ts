@@ -30,6 +30,7 @@ export interface BookmarkQueryParams {
     archived: boolean | null;
     untagged: boolean;
     tagId:    number | null;
+    filter:   number[];
 }
 
 export interface BookmarkCreatePayload {

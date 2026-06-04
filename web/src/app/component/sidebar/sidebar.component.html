@@ -23,10 +23,8 @@
       <mat-list-option
         [selected]="state.selectedList()?.id === list.id"
         [value]="list.id">
-        <div class="list-item-row">
-          <mat-icon class="list-item-icon" [class.selected]="state.selectedList()?.id === list.id">
-            {{ list.icon }}
-          </mat-icon>
+        <div class="list-item-row" [class.selected]="state.selectedList()?.id === list.id">
+          <mat-icon class="list-item-icon">{{ list.icon }}</mat-icon>
           <span class="list-item-label">{{ list.name }}</span>
         </div>
       </mat-list-option>

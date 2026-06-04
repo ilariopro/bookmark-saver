@@ -11,9 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { Tag } from '../../model/tag.model';
 import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
-import { TagDeleteDialogComponent, TagDeleteDialogData } from '../tag-delete-dialog/tag-delete-dialog.component';
 import { DefaultListId } from '../../model/sidebar.model';
 import { ResponsiveStateService } from '../../service/responsive-state.service';
 import { SidebarTagTreeComponent } from '../sidebar-tag-tree/sidebar-tag-tree.component';
@@ -54,8 +52,6 @@ export class AppSidebar {
     this.state.setSelectedTags(event.value ?? []);
   }
 
-  // ── Tag actions ───────────────────────────────────────────────
-
   public openCreateTagDialog(): void {
     const ref = this.dialog.open(TagEditDialogComponent, {
       data: {},
@@ -65,46 +61,14 @@ export class AppSidebar {
     ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
       if (!result) return;
 
-      this.api.createTag({ name: result.name }).subscribe(() =>
+      this.api.createTag({
+        name:            result.name,
+        parentId:        result.parentId,
+        backgroundColor: result.backgroundColor,
+        textColor:       result.textColor,
+      }).subscribe(() =>
         this.api.getTags().subscribe(tags => this.state.tags.set(tags))
       );
-    });
-  }
-
-  public openEditTagDialog(tag: Tag): void {
-    const ref = this.dialog.open(TagEditDialogComponent, {
-      data: { tag },
-      width: '440px',
-    });
-
-    ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
-      if (!result) return;
-
-      this.api.updateTag(tag.id, { name: result.name }).subscribe(() =>
-        this.api.getTags().subscribe(tags => this.state.tags.set(tags))
-      );
-    });
-  }
-
-  public openDeleteTagDialog(tag: Tag): void {
-    const ref = this.dialog.open(TagDeleteDialogComponent, {
-      data: {
-        title: 'Delete Tag',
-        name: tag.name,
-      } satisfies TagDeleteDialogData,
-      width: '440px',
-    });
-
-    ref.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
-
-      this.api.deleteTag(tag.id).subscribe(() => {
-        this.state.tags.update(prev => prev.filter(t => t.id !== tag.id));
-
-        this.state.setSelectedTags(
-          this.state.selectedTagIdsArray().filter(id => id !== tag.id)
-        );
-      });
     });
   }
 }

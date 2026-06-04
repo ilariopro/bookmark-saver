@@ -6,6 +6,11 @@ export interface TagNode {
   fullPath: string; // "Parent/Child/GrandChild"
 }
 
+export interface FlattenedTagNode {
+  tag:      Tag;
+  fullPath: string;
+}
+
 export function buildTagTree(tags: Tag[], parentPath = ''): TagNode[] {
   return tags.map(tag => {
     const fullPath = parentPath ? `${parentPath} / ${tag.name}` : tag.name;
@@ -18,7 +23,7 @@ export function buildTagTree(tags: Tag[], parentPath = ''): TagNode[] {
   });
 }
 
-export function flattenTagTree(nodes: TagNode[]): { tag: Tag; fullPath: string }[] {
+export function flattenTagTree(nodes: TagNode[]): FlattenedTagNode[] {
   return nodes.flatMap(node => [
     { tag: node.tag, fullPath: node.fullPath },
     ...flattenTagTree(node.children),

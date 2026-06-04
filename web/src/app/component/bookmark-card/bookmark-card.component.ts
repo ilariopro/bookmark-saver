@@ -95,13 +95,13 @@ export class BookmarkCardComponent implements OnInit{
   }
 
   public toggleFavorite(): void {
-    const status = !this.isFavorite();
+    const favorite = !this.isFavorite();
 
-    this.isFavorite.set(status); // ottimistico — aggiorna la UI subito
+    this.isFavorite.set(favorite); // ottimistico — aggiorna la UI subito
 
-    this.api.updateBookmark(this.bookmark().id, { favorite: status })
+    this.api.updateBookmark(this.bookmark().id, { favorite })
       .subscribe({
-        error: () => this.isFavorite.set(!status) // rollback se l'API fallisce
+        error: () => this.isFavorite.set(!favorite) // rollback se l'API fallisce
       });
   }
 
