@@ -72,11 +72,15 @@ export class BookmarkList implements AfterViewInit, OnDestroy {
     this.scroll.setLoader(page => {
       const params = this.extractQueryParams();
 
+      const tagIds = params.tagId 
+        ? [params.tagId, ...params.filter]
+        : params.filter;
+
       const bookmarks = this.api.getBookmarks(
         params.favorite,
         params.archived,
         params.untagged,
-        params.tagId,
+        tagIds,
         page
       );
 
@@ -199,17 +203,22 @@ export class BookmarkList implements AfterViewInit, OnDestroy {
       archived,
       untagged: list?.type === 'default' && list.id === 'untagged',
       tagId:    list?.type === 'tag' ? list.id : null,
+      filter:   this.state.selectedTagIdsArray(),
     };
   }
 
   private refresh(): void {
     const params = this.extractQueryParams();
 
+    const tagIds = params.tagId 
+      ? [params.tagId, ...params.filter]
+      : params.filter;
+
     const bookmarks = this.api.getBookmarks(
         params.favorite,
         params.archived,
         params.untagged,
-        params.tagId
+        tagIds
       );
 
     firstValueFrom(bookmarks)

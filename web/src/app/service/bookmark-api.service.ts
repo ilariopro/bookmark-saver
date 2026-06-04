@@ -10,8 +10,9 @@ import { Tag, TagPayload } from '../model/tag.model';
 
 @Injectable({providedIn: 'root' })
 export class BookmarkApiService {
+  private readonly BASE_URL = environment.apiBaseUrl;
+
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiBaseUrl;
 
   // ── Bookmarks ─────────────────────────────────────────────────
 
@@ -19,7 +20,7 @@ export class BookmarkApiService {
     favorite: boolean,
     archived: boolean | null,
     untagged: boolean,
-    tagId:    number | null,
+    tagIds:    number[],
     page = 0,
     size = 24,
     sort = 'createdAt,desc'
@@ -32,39 +33,39 @@ export class BookmarkApiService {
     if (favorite)          params = params.set('favorite', true);
     if (archived !== null) params = params.set('archived', archived);
     if (untagged)          params = params.set('untagged', true);
-    if (tagId !== null)    params = params.set('tagIds',   tagId);
+    if (tagIds.length)     params = params.set('tagIds',   tagIds.join(','));
 
-    return this.http.get<PagedResponse<Bookmark>>(`${this.baseUrl}/bookmarks`, { params });
+    return this.http.get<PagedResponse<Bookmark>>(`${this.BASE_URL}/bookmarks`, { params });
   }
 
   public getBookmark(bookmarkId: number): Observable<Bookmark> {
     return this.http
-      .get<Response<Bookmark>>(`${this.baseUrl}/bookmarks/${bookmarkId}`)
+      .get<Response<Bookmark>>(`${this.BASE_URL}/bookmarks/${bookmarkId}`)
       .pipe(map(response => response.data));
   }
 
   public createBookmark(payload: BookmarkCreatePayload): Observable<Bookmark> {
     return this.http
-      .post<Response<Bookmark>>(`${this.baseUrl}/bookmarks`, payload)
+      .post<Response<Bookmark>>(`${this.BASE_URL}/bookmarks`, payload)
       .pipe(map(response => response.data));
   }
 
   public deleteBookmark(bookmarkId: number): Observable<void>  {
-    return this.http.delete<void>(`${this.baseUrl}/bookmarks/${bookmarkId}`);
+    return this.http.delete<void>(`${this.BASE_URL}/bookmarks/${bookmarkId}`);
   }
 
   public updateBookmark(bookmarkId: number, payload: BookmarkUpdatePayload): Observable<Bookmark> {
     return this.http
-      .patch<Response<Bookmark>>(`${this.baseUrl}/bookmarks/${bookmarkId}`, payload)
+      .patch<Response<Bookmark>>(`${this.BASE_URL}/bookmarks/${bookmarkId}`, payload)
       .pipe(map(response => response.data));
   }
 
   public bulkUpdate(payload: BulkUpdatePayload): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/bookmarks/bulk`, payload);
+    return this.http.patch<void>(`${this.BASE_URL}/bookmarks/bulk`, payload);
   }
 
   public bulkDelete(bookmarkIds: number[]): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/bookmarks/bulk`, {
+    return this.http.delete<void>(`${this.BASE_URL}/bookmarks/bulk`, {
       body: { ids: bookmarkIds }
     });
   }
@@ -75,23 +76,23 @@ export class BookmarkApiService {
     const params = new HttpParams().set('sort', 'name,asc');
 
     return this.http
-      .get<Response<Tag[]>>(`${this.baseUrl}/tags`, { params })
+      .get<Response<Tag[]>>(`${this.BASE_URL}/tags`, { params })
       .pipe(map(response => response.data));
   }
 
   public createTag(payload: TagPayload): Observable<Tag> {
     return this.http
-      .post<Response<Tag>>(`${this.baseUrl}/tags`, payload)
+      .post<Response<Tag>>(`${this.BASE_URL}/tags`, payload)
       .pipe(map(response => response.data));
   }
 
   public updateTag(tagId: number, payload: TagPayload): Observable<Tag> {
     return this.http
-      .patch<Response<Tag>>(`${this.baseUrl}/tags/${tagId}`, payload)
+      .patch<Response<Tag>>(`${this.BASE_URL}/tags/${tagId}`, payload)
       .pipe(map(response => response.data));
   }
 
   public deleteTag(tagId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/tags/${tagId}`);
+    return this.http.delete<void>(`${this.BASE_URL}/tags/${tagId}`);
   }
 }

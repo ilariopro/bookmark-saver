@@ -6,7 +6,7 @@ import { filter, map } from 'rxjs';
 
 import { DEFAULT_LISTS, DefaultList, DefaultListId, TagList } from '../model/sidebar.model';
 import { Tag } from '../model/tag.model';
-import { buildTagTree, TagNode } from '../model/tag-tree.model';
+import { buildTagTree, FlattenedTagNode, flattenTagTree, TagNode } from '../model/tag-tree.model';
 
 export type SelectedList = DefaultList | TagList;
 
@@ -18,7 +18,8 @@ export class FilterStateService {
   // ── Remote data ───────────────────────────────────────────────
   public readonly tags = signal<Tag[]>([]);
 
-  public readonly tagTree  = computed<TagNode[]>(() => buildTagTree(this.tags()));
+  public readonly tagTree          = computed<TagNode[]>(() => buildTagTree(this.tags()));
+  public readonly flattenedTagTree = computed<FlattenedTagNode[]>(() => flattenTagTree(this.tagTree()));
 
   // ── Route e query params come signal ──────────────────────────
   private readonly currentPath = toSignal(
@@ -42,16 +43,20 @@ export class FilterStateService {
     if (path.startsWith('/untagged'))  return DEFAULT_LISTS[3];
 
     if (path.startsWith('/tags/')) {
-      const id  = Number(path.split('/tags/')[1]);
-      const tag = this.tags().find(t => t.id === id);
+      const id   = Number(path.split('/tags/')[1]);
+      const item = this.flattenedTagTree().find(i => i.tag.id === id);
       
-      if (tag) {
+      if (item) {
+        const tag = item.tag;
+
         return {
-          id:    tag.id,
-          name:  tag.name,
-          color: tag.color ?? null,
-          icon:  'label',
-          type:  'tag',
+          id:              tag.id,
+          name:            item.fullPath,
+          // name:            tag.name,
+          backgroundColor: tag.backgroundColor ?? null,
+          textColor:       tag.textColor       ?? null,
+          icon:            'label',
+          type:            'tag',
         }; 
       }
     }
@@ -60,7 +65,7 @@ export class FilterStateService {
   });
 
   public readonly selectedTagIds = computed<Set<number>>(() => {
-    const raw = this.queryParams().get('tags');
+    const raw = this.queryParams().get('filter');
 
     return raw
       ? new Set(raw.split(',').map(Number))
@@ -93,7 +98,7 @@ export class FilterStateService {
 
   public setSelectedTags(tagIds: number[]): void {
     this.router.navigate([], {
-      queryParams:         { tags: tagIds.length ? tagIds.join(',') : null },
+      queryParams:         { filter: tagIds.length ? tagIds.join(',') : null },
       queryParamsHandling: 'merge',
     });
   }
