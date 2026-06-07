@@ -50,7 +50,7 @@
 
         <button mat-icon-button class="toggle-btn"
                 matTreeNodeToggle
-                (click)="$event.stopPropagation()">
+                (click)="$event.stopPropagation(); state.toggleTagExpansion(node.tag.id)">
             <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
         </button>
 

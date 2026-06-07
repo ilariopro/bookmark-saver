@@ -1,6 +1,7 @@
 export interface Tag {
   id:              number;
   name:            string;
+  slug:            string;
   parentId:        number | null;
   children:        Tag[] | null;
   bookmarkIds:     number[];
@@ -12,6 +13,7 @@ export interface Tag {
 
 export interface TagPayload {
   name?:            string;
+  slug?:            string;
   parentId?:        number;
   backgroundColor?: string;
   textColor?:       string;

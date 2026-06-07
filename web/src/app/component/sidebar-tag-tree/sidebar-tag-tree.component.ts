@@ -52,15 +52,23 @@ export class SidebarTagTreeComponent {
         node => node.children,
     );
 
-    readonly treeControl = new FlatTreeControl<FlatTagNode>(
+    public readonly treeControl = new FlatTreeControl<FlatTagNode>(
         node => node.level,
         node => node.expandable,
     );
 
-    readonly dataSource = new MatTreeFlatDataSource(this.treeControl, this.flattener);
+    public readonly dataSource = new MatTreeFlatDataSource(this.treeControl, this.flattener);
 
     constructor() {
-        effect(() => this.dataSource.data = this.state.tagTree());
+        effect(() => {
+            this.dataSource.data = this.state.tagTree();
+            
+            const expanded = this.state.expandedTagIds();
+            
+            this.treeControl.dataNodes
+                ?.filter(node => expanded.has(node.tag.id))
+                .forEach(node => this.treeControl.expand(node));
+        });
     }
 
     public hasChildren = (_: number, node: FlatTagNode): boolean => node.expandable;
@@ -73,7 +81,8 @@ export class SidebarTagTreeComponent {
     }
 
     public navigate(node: FlatTagNode): void {
-        this.state.selectTag(node.tag.id);
+        this.state.selectTag(node.tag.slug);
+        // this.state.selectTag(node.tag.id);
     }
 
     public openEditDialog(node: FlatTagNode): void {
@@ -87,6 +96,7 @@ export class SidebarTagTreeComponent {
 
             this.api.updateTag(node.tag.id, {
                 name:            result.name,
+                slug:            result.slug,
                 parentId:        result.parentId,
                 backgroundColor: result.backgroundColor,
                 textColor:       result.textColor,

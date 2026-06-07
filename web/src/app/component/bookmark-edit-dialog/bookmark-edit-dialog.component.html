@@ -44,12 +44,12 @@
       </button>
     </div>
   
-    @if (flatTagList().length === 0) {
+    @if (flatTagList.length === 0) {
       <p class="empty-hint">No tags available.</p>
     } @else {
       <div class="tag-list">
         <div class="checkbox-group">
-          @for (item of flatTagList(); track item.tag.id) {
+          @for (item of flatTagList; track item.tag.id) {
             <mat-checkbox
               color="primary"
               [checked]="tagIds.includes(item.tag.id)"

@@ -16,7 +16,7 @@
       <span class="spacer"></span>
 
       <!-- Edit button -->
-      @if (hasBookmarks()) {
+      @if(hasBookmarks()) {
         <button mat-stroked-button (click)="toggleEditMode()">
           <mat-icon>{{ editMode() ? 'close' : 'edit' }}</mat-icon>
           {{ editMode() ? 'Close' : 'Edit' }}

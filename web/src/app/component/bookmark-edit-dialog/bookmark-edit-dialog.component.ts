@@ -15,7 +15,7 @@ import { Bookmark, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
-import { buildTagTree, flattenTagTree } from '../../model/tag-tree.model';
+import { FlattenedTagNode } from '../../model/tag-tree.model';
 
 export interface BookmarkEditDialogData {
   bookmark?: Bookmark;
@@ -76,16 +76,14 @@ export class BookmarkEditDialogComponent {
   public readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
 
-    const bookmark      = this.data.bookmark!;
-    const initialTagIds = bookmark.tags.map(tag => tag.id).sort();
+    const bookmark = this.data.bookmark!;
+    const form     = this.form.getRawValue();
+    const tagIds   = bookmark.tags.map(tag => tag.id).sort();
 
-    const { url, notes, tagIds } = this.form.getRawValue();
-
-    const sameUrl   = url === bookmark.url;
-    const sameNotes = notes?.trim() === (bookmark.notes ?? '');
-
-    const sameLength = tagIds?.length === initialTagIds.length;
-    const sameTags   = tagIds?.every(id => initialTagIds.includes(id));
+    const sameUrl    = form.url            === bookmark.url;
+    const sameNotes  = form.notes?.trim()  === (bookmark.notes ?? '');
+    const sameLength = form.tagIds?.length === tagIds.length;
+    const sameTags   = form.tagIds?.every(id => tagIds.includes(id));
 
     return sameUrl && sameNotes && sameLength && sameTags;
   });
@@ -94,21 +92,23 @@ export class BookmarkEditDialogComponent {
     this.state.tags().filter(t => this.tagIds.includes(t.id))
   );
 
-  public readonly flatTagList = computed(() => flattenTagTree(buildTagTree(this.state.tags())));
+  public get flatTagList(): FlattenedTagNode[] {
+    return this.state.flattenedTagTree();
+  }
 
-  get metadata(): Metadata | null {
+  public get metadata(): Metadata | null {
     return this.data.bookmark?.metadata ?? null;
   }
 
-  get tagIds(): number[] {
+  public get tagIds(): number[] {
     return (this.form.get('tagIds')?.value as number[]) ?? [];
   }
 
-  get url(): string {
+  public get url(): string {
     return this.data.bookmark?.url ?? '';
   }
 
-  get urlError(): string {
+  public get urlError(): string {
     const control = this.form.get('url');
 
     if (control?.hasError('required')) return 'URL is required';
@@ -135,6 +135,7 @@ export class BookmarkEditDialogComponent {
       
       this.api.createTag({
         name:            result.name,
+        slug:            result.slug,
         parentId:        result.parentId,
         backgroundColor: result.backgroundColor,
         textColor:       result.textColor,
@@ -167,12 +168,12 @@ export class BookmarkEditDialogComponent {
     if (!this.isEdit() && this.form.invalid)  { this.form.markAllAsTouched(); return; }
     if (this.isEdit()  && this.isUnchanged()) { this.dialogRef.close(); return; }
 
-    const { url, notes, tagIds } = this.form.getRawValue();
+    const form = this.form.getRawValue();
 
     this.dialogRef.close({
-      url:     this.isEdit() ? undefined : url!,
-      notes:   notes?.trim() ?? '',
-      tagIds:  tagIds ?? [],
+      url:     this.isEdit() ? undefined : form.url!,
+      notes:   form.notes?.trim() ?? '',
+      tagIds:  form.tagIds ?? [],
     } satisfies BookmarkEditDialogResult);
   }
 

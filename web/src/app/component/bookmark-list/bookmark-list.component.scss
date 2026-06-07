@@ -2,10 +2,6 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-
-  &.is-mobile .bookmarks-content {
-    min-height: 100vh;
-  }
 }
 
 .bookmarks-content {
@@ -30,9 +26,7 @@
   column-gap: 10px;
   row-gap: 2px;
 
-  h1, p {
-    width: 100%;
-  }
+  h1, p { width: 100%; }
 }
 
 .list-title {
@@ -61,9 +55,7 @@
   color: rgba(0, 0, 0, 0.5);
   margin: 0;
 
-  &.error {
-    color: #e53935;
-  }
+  &.error { color: #e53935; }
 }
 
 .bookmarks-grid {
@@ -98,4 +90,11 @@
   bottom: 24px;
   right: 24px;
   z-index: 100;
+}
+
+// Mobile overrides
+.is-mobile {
+  .bookmarks-content { min-height: 100vh; }
+
+  .list-title { font-size: 1.2rem; }
 }

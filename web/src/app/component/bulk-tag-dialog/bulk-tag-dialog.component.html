@@ -7,7 +7,7 @@
     } @else {
         <div class="tag-list">
             <div class="checkbox-group">
-                @for (item of flatTagList(); track item.tag.id) {
+                @for (item of flatTagList; track item.tag.id) {
                     <mat-checkbox
                         color="primary"
                         [indeterminate]="isIndeterminate(item.tag.id)"

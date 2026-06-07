@@ -28,7 +28,10 @@
                 [matAutocomplete]="parentAuto" />
 
             @if (form.value.parentId) {
-                <button matSuffix mat-icon-button type="button" (click)="clearParent()">
+                <button mat-icon-button type="button"
+                    matSuffix
+                    matTooltip="Remove Parent"
+                    (click)="clearParent()">
                     <mat-icon>close</mat-icon>
                 </button>
             }

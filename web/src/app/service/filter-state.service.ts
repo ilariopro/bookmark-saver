@@ -34,6 +34,8 @@ export class FilterStateService {
     initialValue: this.route.snapshot.queryParamMap,
   });
 
+  public readonly expandedTagIds = signal<Set<number>>(new Set());
+
   // ── Selezione corrente ────────────────────────────────────────
   public readonly selectedList = computed<SelectedList | undefined>(() => {
     const path = this.currentPath();
@@ -43,8 +45,8 @@ export class FilterStateService {
     if (path.startsWith('/untagged'))  return DEFAULT_LISTS[3];
 
     if (path.startsWith('/tags/')) {
-      const id   = Number(path.split('/tags/')[1]);
-      const item = this.flattenedTagTree().find(i => i.tag.id === id);
+      const slug = path.split('/tags/')[1];
+      const item = this.flattenedTagTree().find(item => item.tag.slug === slug);
       
       if (item) {
         const tag = item.tag;
@@ -92,14 +94,32 @@ export class FilterStateService {
     this.router.navigate([paths[id]]);
   }
 
-  public selectTag(id: number): void {
-    this.router.navigate(['tags', id]);
+  // public selectTag(id: number): void {
+  //   this.router.navigate(['tags', id]);
+  // }
+
+  public selectTag(slug: string): void {
+    this.router.navigate(['tags', slug]);
   }
 
   public setSelectedTags(tagIds: number[]): void {
     this.router.navigate([], {
       queryParams:         { filter: tagIds.length ? tagIds.join(',') : null },
       queryParamsHandling: 'merge',
+    });
+  }
+
+  public toggleTagExpansion(id: number): void {
+    this.expandedTagIds.update(prev => {
+      const next = new Set(prev);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return next;
     });
   }
 }

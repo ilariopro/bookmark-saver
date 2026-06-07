@@ -44,10 +44,6 @@ export class AppSidebar {
     this.state.selectDefaultList(id);
   }
 
-  public onSelectTag(id: number): void {
-    this.state.selectTag(id);
-  }
-
   public onTagsChange(event: MatChipListboxChange): void {
     this.state.setSelectedTags(event.value ?? []);
   }
@@ -63,6 +59,7 @@ export class AppSidebar {
 
       this.api.createTag({
         name:            result.name,
+        slug:            result.slug,
         parentId:        result.parentId,
         backgroundColor: result.backgroundColor,
         textColor:       result.textColor,

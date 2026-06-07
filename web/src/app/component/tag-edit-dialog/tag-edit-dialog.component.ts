@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { FilterStateService } from '../../service/filter-state.service';
 import { Tag } from '../../model/tag.model';
-import { buildTagTree, flattenTagTree } from '../../model/tag-tree.model';
+import { buildTagPath, FlattenedTagNode } from '../../model/tag-tree.model';
 
 export interface TagEditDialogData {
   tag?: Tag;
@@ -20,6 +20,7 @@ export interface TagEditDialogData {
 
 export interface TagEditDialogResult {
   name?:            string;
+  slug?:            string;
   parentId?:        number;
   backgroundColor?: string;
   textColor?:       string;
@@ -64,17 +65,15 @@ export class TagEditDialogComponent {
     textColor:       [this.data.tag?.textColor       ?? this.DEFAULT_TEXT_COLOR],
   });
 
-  public readonly flatTagList = computed(() => flattenTagTree(buildTagTree(this.state.tags())));
-
   public readonly parentSearch = signal(
-    this.flatTagList().find(i => i.tag.id === (this.data.tag?.parentId ?? -1))?.fullPath ?? ''
+    this.flatTagList.find(item => item.tag.id === (this.data.tag?.parentId ?? -1))?.fullPath ?? ''
   );
 
   public readonly parentSuggestions = computed(() => {
     const input = this.parentSearch().trim().toLowerCase();
     
-    const suggestions = this.flatTagList()
-      .filter(i => !input || i.fullPath.toLowerCase().includes(input));
+    const suggestions = this.flatTagList
+      .filter(item => !input || item.fullPath.toLowerCase().includes(input));
     
     const tag = this.data.tag;
 
@@ -97,18 +96,22 @@ export class TagEditDialogComponent {
   public readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
 
-    const tag = this.data.tag!;
+    const form = this.form.getRawValue();
+    const tag  = this.data.tag!;
 
-    const { name, backgroundColor, textColor } = this.form.getRawValue();
+    const sameName       = form.name!.trim()    === tag.name;
+    const sameParent     = form.parentId        === tag.parentId;
+    const sameBackground = form.backgroundColor === tag.backgroundColor;
+    const sameColor      = form.textColor       === tag.textColor;
 
-    const sameName       = name && this.isSameName(name);
-    const sameBackground = backgroundColor === tag.backgroundColor;
-    const sameColor      = textColor === tag.textColor;
-
-    return sameName && sameBackground && sameColor;
+    return sameName && sameParent && sameBackground && sameColor;
   });
 
-  get nameError(): string {
+  public get flatTagList(): FlattenedTagNode[] {
+    return this.state.flattenedTagTree();
+  }
+
+  public get nameError(): string {
     const control = this.form.get('name');
 
     if (control?.hasError('required')) return 'Name is required';
@@ -122,9 +125,10 @@ export class TagEditDialogComponent {
   }
 
   public onParentSelected(event: MatAutocompleteSelectedEvent): void {
-    const item = this.parentSuggestions().find(i => i.fullPath === event.option.value);
+    const item = this.parentSuggestions().find(item => item.fullPath === event.option.value);
+    const id   = item?.tag.id ?? null;
 
-    this.form.patchValue({ parentId: item?.tag.id ?? null });
+    this.form.patchValue({ parentId: id });
     this.parentSearch.set(event.option.value);
   }
 
@@ -137,13 +141,16 @@ export class TagEditDialogComponent {
     if (this.form.invalid)  { this.form.markAllAsTouched(); return; }
     if (this.isUnchanged()) { this.dialogRef.close(); return; }
 
-    const { name, parentId, backgroundColor, textColor } = this.form.getRawValue();
+    const form = this.form.getRawValue();
+
+    const sameName = form.name!.trim() === (this.data.tag?.name ?? '');
 
     this.dialogRef.close({
-      name:            this.isEdit() && name && this.isSameName(name) ? undefined : name!.trim(),
-      parentId:        parentId        ?? undefined,
-      backgroundColor: backgroundColor ?? undefined,
-      textColor:       textColor       ?? undefined,
+      name:            form.name!.trim(),
+      slug:            sameName ? undefined : this.createSlug(form.name!),
+      parentId:        form.parentId        ?? undefined,
+      backgroundColor: form.backgroundColor ?? undefined,
+      textColor:       form.textColor       ?? undefined,
     } satisfies TagEditDialogResult);
   }
 
@@ -164,7 +171,24 @@ export class TagEditDialogComponent {
     return tag.children.flatMap(c => [c.id, ...this.getDescendantIds(c)]);
   }
 
-  private isSameName(name: string): boolean {
-    return name.trim().toLowerCase() === this.data.tag?.name.toLowerCase();
+  private createSlug(name: string): string {
+    const base = name
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-_]/g, '');
+
+    const existing = this.state.tags()
+      .filter(t => t.id !== this.data.tag?.id)
+      .map(t => t.slug);
+
+    console.log('existing', existing);
+
+    if (!existing.includes(base)) return base;
+
+    let counter = 1;
+    while (existing.includes(`${base}-${counter}`)) counter++;
+
+    return `${base}-${counter}`;
   }
 }
