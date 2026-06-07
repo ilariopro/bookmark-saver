@@ -2,7 +2,6 @@ include:
   - ./docker-compose.prod.yml
 
 services:
-
   # ==============
   # Application
   # ==============
@@ -28,16 +27,6 @@ services:
       - "4200:4200"
     volumes:
       - ./web/src:/app/src
-
-  # ==============
-  # Keycloak
-  # ==============
-
-  keycloak:
-    command: start-dev # no TLS required in dev mode
-    environment:
-      KC_HOSTNAME_STRICT: "false"
-      KC_HTTP_ENABLED: "true"
 
   # ==============
   # Tools
