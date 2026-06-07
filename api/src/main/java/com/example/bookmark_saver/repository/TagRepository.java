@@ -15,30 +15,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TagRepository extends JpaRepository<Tag, Long> {
     /**
-     * // TODO remove this method and update tests
+     * Finds a tag by slug.
      *
-     * @param name The name to search for.
+     * @param slug The slug to search for.
      * 
      * @return An {@link Optional} containing the matching tag, or empty if not found.
      */
-    Optional<Tag> findByName(String name);
-
-    /**
-     * Checks if a tag already exists.
-     * 
-     * @param parentId
-     * @param name
-     * 
-     * @return
-     */
-    boolean existsByParentIdAndNameIgnoreCase(Long parentId, String name);
+    Optional<Tag> findBySlug(String slug);
 
     /**
      * Finds all parent tags.
      * 
      * @param sort
      * 
-     * @return
+     * @return A {@link List} containing all parent tags.
      */
     List<Tag> findByParentIsNull(Sort sort);
 }

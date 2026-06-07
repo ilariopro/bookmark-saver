@@ -81,8 +81,15 @@ class TagControllerTest {
 
     @Test
     void createValidRequestReturns201() throws Exception {
-        TagRequest request = new TagRequest("java", null, null, null);
         Tag saved = TagFixture.withDefaults();
+        
+        TagRequest request = new TagRequest(
+            "Java",
+            "java",
+            null,
+            null,
+            null
+        );
 
         when(service.save(any()))
             .thenReturn(saved);
@@ -116,8 +123,15 @@ class TagControllerTest {
 
     @Test
     void updateExistingIdReturnsUpdatedTag() throws Exception {
-        TagRequest request = new TagRequest("spring", null, null, null);
-        Tag updated = TagFixture.withName("spring");
+        Tag updated = TagFixture.withDefaults();
+        
+        TagRequest request = new TagRequest(
+            "Java",
+            "java",
+            null,
+            null,
+            null
+        );
 
         when(service.update(eq(1L), any()))
             .thenReturn(updated);

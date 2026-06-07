@@ -33,6 +33,9 @@ public class Tag {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String slug;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Tag parent;
@@ -66,6 +69,10 @@ public class Tag {
         return this.name;
     }
 
+    public String getSlug() {
+        return this.slug;
+    }
+
     public Tag getParent() {
         return this.parent;
     }
@@ -96,6 +103,10 @@ public class Tag {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public void setParent(Tag parent) {

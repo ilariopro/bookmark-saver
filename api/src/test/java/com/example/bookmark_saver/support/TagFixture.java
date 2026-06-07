@@ -7,21 +7,18 @@ import com.example.bookmark_saver.domain.Tag;
  */
 public class TagFixture {
     public static Tag withDefaults() {
-        return create(1L, "java");
+        return create(1L, "Java", "java");
     }
 
     public static Tag withId(Long id) {
-        return create(id, "java");
+        return create(id, "Java", "java");
     }
 
-    public static Tag withName(String name) {
-        return create(1L, name);
-    }
-
-    public static Tag create(Long id, String name) {
+    public static Tag create(Long id, String name, String slug) {
         Tag tag = new Tag();
 
         tag.setName(name);
+        tag.setSlug(slug);
 
         try {
             var field = Tag.class.getDeclaredField("id");

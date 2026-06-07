@@ -1,6 +1,6 @@
 CREATE TABLE bookmark_tags (
     bookmark_id BIGINT NOT NULL,
-    tag_id BIGINT NOT NULL,
+    tag_id      BIGINT NOT NULL,
 
     PRIMARY KEY (bookmark_id, tag_id),
 

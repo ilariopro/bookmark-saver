@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public record TagResponse(
     Long id,
     String name,
+    String slug,
     Long parentId,
     Set<Long> bookmarkIds,
     String backgroundColor,
@@ -25,12 +26,11 @@ public record TagResponse(
             .map(bookmark -> bookmark.getId())
             .collect(Collectors.toSet());
 
-        Tag parent = tag.getParent();
-
         return new TagResponse(
             tag.getId(),
             tag.getName(),
-            parent != null ? parent.getId() : null,
+            tag.getSlug(),
+            tag.getParent() != null ? tag.getParent().getId() : null,
             bookmarkIds,
             tag.getBackgroundColor(),
             tag.getTextColor(),
