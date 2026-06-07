@@ -4,7 +4,6 @@ import com.example.bookmark_saver.dto.common.ApiListResponse;
 import com.example.bookmark_saver.dto.common.ApiResponse;
 import com.example.bookmark_saver.dto.request.TagRequest;
 import com.example.bookmark_saver.dto.response.TagResponse;
-import com.example.bookmark_saver.dto.response.TagTreeResponse;
 import com.example.bookmark_saver.service.TagService;
 import com.example.bookmark_saver.utility.ResponseFactory;
 
@@ -42,14 +41,14 @@ public class TagController {
      * 
      * @param sort Sort options.
      * 
-     * @return The complete list of {@link TagTreeResponse}.
+     * @return The complete list of {@link TagResponse}.
      */
     @GetMapping
-    public ResponseEntity<ApiListResponse<TagTreeResponse>> list(
+    public ResponseEntity<ApiListResponse<TagResponse>> list(
         Sort sort
     ) {
         return ResponseEntity.ok(
-            ResponseFactory.list(service.findAll(sort), TagTreeResponse::from)
+            ResponseFactory.list(service.findAll(sort), TagResponse::from)
         );
     }
 

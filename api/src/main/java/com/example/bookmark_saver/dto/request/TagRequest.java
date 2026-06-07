@@ -12,11 +12,5 @@ public record TagRequest(
     String name,
 
     @NotBlank(groups = OnCreate.class)
-    String slug,
-
-    Long parentId,
-    
-    String backgroundColor,
-
-    String textColor
+    String slug
 ) {}

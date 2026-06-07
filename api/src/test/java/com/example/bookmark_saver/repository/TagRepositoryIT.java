@@ -60,20 +60,14 @@ class TagRepositoryIT {
     }
 
     @Test
-    void findBySlugReturnsEntity() {
+    void existsBySlug() {
         repository.save(createTag("java"));
 
-        Optional<Tag> result = repository.findBySlug("java");
+        boolean existing = repository.existsBySlug("java");
+        boolean missing  = repository.existsBySlug("spring");
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getName()).isEqualTo("java");
-    }
-
-    @Test
-    void findBySlugReturnsEmptyWhenNotFound() {
-        Optional<Tag> result = repository.findBySlug("nonexistent");
-
-        assertThat(result).isEmpty();
+        assertThat(existing).isTrue();
+        assertThat(missing).isFalse();
     }
 
     @Test

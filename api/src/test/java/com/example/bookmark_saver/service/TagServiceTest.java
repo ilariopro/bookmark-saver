@@ -64,7 +64,7 @@ class TagServiceTest {
         List<Tag> result = service.findAll(Sort.unsorted());
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("java");
+        assertThat(result.get(0).getName()).isEqualTo("Java");
     }
 
     // ---------------------------------------------------------------
@@ -78,7 +78,7 @@ class TagServiceTest {
 
         Tag result = service.findById(1L);
 
-        assertThat(result.getName()).isEqualTo("java");
+        assertThat(result.getName()).isEqualTo("Java");
     }
 
     @Test

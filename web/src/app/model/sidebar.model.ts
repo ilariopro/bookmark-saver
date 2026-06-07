@@ -15,10 +15,9 @@ export const DEFAULT_LISTS: DefaultList[] = [
 ];
 
 export interface TagList {
-    id:              number;
-    name:            string;
-    backgroundColor: string | null;
-    textColor:       string | null;
-    icon:            'label';
-    type:            'tag';
+    id:   number;
+    name: string;
+    slug: string;
+    icon: 'label';
+    type: 'tag';
 }

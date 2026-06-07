@@ -6,7 +6,6 @@ import { filter, map } from 'rxjs';
 
 import { DEFAULT_LISTS, DefaultList, DefaultListId, TagList } from '../model/sidebar.model';
 import { Tag } from '../model/tag.model';
-import { buildTagTree, FlattenedTagNode, flattenTagTree, TagNode } from '../model/tag-tree.model';
 
 export type SelectedList = DefaultList | TagList;
 
@@ -15,11 +14,7 @@ export class FilterStateService {
   private readonly router = inject(Router);
   private readonly route  = inject(ActivatedRoute);
 
-  // ── Remote data ───────────────────────────────────────────────
   public readonly tags = signal<Tag[]>([]);
-
-  public readonly tagTree          = computed<TagNode[]>(() => buildTagTree(this.tags()));
-  public readonly flattenedTagTree = computed<FlattenedTagNode[]>(() => flattenTagTree(this.tagTree()));
 
   // ── Route e query params come signal ──────────────────────────
   private readonly currentPath = toSignal(
@@ -46,19 +41,15 @@ export class FilterStateService {
 
     if (path.startsWith('/tags/')) {
       const slug = path.split('/tags/')[1];
-      const item = this.flattenedTagTree().find(item => item.tag.slug === slug);
+      const tag  = this.tags().find(tag=> tag.slug === slug);
       
-      if (item) {
-        const tag = item.tag;
-
+      if (tag) {
         return {
-          id:              tag.id,
-          name:            item.fullPath,
-          // name:            tag.name,
-          backgroundColor: tag.backgroundColor ?? null,
-          textColor:       tag.textColor       ?? null,
-          icon:            'label',
-          type:            'tag',
+          id:   tag.id,
+          name: tag.name,
+          slug: tag.slug,
+          icon: 'label',
+          type: 'tag',
         }; 
       }
     }
@@ -93,10 +84,6 @@ export class FilterStateService {
 
     this.router.navigate([paths[id]]);
   }
-
-  // public selectTag(id: number): void {
-  //   this.router.navigate(['tags', id]);
-  // }
 
   public selectTag(slug: string): void {
     this.router.navigate(['tags', slug]);

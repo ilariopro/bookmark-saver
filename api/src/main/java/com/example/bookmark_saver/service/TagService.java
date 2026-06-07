@@ -34,7 +34,7 @@ public class TagService {
      * @return The complete list of {@link Tag}.
      */
     public List<Tag> findAll(Sort sort) {
-        return tagRepository.findByParentIsNull(sort);
+        return tagRepository.findAll(sort);
     }
 
     /**
@@ -59,24 +59,17 @@ public class TagService {
      * @param request The tag creation request.
      * 
      * @return The saved tag.
-     * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
-     * @throws EntityNotFoundException If no parent tag is found with the given ID.
+     * @throws IllegalArgumentException If a tag with the specified name already exists.
      */
     public Tag save(TagRequest request) {
-        checTagConflicts(request.slug());
+        if (tagRepository.existsBySlug(request.slug())) {
+            throw new IllegalArgumentException("Tag already exists with this name");
+        }
 
         Tag tag = new Tag();
         
         tag.setName(request.name());
         tag.setSlug(request.slug());
-        tag.setBackgroundColor(request.backgroundColor());
-        tag.setTextColor(request.textColor());
-
-        if (request.parentId() != null) {
-            Tag parent = findById(request.parentId());
-
-            tag.setParent(parent);
-        }
 
         return tagRepository.save(tag);
     }
@@ -88,11 +81,13 @@ public class TagService {
      * @param request The update request.
      * 
      * @return The updated tag.
-     * @throws IllegalArgumentException If a tag with the specified name already exists for this parent.
+     * @throws IllegalArgumentException If a tag with the specified name already exists.
      * @throws EntityNotFoundException If no tag is found with the given ID.
      */
     public Tag update(Long tagId, TagRequest request) {
-        checTagConflicts(request.slug());
+        if (tagRepository.existsBySlug(request.slug())) {
+            throw new IllegalArgumentException("Tag already exists with this name");
+        }
 
         Tag tag = findById(tagId);
 
@@ -104,23 +99,8 @@ public class TagService {
             ? request.slug()
             : tag.getSlug();
 
-        String backgroundColor = request.backgroundColor() != null
-            ? request.backgroundColor()
-            : tag.getBackgroundColor();
-
-        String textColor = request.textColor() != null
-            ? request.textColor()
-            : tag.getTextColor();
-
-        Tag parent = request.parentId() != null
-            ? findById(request.parentId())
-            : null;
-
         tag.setName(name);
         tag.setSlug(slug);
-        tag.setParent(parent);
-        tag.setBackgroundColor(backgroundColor);
-        tag.setTextColor(textColor);
 
         return tagRepository.save(tag);
     }
@@ -136,18 +116,5 @@ public class TagService {
         findById(tagId);
 
         tagRepository.deleteById(tagId);
-    }
-
-    /**
-     * Makes sure there are no tag conflicts.
-     * 
-     * @throws IllegalArgumentException If a tag with the specified slug already exists for this parent.
-     */
-    private void checTagConflicts(String slug) {
-        if (tagRepository.findBySlug(slug).isPresent()) {
-            throw new IllegalArgumentException(
-                "Tag already exists for the slug " + slug
-            );
-        }
     }
 }

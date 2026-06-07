@@ -13,10 +13,7 @@ public record TagResponse(
     Long id,
     String name,
     String slug,
-    Long parentId,
     Set<Long> bookmarkIds,
-    String backgroundColor,
-    String textColor,
     Instant createdAt,
     Instant updatedAt
 ) {
@@ -30,10 +27,7 @@ public record TagResponse(
             tag.getId(),
             tag.getName(),
             tag.getSlug(),
-            tag.getParent() != null ? tag.getParent().getId() : null,
             bookmarkIds,
-            tag.getBackgroundColor(),
-            tag.getTextColor(),
             tag.getCreatedAt(),
             tag.getUpdatedAt()
         );

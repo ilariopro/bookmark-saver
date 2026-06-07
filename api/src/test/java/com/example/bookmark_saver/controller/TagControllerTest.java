@@ -57,7 +57,7 @@ class TagControllerTest {
         mockMvc
             .perform(get("/api/tags"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data[0].name").value("java"));
+            .andExpect(jsonPath("$.data[0].name").value("Java"));
     }
 
     // ---------------------------------------------------------------
@@ -72,7 +72,7 @@ class TagControllerTest {
         mockMvc
             .perform(get("/api/tags/1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.name").value("java"));
+            .andExpect(jsonPath("$.data.name").value("Java"));
     }
 
     // ---------------------------------------------------------------
@@ -85,10 +85,7 @@ class TagControllerTest {
         
         TagRequest request = new TagRequest(
             "Java",
-            "java",
-            null,
-            null,
-            null
+            "java"
         );
 
         when(service.save(any()))
@@ -99,7 +96,7 @@ class TagControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.data.name").value("java"));
+            .andExpect(jsonPath("$.data.name").value("Java"));
 
         verify(service).save(any());
     }
@@ -127,10 +124,7 @@ class TagControllerTest {
         
         TagRequest request = new TagRequest(
             "Java",
-            "java",
-            null,
-            null,
-            null
+            "java"
         );
 
         when(service.update(eq(1L), any()))
@@ -141,7 +135,7 @@ class TagControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data.name").value("spring"));
+            .andExpect(jsonPath("$.data.name").value("Java"));
 
         verify(service).update(eq(1L), any());
     }

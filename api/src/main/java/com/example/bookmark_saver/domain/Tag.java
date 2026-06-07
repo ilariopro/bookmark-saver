@@ -16,15 +16,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  * Mapped to the {@code tags} table.
  */
 @Entity
-@Table(
-    name = "tags",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name        = "uq_tags_parent_name",
-            columnNames = {"parent_id", "name"}
-        )
-    }
-)
+@Table(name = "tags")
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,24 +25,12 @@ public class Tag {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String slug;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Tag parent;
-
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    @OrderBy("name ASC")
-    private Set<Tag> children = new HashSet<>();
 
     @JsonBackReference
     @ManyToMany(mappedBy = "tags")
     private Set<Bookmark> bookmarks = new HashSet<>();
-
-    private String backgroundColor;
-
-    private String textColor;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -73,24 +53,8 @@ public class Tag {
         return this.slug;
     }
 
-    public Tag getParent() {
-        return this.parent;
-    }
-
-    public Set<Tag> getChildren() {
-        return this.children;
-    }
-
     public Set<Bookmark> getBookmarks() {
         return this.bookmarks;
-    }
-
-    public String getBackgroundColor() {
-        return this.backgroundColor;
-    }
-
-    public String getTextColor() {
-        return this.textColor;
     }
 
     public Instant getCreatedAt() {
@@ -107,17 +71,5 @@ public class Tag {
 
     public void setSlug(String slug) {
         this.slug = slug;
-    }
-
-    public void setParent(Tag parent) {
-        this.parent = parent;
-    }
-
-    public void setBackgroundColor(String backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
-    public void setTextColor(String textColor) {
-        this.textColor = textColor;
     }
 }
