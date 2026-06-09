@@ -44,19 +44,18 @@
       </button>
     </div>
   
-    @if (flatTagList.length === 0) {
+    @if (state.tags().length === 0) {
       <p class="empty-hint">No tags available.</p>
     } @else {
       <div class="tag-list">
         <div class="checkbox-group">
-          @for (item of flatTagList; track item.tag.id) {
+          @for (tag of state.tags(); track tag.id) {
             <mat-checkbox
               color="primary"
-              [checked]="tagIds.includes(item.tag.id)"
-              (change)="toggleTag(item.tag.id, $event.checked)">
+              [checked]="tagIds.includes(tag.id)"
+              (change)="toggleTag(tag.id, $event.checked)">
               <div class="tag-label">
-                <mat-icon [style.color]="item.tag.backgroundColor">label</mat-icon>
-                {{ item.fullPath }}
+                {{ tag.name }}
               </div>
             </mat-checkbox>
           }
@@ -67,6 +66,10 @@
   
   <mat-dialog-actions class="action-buttons" align="end">
     <button mat-button type="button" (click)="cancel()">Cancel</button>
-    <button mat-flat-button type="submit" color="primary">Save</button>
+    
+    <button mat-flat-button color="primary" type="submit"
+      [disabled]="loading()">
+      Save
+    </button>
   </mat-dialog-actions>
 </form>

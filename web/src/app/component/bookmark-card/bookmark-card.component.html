@@ -114,10 +114,7 @@
                 [value]="selectedTagIds()"
                 (change)="onTagsChange($event)">
                 @for (tag of displayTags; track tag.id) {
-                    <mat-chip-option
-                        [value]="tag.id"
-                        [style.--mdc-chip-elevated-container-color]="tag.backgroundColor ?? null"
-                        [style.--mdc-chip-label-text-color]="tag.textColor ?? null">
+                    <mat-chip-option [value]="tag.id">
                         {{ tag.name }}
                     </mat-chip-option>
                 }

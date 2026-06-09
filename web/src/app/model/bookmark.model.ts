@@ -33,13 +33,8 @@ export interface BookmarkQueryParams {
     filter:   number[];
 }
 
-export interface BookmarkCreatePayload {
-    url:    string;
-    notes?: string;
-    tagIds: number[];
-}
-
-export interface BookmarkUpdatePayload {
+export interface BookmarkPayload {
+    url?:      string;
     favorite?: boolean;
     archived?: boolean;
     notes?:    string;
@@ -47,13 +42,13 @@ export interface BookmarkUpdatePayload {
 }
 
 export interface BulkUpdatePayload {
-  ids:           number[];
-  favorite?:     boolean;
-  archived?:     boolean;
-  addTagIds?:    number[];
-  removeTagIds?: number[];
+    ids:           number[];
+    favorite?:     boolean;
+    archived?:     boolean;
+    addTagIds?:    number[];
+    removeTagIds?: number[];
 }
 
 export interface BulkDeletePayload {
-  ids: number[];
+    ids: number[];
 }

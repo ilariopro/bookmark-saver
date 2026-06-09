@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Bookmark } from '../../model/bookmark.model';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
 import { BookmarkDeleteDialogComponent, BookmarkDeleteDialogData } from '../bookmark-delete-dialog/bookmark-delete-dialog.component';
-import { BookmarkEditDialogComponent, BookmarkEditDialogResult } from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
+import { BookmarkEditDialogComponent } from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
 import { NotificationService } from '../../service/notification.service';
 import { FilterStateService } from '../../service/filter-state.service';
 
@@ -139,16 +139,8 @@ export class BookmarkCardComponent implements OnInit{
       width: '440px',
     });
 
-    ref.afterClosed().subscribe((result: BookmarkEditDialogResult | undefined) => {
-      if (!result) return;
-
-      this.api.updateBookmark(this.bookmark().id, {
-        notes:   result.notes,
-        tagIds:  result.tagIds,
-      }).subscribe(() => {
-        this.updated.emit();
-        this.notify.success('Bookmark updated');
-      });
+    ref.afterClosed().subscribe((result: Bookmark | undefined) => {
+      if (result) this.updated.emit();
     });
   }
 

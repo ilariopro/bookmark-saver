@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { environment } from '../app.environment';
-import { Bookmark, BookmarkCreatePayload, BookmarkUpdatePayload, BulkUpdatePayload } from '../model/bookmark.model';
+import { Bookmark, BookmarkPayload, BulkUpdatePayload } from '../model/bookmark.model';
 import { Response, PagedResponse } from '../model/shared.model';
 import { Tag, TagPayload } from '../model/tag.model';
 
@@ -44,7 +44,7 @@ export class BookmarkApiService {
       .pipe(map(response => response.data));
   }
 
-  public createBookmark(payload: BookmarkCreatePayload): Observable<Bookmark> {
+  public createBookmark(payload: BookmarkPayload): Observable<Bookmark> {
     return this.http
       .post<Response<Bookmark>>(`${this.BASE_URL}/bookmarks`, payload)
       .pipe(map(response => response.data));
@@ -54,7 +54,7 @@ export class BookmarkApiService {
     return this.http.delete<void>(`${this.BASE_URL}/bookmarks/${bookmarkId}`);
   }
 
-  public updateBookmark(bookmarkId: number, payload: BookmarkUpdatePayload): Observable<Bookmark> {
+  public updateBookmark(bookmarkId: number, payload: BookmarkPayload): Observable<Bookmark> {
     return this.http
       .patch<Response<Bookmark>>(`${this.BASE_URL}/bookmarks/${bookmarkId}`, payload)
       .pipe(map(response => response.data));

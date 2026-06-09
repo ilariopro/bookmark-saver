@@ -21,7 +21,7 @@ import { InfiniteScrollService } from '../../service/infinite-scroll.service';
 import { BookmarkCardComponent } from '../bookmark-card/bookmark-card.component';
 import { Bookmark, BookmarkQueryParams } from '../../model/bookmark.model';
 import { MetadataPollingService } from '../../service/metadata-polling.servie';
-import { BookmarkEditDialogComponent, BookmarkEditDialogResult } from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
+import { BookmarkEditDialogComponent } from '../bookmark-edit-dialog/bookmark-edit-dialog.component';
 import { NotificationService } from '../../service/notification.service';
 import { BulkActionBarComponent } from '../bulk-action-bar/bulk-action-bar.component';
 
@@ -135,25 +135,19 @@ export class BookmarkList implements AfterViewInit, OnDestroy {
   public openAddDialog(): void {
     const ref = this.dialog.open(BookmarkEditDialogComponent, { data: {}, width: '440px' });
 
-    ref.afterClosed().subscribe((result: BookmarkEditDialogResult | undefined) => {
-      if (!result) return;
+    ref.afterClosed().subscribe((bookmark: Bookmark | undefined) => {
+      if (!bookmark) return;
 
-      this.api.createBookmark({
-        url:     result.url!,
-        notes:   result.notes,
-        tagIds:  result.tagIds
-      }).subscribe(bookmark => {
-        this.scroll.reset();
-        this.notify.success('Bookmark created');
+      this.scroll.reset();
+      this.notify.success('Bookmark created');
 
-        if (bookmark.metadataStatus === 'PENDING') {
-          this.metadata.pollUntilResolved(bookmark.id, resolved => {
-            this.scroll.items.update(prev =>
-              prev.map(b => b.id === resolved.id ? resolved : b)
-            );
-          });
-        }
-      });
+      if (bookmark.metadataStatus === 'PENDING') {
+        this.metadata.pollUntilResolved(bookmark.id, resolved => {
+          this.scroll.items.update(prev =>
+            prev.map(b => b.id === resolved.id ? resolved : b)
+          );
+        });
+      }
     });
   }
 

@@ -4,18 +4,18 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { Bookmark, Metadata } from '../../model/bookmark.model';
+import { Bookmark, BookmarkPayload, Metadata } from '../../model/bookmark.model';
 import { FilterStateService } from '../../service/filter-state.service';
 import { BookmarkApiService } from '../../service/bookmark-api.service';
-import { TagEditDialogComponent, TagEditDialogResult } from '../tag-edit-dialog/tag-edit-dialog.component';
-import { FlattenedTagNode } from '../../model/tag-tree.model';
+import { NotificationService } from '../../service/notification.service';
+import { TagEditDialogComponent } from '../tag-edit-dialog/tag-edit-dialog.component';
+import { Tag } from '../../model/tag.model';
 
 export interface BookmarkEditDialogData {
   bookmark?: Bookmark;
@@ -35,7 +35,6 @@ export interface BookmarkEditDialogResult {
     FormsModule,
     MatButtonModule,
     MatCheckboxModule,
-    MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
@@ -52,7 +51,8 @@ export class BookmarkEditDialogComponent {
   private readonly dialogRef   = inject(MatDialogRef<BookmarkEditDialogComponent>);
   private readonly dialog      = inject(MatDialog);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly state       = inject(FilterStateService);
+  private readonly notify      = inject(NotificationService);
+  public  readonly state       = inject(FilterStateService);
 
   public readonly form = this.formBuilder.group({
     url: [
@@ -73,6 +73,8 @@ export class BookmarkEditDialogComponent {
     this.data.bookmark?.tags.map(tag => tag.id) ?? []
   );
 
+  public readonly loading = signal(false);
+
   public readonly isUnchanged = computed(() => {
     if (!this.isEdit()) return false;
 
@@ -92,10 +94,6 @@ export class BookmarkEditDialogComponent {
     this.state.tags().filter(t => this.tagIds.includes(t.id))
   );
 
-  public get flatTagList(): FlattenedTagNode[] {
-    return this.state.flattenedTagTree();
-  }
-
   public get metadata(): Metadata | null {
     return this.data.bookmark?.metadata ?? null;
   }
@@ -113,6 +111,7 @@ export class BookmarkEditDialogComponent {
 
     if (control?.hasError('required')) return 'URL is required';
     if (control?.hasError('pattern'))  return 'Must be a valid URL (http or https)';
+    if (control?.hasError('server'))   return control.getError('server');
 
     return '';
   }
@@ -123,59 +122,82 @@ export class BookmarkEditDialogComponent {
 
   // ── Tags ──────────────────────────────────────────────────────
 
-  public onTagsChange(event: MatChipListboxChange): void {
-    this.selectedTagIds.set(event.value ?? []);
-  }
-
   public openCreateTagDialog(): void {
-    const ref = this.dialog.open(TagEditDialogComponent, { data: {}, width: '440px' });
+    const ref = this.dialog.open(TagEditDialogComponent, {
+      data:  {},
+      width: '440px'
+    });
 
-    ref.afterClosed().subscribe((result: TagEditDialogResult | undefined) => {
-      if (!result) return;
-      
-      this.api.createTag({
-        name:            result.name,
-        slug:            result.slug,
-        parentId:        result.parentId,
-        backgroundColor: result.backgroundColor,
-        textColor:       result.textColor,
-      }).subscribe(tag => {
-        this.api.getTags().subscribe(tags => {
-          this.state.tags.set(tags);
-          this.selectedTagIds.update(prev => [...prev, tag.id]);
-        });
-      });
+    ref.afterClosed().subscribe((tag: Tag | undefined) => {
+      if (!tag) return;
+
+      const current = this.tagIds;
+
+      this.form.patchValue({ tagIds: [...current, tag.id] });
     });
   }
 
-  public removeTag(tagId: number): void {
-    this.selectedTagIds.update(prev => prev.filter(id => id !== tagId));
-  }
-
   public toggleTag(id: number, checked: boolean): void {
-    const current = this.tagIds;
-
     const updated = checked
-      ? [...current, id]
-      : current.filter(i => i !== id);
+      ? [...this.tagIds, id]
+      : this.tagIds.filter(i => i !== id);
 
-    this.form.get('tagIds')?.setValue(updated); 
+    this.form.patchValue({ tagIds: updated });
   }
 
   // ── Actions ───────────────────────────────────────────────────
 
   public save(): void {
-    if (!this.isEdit() && this.form.invalid)  { this.form.markAllAsTouched(); return; }
-    if (this.isEdit()  && this.isUnchanged()) { this.dialogRef.close(); return; }
+    if (this.form.invalid)  { this.form.markAllAsTouched(); return; }
+    if (this.isUnchanged()) { this.dialogRef.close(); return; }
 
+    this.loading.set(true);
+
+    const apiCall = this.isEdit()
+      ? this.api.updateBookmark(this.data.bookmark!.id, this.buildPayload())
+      : this.api.createBookmark(this.buildPayload());
+
+    apiCall.subscribe({
+      next: bookmark => {
+        this.dialogRef.close(bookmark);
+      },
+      error: error => {
+        this.loading.set(false);
+
+        const message = error?.error?.detail ?? 'An error occurred';
+
+        if (error.status === 409) {
+          this.form.get('url')?.setErrors({ server: message });
+          this.form.get('url')?.markAsTouched();
+        } else {
+          this.notify.error(message);
+        }
+      },
+    });
+  }
+
+  private buildPayload(): BookmarkPayload {
     const form = this.form.getRawValue();
 
-    this.dialogRef.close({
-      url:     this.isEdit() ? undefined : form.url!,
-      notes:   form.notes?.trim() ?? '',
-      tagIds:  form.tagIds ?? [],
-    } satisfies BookmarkEditDialogResult);
+    return {
+      url:    form.url    ?? undefined,
+      notes:  form.notes  ?? undefined,
+      tagIds: form.tagIds ?? [],
+    };
   }
+
+  // public save(): void {
+  //   if (!this.isEdit() && this.form.invalid)  { this.form.markAllAsTouched(); return; }
+  //   if (this.isEdit()  && this.isUnchanged()) { this.dialogRef.close(); return; }
+
+  //   const form = this.form.getRawValue();
+
+  //   this.dialogRef.close({
+  //     url:     this.isEdit() ? undefined : form.url!,
+  //     notes:   form.notes?.trim() ?? '',
+  //     tagIds:  form.tagIds ?? [],
+  //   } satisfies BookmarkEditDialogResult);
+  // }
 
   public cancel(): void {
     this.dialogRef.close();
