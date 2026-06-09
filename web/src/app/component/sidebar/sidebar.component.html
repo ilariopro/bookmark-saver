@@ -23,7 +23,7 @@
       <mat-list-option
         [selected]="state.selectedList()?.id === list.id"
         [value]="list.id">
-        <div class="list-item-row" [class.selected]="state.selectedList()?.id === list.id">
+        <div class="list-item-row" [class.is-selected]="state.selectedList()?.id === list.id">
           <mat-icon class="list-item-icon">{{ list.icon }}</mat-icon>
           <span class="list-item-label">{{ list.name }}</span>
         </div>
@@ -45,6 +45,41 @@
     </button>
   </div>
 
-  <sidebar-tag-tree />
+  <mat-selection-list
+    [multiple]="false"
+    [hideSingleSelectionIndicator]="true"
+    (selectionChange)="onSelectTag($event.options[0].value)">
+
+    @for (tag of state.tags(); track tag.id) {
+      <mat-list-option
+        class="tag-option"
+        [selected]="isTagSelected(tag)"
+        [value]="tag.slug">
+        <div class="list-item-row" [class.is-selected]="isTagSelected(tag)">
+          <mat-icon class="list-item-icon">label</mat-icon>
+          <span class="list-item-label">{{ tag.name }}</span>
+
+          <button mat-icon-button
+                  class="tag-menu-btn"
+                  [class.is-visible]="isTagSelected(tag)"
+                  [matMenuTriggerFor]="tagMenu"
+                  (click)="$event.stopPropagation()"
+                  (keydown)="$event.stopPropagation()">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #tagMenu>
+            <button mat-menu-item (click)="openEditTagDialog(tag)">
+              <mat-icon>edit</mat-icon> Edit
+            </button>
+            <button mat-menu-item (click)="openDeleteTagDialog(tag)">
+              <mat-icon>delete</mat-icon> Delete
+            </button>
+          </mat-menu>
+        </div>
+      </mat-list-option>
+    }
+
+  </mat-selection-list>
 
 </div>

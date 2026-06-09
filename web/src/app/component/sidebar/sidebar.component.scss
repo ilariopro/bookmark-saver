@@ -72,10 +72,13 @@
   white-space: nowrap;
 }
 
-.list-menu-btn {
+.tag-option { padding-right: 4px !important; }
+
+.tag-menu-btn {
   flex-shrink: 0;
   width: 30px;
   height: 30px;
+  margin: 0 10px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -133,7 +136,7 @@
   }
 }
 
-.selected {
+.is-selected {
   .list-item-icon,
   .list-item-label {
     color: var(--mat-sys-primary);

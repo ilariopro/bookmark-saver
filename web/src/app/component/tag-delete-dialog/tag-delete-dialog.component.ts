@@ -3,9 +3,10 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
+import { Tag } from '../../model/tag.model';
+
 export interface TagDeleteDialogData {
-    title: string;
-    name:  string;
+    tag: Tag;
 }
 
 @Component({
@@ -19,8 +20,12 @@ export interface TagDeleteDialogData {
     styleUrl:    './tag-delete-dialog.component.scss',
 })
 export class TagDeleteDialogComponent {
-    private readonly dialogRef = inject(MatDialogRef<TagDeleteDialogComponent>);
-    public  readonly data      = inject(MAT_DIALOG_DATA) as TagDeleteDialogData;
+    private readonly dialogRef  = inject(MatDialogRef<TagDeleteDialogComponent>);
+    private readonly dialogData = inject(MAT_DIALOG_DATA) as TagDeleteDialogData;
+
+    public get data() {
+        return this.dialogData.tag;
+    }
 
     public confirm(): void {
         this.dialogRef.close(true);
