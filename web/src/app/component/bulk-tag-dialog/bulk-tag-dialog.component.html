@@ -7,13 +7,13 @@
     } @else {
         <div class="tag-list">
             <div class="checkbox-group">
-                @for (item of flatTagList; track item.tag.id) {
+                @for (tag of state.tags(); track tag.id) {
                     <mat-checkbox
                         color="primary"
-                        [indeterminate]="isIndeterminate(item.tag.id)"
-                        [checked]="isChecked(item.tag.id)"
-                        (change)="onChange(item.tag.id)">
-                        {{ item.fullPath }}
+                        [indeterminate]="isIndeterminate(tag.id)"
+                        [checked]="isChecked(tag.id)"
+                        (change)="onChange(tag.id)">
+                        {{ tag.name }}
                     </mat-checkbox>
                 }
             </div>

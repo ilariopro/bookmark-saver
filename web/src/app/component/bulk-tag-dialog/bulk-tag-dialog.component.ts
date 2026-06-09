@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { FilterStateService } from '../../service/filter-state.service';
-import { FlattenedTagNode } from '../../model/tag-tree.model';
 
 type TagDisplayState = 'indeterminate' | 'checked' | 'unchecked';
 
@@ -57,10 +56,6 @@ export class BulkTagDialogComponent {
                 : state === 'checked';    // era absent, ora aggiunto
         })
     );
-
-    public get flatTagList(): FlattenedTagNode[] {
-        return this.state.flattenedTagTree();
-    }
 
     public getState(id: number): TagDisplayState {
         return this.tagStates()[id] ?? 'unchecked';

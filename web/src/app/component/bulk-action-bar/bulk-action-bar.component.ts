@@ -97,7 +97,6 @@ export class BulkActionBarComponent {
     public openDeleteDialog(): void {
         const ref = this.dialog.open(BookmarkDeleteDialogComponent, {
             data: {
-                url: '',
                 description: `Are you sure you want to delete ${this.count} bookmark${this.count > 1 ? 's' : ''}? This action cannot be undone.`,
             } satisfies BookmarkDeleteDialogData,
             width: '440px',
@@ -106,17 +105,13 @@ export class BulkActionBarComponent {
         ref.afterClosed().subscribe((confirmed: boolean) => {
             if (!confirmed) return;
 
-            this.bulkDelete();
-        });
-    }
-
-    public bulkDelete(): void {
-        this.api.bulkDelete(this.selectedIds()).subscribe({
-            next: () => {
-                this.notify.success(`${this.count} bookmarks deleted`);
-                this.done.emit();
-            },
-            error: () => this.notify.error('Bulk delete failed.'),
+            this.api.bulkDelete(this.selectedIds()).subscribe({
+                next: () => {
+                    this.notify.success(`${this.count} bookmarks deleted`);
+                    this.done.emit();
+                },
+                error: () => this.notify.error('Bulk delete failed.'),
+            });
         });
     }
 }

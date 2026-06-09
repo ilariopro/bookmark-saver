@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 export interface BookmarkDeleteDialogData {
-    url: string;
+    url?:         string;
     description: string;
 }
 
@@ -19,15 +19,13 @@ export interface BookmarkDeleteDialogData {
     styleUrl: './bookmark-delete-dialog.component.scss',
 })
 export class BookmarkDeleteDialogComponent {
-    private readonly data      = inject(MAT_DIALOG_DATA) as BookmarkDeleteDialogData;
-    private readonly dialogRef = inject(MatDialogRef<BookmarkDeleteDialogComponent>);
+    private readonly dialogData = inject(MAT_DIALOG_DATA) as BookmarkDeleteDialogData;
+    private readonly dialogRef  = inject(MatDialogRef<BookmarkDeleteDialogComponent>);
 
-    get url(): string {
-        return this.data.url;
-    }
+    public readonly loading = signal(false);
 
-    get description(): string {
-        return this.data.description;
+    public get data() {
+        return this.dialogData;
     }
 
     public confirm(): void {
