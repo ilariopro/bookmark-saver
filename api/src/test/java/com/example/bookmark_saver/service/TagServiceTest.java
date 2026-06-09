@@ -1,7 +1,6 @@
 package com.example.bookmark_saver.service;
 
 import com.example.bookmark_saver.domain.Tag;
-import com.example.bookmark_saver.dto.request.TagRequest;
 import com.example.bookmark_saver.repository.BookmarkRepository;
 import com.example.bookmark_saver.repository.TagRepository;
 import com.example.bookmark_saver.support.TagFixture;

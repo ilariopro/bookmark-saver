@@ -63,7 +63,7 @@ public class TagService {
      */
     public Tag save(TagRequest request) {
         if (tagRepository.existsBySlug(request.slug())) {
-            throw new IllegalArgumentException("Tag already exists with this name");
+            throw new IllegalArgumentException("Tag already exists");
         }
 
         Tag tag = new Tag();
@@ -86,7 +86,7 @@ public class TagService {
      */
     public Tag update(Long tagId, TagRequest request) {
         if (tagRepository.existsBySlug(request.slug())) {
-            throw new IllegalArgumentException("Tag already exists with this name");
+            throw new IllegalArgumentException("Tag already exists");
         }
 
         Tag tag = findById(tagId);
